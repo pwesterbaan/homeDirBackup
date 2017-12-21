@@ -1,7 +1,7 @@
 --  http://www.NoobsLab.com 
 --      Conky settings      
 
-background = no
+background no
 update_interval 1
 
 cpu_avg_samples 2
@@ -25,22 +25,26 @@ if_up_strictness address
 own_window_class Conky
 own_window yes
 own_window_type normal
-own_window_transparent yes
+-- set transparent to yes to eliminate box
+own_window_transparent no
 own_window_hints undecorated,below,sticky,skip_taskbar,skip_pager
 own_window_argb_visual yes
+-- set darkness of box around conky
+own_window_argb_value 100
+
 
 border_inner_margin 0
-border_outer_margin 0
+border_outer_margin -50
 
 minimum_size 200 250
-maximum_width 400
+maximum_width 197.5
 
 alignment mr
 gap_x 35
 gap_y 15
 
 -- Graphics settings 
-draw_shades no
+draw_shades yes
 draw_outline no
 draw_borders no
 draw_graph_borders no
@@ -100,4 +104,4 @@ ${color FFFFFF}${font caviar dreams:size=8}Uptime: ${format_time $uptime_short "
 ${color FFFFFF}${font caviar dreams:size=8}Processes: ${processes}
 ${color FFFFFF}${font caviar dreams:size=8}Running: ${running_processes}
 ${color FFFFFF}${font caviar dreams:size=8}${alignr}${nodename}
-${color FFFFFF}${font caviar dreams:size=8}${alignr}${exec cat /etc/issue.net}  $machine
+${color FFFFFF}${font caviar dreams:size=8}${alignr}${exec cat /etc/issue.net} $machine
