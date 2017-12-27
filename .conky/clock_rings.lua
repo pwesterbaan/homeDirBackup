@@ -76,7 +76,7 @@ settings_table = {
         end_angle=360
     },{
         name='time',
-        arg='%S-1',
+        arg='%S',
         max=60,
         bg_colour=0xFFFFFF,
         bg_alpha=0.1,
