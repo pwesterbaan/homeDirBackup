@@ -39,6 +39,12 @@ durp(){ # This silly function is for testing purposes
       filename=$1
     fi
     #echo $filename
+    if [ $# -eq 0 ]
+      then
+        echo "No arguments supplied"
+      else
+        echo $1
+    fi
     echo "durpy durpy durp durp"
 }
 
@@ -146,8 +152,13 @@ rename(){
     cls
 }
 
-cpKey(){ #Function to compile the blank version of *_KEY.tex
-  pattern=*_KEY*.tex;
+cpKey(){ #Function to compile the blank version of *_KEY*.tex
+  if [ $# -eq 0 ]
+    then
+      pattern=*_KEY*.tex;
+    else
+      pattern=$1
+  fi
   if ls $pattern 1> /dev/null 2>&1; then
     for f in $pattern;
     do
@@ -171,9 +182,9 @@ cpKey(){ #Function to compile the blank version of *_KEY.tex
         latexmk -pdf -silent -g -pdflatex='pdflatex %O -interaction=nonstopmode -synctex=1 "\PassOptionsToClass{answers}{exam}\input{%S}"' $f > /dev/null;
     done;
     confirm "rbf? (def Y)" -y && arbf && cls;
-    evince *.pdf & # ${f//"_KEY"/""}*.pdf
-    else
-      echo "No files match *_KEY*.tex pattern";
+    evince ${f//"_KEY.tex"/""}*.pdf & # *.pdf
+  else
+    echo "No files match *_KEY*.tex pattern";
   fi
 }
 
