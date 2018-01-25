@@ -19,10 +19,10 @@ Changelog:
 clock_x=100
 clock_y=150
 
-x_sep=30 --40
-y_sep=50 --40
+x_sep=34.5
+y_sep=50
 
-disc_x=50
+disc_x=35
 disc_y=255
 
 mem_x=80
