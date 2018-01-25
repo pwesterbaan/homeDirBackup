@@ -1,0 +1,107 @@
+--  http://www.NoobsLab.com 
+--      Conky settings      
+
+background no
+update_interval 1
+
+cpu_avg_samples 2
+net_avg_samples 2
+
+override_utf8_locale yes
+
+double_buffer yes
+no_buffers yes
+
+text_buffer_size 2048
+--imlib_cache_size 0
+
+temperature_unit fahrenheit
+
+-- Only display eth0 if connected
+if_up_strictness address
+
+-- Window specifications 
+
+own_window_class Conky
+own_window yes
+own_window_type normal
+-- set transparent to yes to eliminate box
+own_window_transparent no
+own_window_hints undecorated,below,sticky,skip_taskbar,skip_pager
+own_window_argb_visual yes
+-- set darkness of box around conky
+own_window_argb_value 100
+
+
+border_inner_margin 0
+border_outer_margin -50
+
+minimum_size 200 250
+maximum_width 197.5
+
+alignment mr
+gap_x 35
+gap_y 15
+
+-- Graphics settings 
+draw_shades yes
+draw_outline no
+draw_borders no
+draw_graph_borders no
+
+-- Text settings 
+use_xft yes
+xftfont caviar dreams:size=8
+xftalpha 0.5
+
+uppercase no
+
+default_color FFFFFF
+
+times_in_seconds true
+
+-- Lua Load 
+lua_load ~/.conky/clock_rings.lua
+lua_draw_hook_pre clock_rings
+# Weather location is a 4 character code: ''KCEU'' is Clemson found from searching & using url
+# -- http://weather.noaa.gov/
+TEXT
+${voffset 8}${color FFFFFF}${font caviar dreams:size=16}${time %A}${font}${voffset -8}${alignr 10}${color FFFFFF}${font caviar dreams:size=38}${time %e}${font}
+${color FFFFFF}${voffset -30}${color FFFFFF}${font caviar dreams:size=18}${time %b}${font}${voffset -3} ${color FFFFFF}${font caviar dreams:size=20}${time %Y}${font}${color FFFFFF}${hr}
+${voffset 140}${font caviar dreams:size=8}
+
+
+#--${font caviar dreams:size=12}${color FFFFFF}${alignr}${weather http://tgftp.nws.noaa.gov/data/observations/metar/stations KCEU temperature temperature 30} °F${font}
+# -- http://weather.noaa.gov/pub/data/observations/metar/stations/ 
+#${image ~/.conky/new-ubuntu-logo.png -p 64,125 -s 70x20}
+#
+${color FFFFFF}${goto 25}${offset -5}${voffset 10}${cpu cpu0}%
+${color FFFFFF}${goto 25}${offset -5}CPU
+${color FFFFFF}${goto 50}${voffset 23}${offset -32.5}RAM: ${memperc}% 
+${color FFFFFF}${goto 50}${offset -32.5}Swap: ${swapperc}%
+${color FFFFFF}${goto 70}${voffset 25}${offset 12.5}${fs_used_perc}%
+${color FFFFFF}${goto 70}${offset 12.5}Disk
+${color FFFFFF}${goto 90}${voffset 25}${offset 22.5}${downspeed enp6s0}
+${color FFFFFF}${goto 90}${offset 22.5}${upspeed enp6s0}
+${color FFFFFF}${goto 90}${offset 22.5}Net
+${color FFFFFF}${goto 150}${voffset 10}${offset -40}Battery
+${color FFFFFF}${goto 150}${offset -40}${format_time $battery_time "\hh \mm"}
+${color FFFFFF}${goto 150}${offset -40}${battery}
+
+#${color FFFFFF}${hr}
+#${color FFFFFF}Process${alignr}%CPU
+#${color FFFFFF}${hr}
+#${color FFFFFF}${top_mem name 1}${alignr}${top cpu 1}
+#${color FFFFFF}${top name 2}${alignr}${top cpu 2}
+#${color FFFFFF}${top name 3}${alignr}${top cpu 3}
+#${color FFFFFF}${execi 60 cat ~/Dropbox/Documents/todo.txt}
+#
+${color FFFFFF}${hr}
+${color FFFFFF}${font DejaVu Sans Mono:size=11}${exec gcal .+|cut -c  2-22|tail -n 8| sed s/"< "/" <"/}
+${color FFFFFF}${font DejaVu Sans Mono:size=11}${exec gcal .+|cut -c 28-50|tail -n 8| head -n 5}
+${color FFFFFF}${hr}
+${color FFFFFF}${font caviar dreams:size=8}Uptime: ${format_time $uptime_short "\dd \hh \mm"}
+${color FFFFFF}${font caviar dreams:size=8}Processes: ${processes}
+${color FFFFFF}${font caviar dreams:size=8}Running: ${running_processes}
+${color FFFFFF}${font caviar dreams:size=8}${alignr}${nodename}
+${color FFFFFF}${font caviar dreams:size=8}${alignr}${exec cat /etc/issue.net} $machine
