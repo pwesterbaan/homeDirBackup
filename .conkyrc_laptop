@@ -75,18 +75,19 @@ ${voffset 140}${font caviar dreams:size=8}
 # -- http://weather.noaa.gov/pub/data/observations/metar/stations/ 
 #${image ~/.conky/new-ubuntu-logo.png -p 64,125 -s 70x20}
 #
-${color FFFFFF}${goto 25}${offset -18.5}${voffset 10}${cpu cpu0}%
-${color FFFFFF}${goto 25}${offset -18.5}CPU
-${color FFFFFF}${goto 50}${voffset 23}${offset -42.5}RAM: ${memperc}% 
-${color FFFFFF}${goto 50}${offset -42.5}Swap: ${swapperc}%
-${color FFFFFF}${goto 70}${voffset 25}${offset 5}${fs_used_perc}%
-${color FFFFFF}${goto 70}${offset 5}Disk
-${color FFFFFF}${goto 90}${voffset 25}${offset 20}${downspeed enp6s0}
-${color FFFFFF}${goto 90}${offset 20}${upspeed enp6s0}
-${color FFFFFF}${goto 90}${offset 20}Net
-${color FFFFFF}${goto 150}${voffset 10}${offset -40}Battery
-${color FFFFFF}${goto 150}${offset -40}${format_time $battery_time "\hh \mm"}
-${color FFFFFF}${goto 150}${offset -40}${battery}
+${color FFFFFF}${goto 7.5}${voffset 10}${cpu cpu0}%
+${color FFFFFF}${goto 7.5}CPU
+${color FFFFFF}${goto 7.5}${voffset 23}RAM: ${memperc}% 
+${color FFFFFF}${goto 7.5}Swap: ${swapperc}%
+${color FFFFFF}${goto 75}${voffset 25}${fs_used_perc}%
+${color FFFFFF}${goto 75}Disk
+${color FFFFFF}${goto 132}${voffset 15}${if_up wlp5s0f0}W${else}${endif}
+${color FFFFFF}${goto 90}${voffset -2}${if_up enp6s0}${downspeed enp6s0}${else}${downspeed wlp5s0f0}${endif}
+${color FFFFFF}${goto 90}${if_up enp6s0}${upspeed enp6s0}${else}${upspeed wlp5s0f0}${endif}
+${color FFFFFF}${goto 90}Net
+${color FFFFFF}${goto 105}${voffset 10}Battery
+${color FFFFFF}${goto 105}${format_time $battery_time "\hh \mm"}
+${color FFFFFF}${goto 105}${battery}
 
 #${color FFFFFF}${hr}
 #${color FFFFFF}Process${alignr}%CPU
