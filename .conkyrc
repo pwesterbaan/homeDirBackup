@@ -37,7 +37,7 @@ border_inner_margin 0
 border_outer_margin -50
 
 minimum_size 200 250
-maximum_width 197.5
+maximum_width 200
 
 alignment mr
 gap_x 35
@@ -97,8 +97,8 @@ ${color FFFFFF}${goto 90}${offset 35}Net
 #${color FFFFFF}${execi 60 cat ~/Dropbox/Documents/todo.txt}
 #
 ${color FFFFFF}${hr}
-${color FFFFFF}${font DejaVu Sans Mono:size=11}${exec gcal .+|cut -c  2-22|tail -n 8| sed s/"< "/" <"/}
-${color FFFFFF}${font DejaVu Sans Mono:size=11}${exec gcal .+|cut -c 28-50|tail -n 8| head -n 5}
+${color FFFFFF}${font DejaVu Sans Mono:size=11}${exec gcal .+|cut -c  1-22|tail -n 8| sed s/"< "/" <"/}
+${color FFFFFF}${font DejaVu Sans Mono:size=11}${exec gcal .+|cut -c 27-50|tail -n 8| head -n 5}
 ${color FFFFFF}${hr}
 ${color FFFFFF}${font caviar dreams:size=8}Uptime: ${format_time $uptime_short "\dd \hh \mm"}
 ${color FFFFFF}${font caviar dreams:size=8}Processes: ${processes}
