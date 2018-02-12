@@ -27,6 +27,7 @@ alias texpreamble='xdg-open $TEX_FOLDER/texPreamble.sty'
 alias rwifi='nmcli r wifi off; read -p "Press enter"; nmcli r wifi on && cls'
 alias speedtest='wget -O /dev/null http://speedtest.wdc01.softlayer.com/downloads/test100.zip'
 alias snmr='sudo service network-manager restart'
+alias findcc='find $DROPBOX_PATH -name *conflicted\ copy*'
 alias arbf='find . -type f \( -iname \*.aux -o -iname \*.bbl -o -iname \*.blg -o -iname \*.fdb_latexmk -o -iname \*.fls -o -iname \*.log -o -iname \*.nav -o -iname \*.out -o -iname \*.snm -o -iname \*.synctex.gz -o -iname \*.toc -o -iname \*.lof -o -iname \*.lot -o -iname \*.dvi -o -iname \*-eps-converted-to -o -iname \*.goutputstream -o -iname \*.fuse_hidden* -o -iname \*-eps-converted-to.pdf \) -print -delete'
 alias rbf='arbf
            read -p "Any key to continue"
