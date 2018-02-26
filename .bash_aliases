@@ -110,6 +110,7 @@ mkLaTeX(){
   #####################################
     confirm 'Custom title ('"$title"')? (def Y)' -y && retitle "$filename" "$title"
     confirm "Open $filename? (def Y)" -y && xdg-open "$filename";
+    chmod -x *;
     cls;
 }
 
