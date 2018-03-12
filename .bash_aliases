@@ -1,5 +1,6 @@
 export DROPBOX_PATH=~/Dropbox
 export TEX_FOLDER=$DROPBOX_PATH/Coding/LaTex
+export DEAL_II_DIR=/home/peter/dealii/dealii-8.5.1
 alias ll='ls -alF'
 alias la='ls -A'
 alias lsd='ls -d */'
