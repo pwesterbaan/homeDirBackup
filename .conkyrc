@@ -81,8 +81,8 @@ ${color FFFFFF}${goto 50}${voffset 23}${offset -25}RAM: ${memperc}%
 ${color FFFFFF}${goto 50}${offset -25}Swap: ${swapperc}%
 ${color FFFFFF}${goto 70}${voffset 25}${offset 30}${fs_used_perc}%
 ${color FFFFFF}${goto 70}${offset 30}Disk
-${color FFFFFF}${goto 90}${voffset 25}${offset 35}${downspeed enp1s0}
-${color FFFFFF}${goto 90}${offset 35}${upspeed enp1s0}
+${color FFFFFF}${goto 90}${voffset 25}${offset 35}${downspeed enp2s0}
+${color FFFFFF}${goto 90}${offset 35}${upspeed enp2s0}
 ${color FFFFFF}${goto 90}${offset 35}Net
 #${color FFFFFF}${goto 150}${voffset 10}${offset -40}Battery
 #${color FFFFFF}${goto 150}${offset -40}${format_time $battery_time "\hh \mm"}
