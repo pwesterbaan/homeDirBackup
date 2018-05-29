@@ -11,6 +11,7 @@ alias db='cdls $DROPBOX_PATH'
 alias dbstat='dropbox status'
 #alias dropbox='python $DROPBOX_PATH/dropbox.py'
 alias findPi='nmap -sP 192.168.1.*/24'
+alias getIP='ifconfig | grep -Po "inet addr:.+Bcast" | grep -Po "(?:\d{1,3}\.){3}\d{1,3}" > $DROPBOX_PATH/Documents/workhorseIP.txt && cat $DROPBOX_PATH/Documents/workhorseIP.txt'
 alias IUP='cdls $DROPBOX_PATH/Grad_School/IUP/'
 alias iup=IUP
 alias clemson='cdls $DROPBOX_PATH/Grad_School/Clemson/'
@@ -22,7 +23,7 @@ alias myip="curl http://ipecho.net/plain; echo"
 alias mkTex='latexmk -pdf -synctex=1'
 #alias gertrude='lp -d gertrude'
 alias hpadmin1='lp -q 1 -o sides=one-sided -d hpadmin1'
-alias gertrude='lp -q 1 -o sides=one-sided -d hpadmin4'
+alias hpadmin4='lp -q 1 -o sides=one-sided -d hpadmin4'
 alias batcave='lp -q 1 sides=one-sided -d batcave'
 ## modify printer options from localhost:631
 alias lCopier='lp -q 1 -d leftCopier'
