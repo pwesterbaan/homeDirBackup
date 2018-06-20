@@ -66,8 +66,8 @@ lua_draw_hook_pre clock_rings
 # Weather location is a 4 character code: ''KCEU'' is Clemson found from searching & using url
 # -- http://weather.noaa.gov/
 TEXT
-${voffset 8}${color FFFFFF}${font caviar dreams:size=16}${time %A}${font}${voffset -8}${alignr 10}${color FFFFFF}${font caviar dreams:size=38}${time %e}${font}
-${color FFFFFF}${voffset -30}${color FFFFFF}${font caviar dreams:size=18}${time %b}${font}${voffset -3} ${color FFFFFF}${font caviar dreams:size=20}${time %Y}${font}${color FFFFFF}${hr}
+${voffset 8}${color FFFFFF}${font caviar dreams:size=16}${time %A}${font}${voffset -8}${alignr 10}${font caviar dreams:size=38}${time %e}${font}
+${voffset -30}${font caviar dreams:size=18}${time %b}${font}${voffset -3} ${font caviar dreams:size=20}${time %Y}${font}${hr}
 ${voffset 140}${font caviar dreams:size=8}
 
 
@@ -75,33 +75,36 @@ ${voffset 140}${font caviar dreams:size=8}
 # -- http://weather.noaa.gov/pub/data/observations/metar/stations/ 
 #${image ~/.conky/new-ubuntu-logo.png -p 64,125 -s 70x20}
 #
-${color FFFFFF}${goto 25}${offset -5}${voffset 10}${cpu cpu0}%
-${color FFFFFF}${goto 25}${offset -5}CPU
-${color FFFFFF}${goto 50}${voffset 23}${offset -25}RAM: ${memperc}% 
-${color FFFFFF}${goto 50}${offset -25}Swap: ${swapperc}%
-${color FFFFFF}${goto 70}${voffset 25}${offset 30}${fs_used_perc}%
-${color FFFFFF}${goto 70}${offset 30}Disk
-${color FFFFFF}${goto 90}${voffset 25}${offset 35}${downspeed enp2s0}
-${color FFFFFF}${goto 90}${offset 35}${upspeed enp2s0}
-${color FFFFFF}${goto 90}${offset 35}Net
-#${color FFFFFF}${goto 150}${voffset 10}${offset -40}Battery
-#${color FFFFFF}${goto 150}${offset -40}${format_time $battery_time "\hh \mm"}
-#${color FFFFFF}${goto 150}${offset -40}${battery}
+${goto 25}${offset -5}${voffset 10}${cpu cpu0}%
+${goto 25}${offset -5}CPU
+${goto 50}${voffset 23}${offset -25}RAM: ${memperc}% 
+${goto 50}${offset -25}Swap: ${swapperc}%
+${goto 70}${voffset 25}${offset 30}${fs_used_perc}%
+${goto 70}${offset 30}Disk
+${goto 90}${voffset 25}${offset 35}${downspeed enp2s0}
+${goto 90}${offset 35}${upspeed enp2s0}
+${goto 90}${offset 35}Net
+#${goto 150}${voffset 10}${offset -40}Battery
+#${goto 150}${offset -40}${format_time $battery_time "\hh \mm"}
+#${goto 150}${offset -40}${battery}
 #
-#${color FFFFFF}${hr}
-#${color FFFFFF}Process${alignr}%CPU
-#${color FFFFFF}${hr}
-#${color FFFFFF}${top_mem name 1}${alignr}${top cpu 1}
-#${color FFFFFF}${top name 2}${alignr}${top cpu 2}
-#${color FFFFFF}${top name 3}${alignr}${top cpu 3}
-#${color FFFFFF}${execi 60 cat ~/Dropbox/Documents/todo.txt}
+#${hr}
+#Process${alignr}%CPU
+#${hr}
+#${top_mem name 1}${alignr}${top cpu 1}
+#${top name 2}${alignr}${top cpu 2}
+#${top name 3}${alignr}${top cpu 3}
+#${execi 60 cat ~/Dropbox/Documents/todo.txt}
 #
-${color FFFFFF}${hr}
-${color FFFFFF}${font DejaVu Sans Mono:size=11}${exec gcal .+|cut -c  1-22|tail -n 8| sed s/"< "/" <"/}
-${color FFFFFF}${font DejaVu Sans Mono:size=11}${exec gcal .+|cut -c 27-50|tail -n 8| head -n 5}
-${color FFFFFF}${hr}
-${color FFFFFF}${font caviar dreams:size=8}Uptime: ${format_time $uptime_short "\dd \hh \mm"}
-${color FFFFFF}${font caviar dreams:size=8}Processes: ${processes}
-${color FFFFFF}${font caviar dreams:size=8}Running: ${running_processes}
-${color FFFFFF}${font caviar dreams:size=8}${alignr}${nodename}
-${color FFFFFF}${font caviar dreams:size=8}${alignr}${exec cat /etc/issue.net} $machine
+${hr}${font DejaVu Sans Mono:size=11}
+${exec gcal .+|cut -c  1-22|tail -n 8| sed s/"< "/" <"/}
+${exec gcal .+|cut -c 27-50|tail -n 8| head -n 5}
+${hr} ${font caviar dreams:size=8}
+${font Liberation Mono:size=8}${voffset -3.5}Artist: ${exec head -1  ~/.config/pianobar/nowplaying}
+${color FFFFFF}Title:  ${exec tail -1  ~/.config/pianobar/nowplaying}
+${voffset -5}${hr}
+Uptime: ${format_time $uptime_short "\dd \hh \mm"}
+Processes: ${processes}
+Running: ${running_processes}
+${alignr}${nodename}
+${alignr}${exec cat /etc/issue.net} $machine
