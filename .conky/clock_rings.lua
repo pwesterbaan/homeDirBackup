@@ -168,8 +168,8 @@ settings_table = {
     },{
         -- arg name comes from ifconfig
         name='downspeedf',
-        arg='enp1s0',
-        max=500,
+        arg='enp2s0',
+        max=50,
         bg_colour=0xFFFFFF,
         bg_alpha=0.2,
         fg_colour=0xFFFFFF,
@@ -181,8 +181,8 @@ settings_table = {
         end_angle=180
     },{
         name='upspeedf',
-        arg='enp1s0',
-        max=500,
+        arg='enp2s0',
+        max=50,
         bg_colour=0xFFFFFF,
         bg_alpha=0.2,
         fg_colour=0xFFFFFF,
