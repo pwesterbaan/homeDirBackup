@@ -77,7 +77,7 @@ ${voffset 140}${font caviar dreams:size=8}
 #
 ${goto 25}${offset -5}${voffset 10}${cpu cpu0}%
 ${goto 25}${offset -5}CPU
-${goto 50}${voffset 23}${offset -25}RAM: ${memperc}% 
+${goto 50}${voffset 24}${offset -25}RAM: ${memperc}% 
 ${goto 50}${offset -25}Swap: ${swapperc}%
 ${goto 70}${voffset 25}${offset 30}${fs_used_perc}%
 ${goto 70}${offset 30}Disk
@@ -96,14 +96,17 @@ ${goto 90}${offset 35}Net
 #${top name 3}${alignr}${top cpu 3}
 #${execi 60 cat ~/Dropbox/Documents/todo.txt}
 #
-${hr}${font DejaVu Sans Mono:size=11}
-${exec gcal .+|cut -c  1-22|tail -n 8| sed s/"< "/" <"/}
-${exec gcal .+|cut -c 27-50|tail -n 8| head -n 5}
-${hr} ${font caviar dreams:size=8}
-${font Liberation Mono:size=8}${voffset -3.5}Artist: ${exec head -1  ~/.config/pianobar/nowplaying}
-${color FFFFFF}Title:  ${exec tail -1  ~/.config/pianobar/nowplaying}
-${voffset -5}${hr}
-Uptime: ${format_time $uptime_short "\dd \hh \mm"}
+${hr}${font Liberation Mono:size=11.5}
+${execi 3600 gcal .+|cut -c  1-22|tail -n 8| sed s/"< "/" <"/}
+${execi 3600 gcal .+|cut -c 27-50|tail -n 8| head -n 5}
+${hr}${font Liberation Mono:size=7.5}
+${voffset -3.5}${if_running pianobar}  Station: ${execi 10 head -n 1  ~/.config/pianobar/nowplaying}
+## Add line: If text longer than 25, scroll, else, just display
+## Need to find a way to count string length
+  Artist:  ${scroll 24 8 ${execi 5 head -2  ~/.config/pianobar/nowplaying | tail -n 1}}
+  Title:   ${scroll 24 8 ${execi 5 head -3  ~/.config/pianobar/nowplaying | tail -n 1}}
+${voffset -5}${hr}${endif}${voffset 5}
+${font Liberation Mono:size=9}Uptime: ${format_time $uptime_short "\dd \hh \mm"}
 Processes: ${processes}
 Running: ${running_processes}
 ${alignr}${nodename}
