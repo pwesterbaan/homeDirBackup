@@ -103,8 +103,8 @@ ${hr}${font Liberation Mono:size=7.5}
 ${voffset -3.5}${if_running pianobar}  Station: ${execi 10 head -n 1  ~/.config/pianobar/nowplaying}
 ## Add line: If text longer than 25, scroll, else, just display
 ## Need to find a way to count string length
-  Artist:  ${scroll 24 8 ${execi 5 head -2  ~/.config/pianobar/nowplaying | tail -n 1}}
-  Title:   ${scroll 24 8 ${execi 5 head -3  ~/.config/pianobar/nowplaying | tail -n 1}}
+  Artist:  ${scroll 24 6 ${execi 6 head -2  ~/.config/pianobar/nowplaying | tail -n 1}}
+  Title:   ${scroll 24 6 ${execi 6 head -3  ~/.config/pianobar/nowplaying | tail -n 1}}
 ${voffset -5}${hr}${endif}${voffset 5}
 ${font Liberation Mono:size=9}Uptime: ${format_time $uptime_short "\dd \hh \mm"}
 Processes: ${processes}

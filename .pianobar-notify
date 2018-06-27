@@ -9,23 +9,11 @@ done < <(grep -e '^\(title\|artist\|album\|stationName\|pRet\|pRetStr\|wRet\|wRe
 case "$1" in
   songstart)
   notify-send "Pianobar - $stationName" "Now Playing: $artist - $title"
-  # I want a scrolling marque which requires the artist and title
-  # strings to be the same length
-  # if I can get if-else statement work correctly in conky, no need
-  # for this chunk of code
   STRLENGTH1=$(echo -n "$artist" | wc -m)
   STRLENGTH2=$(echo -n "$title" | wc -m)
-  if [ $STRLENGTH1 -ge $STRLENGTH2 ]; then
-    printf "$stationName\n$artist\n$title%-$(expr $STRLENGTH2 - $STRLENGTH1)s\n" > ~/.config/pianobar/nowplaying
-  else
-    printf "$stationName\n$artist%-$(expr $STRLENGTH1 - $STRLENGTH2)s\n$title\n" > ~/.config/pianobar/nowplaying
-  fi
+  SPACE=$(( $STRLENGTH1 > $STRLENGTH2 ? $STRLENGTH1 : $STRLENGTH2 ))
+  printf "%s\n%-"$SPACE.$SPACE"s\n%-"$SPACE.$SPACE"s\n"\
+    "$stationName" "$artist" "$title">~/.config/pianobar/nowplaying
 ;;
 *)
-## Comment out the following lines if error notifications get annoying
-#if [ "$pRet" -ne 1 ]; then
-#  notify-send "Pianobar - ERROR" "$1 failed: $pRetStr"
-#elif [ "$wRet" -ne 1 ]; then
-#  notify-send "Pianobar - ERROR" "$1 failed: $wRetStr"
-#fi;;
 esac
