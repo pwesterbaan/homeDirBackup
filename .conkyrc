@@ -34,14 +34,14 @@ own_window_argb_value 100
 
 
 border_inner_margin 0
-border_outer_margin -50
+border_outer_margin 1
 
-minimum_size 200 250
+minimum_size  200
 maximum_width 200
 
 alignment mr
 gap_x 35
-gap_y 15
+gap_y 35
 
 -- Graphics settings 
 draw_shades yes
@@ -63,10 +63,11 @@ times_in_seconds true
 -- Lua Load 
 lua_load ~/.conky/clock_rings.lua
 lua_draw_hook_pre clock_rings
+#lua_load ./marks.lua
 # Weather location is a 4 character code: ''KCEU'' is Clemson found from searching & using url
 # -- http://weather.noaa.gov/
 TEXT
-${voffset 8}${color FFFFFF}${font caviar dreams:size=16}${time %A}${font}${voffset -8}${alignr 10}${font caviar dreams:size=38}${time %e}${font}
+${voffset 8}${font caviar dreams:size=16}${time %A}${font}${voffset -8}${alignr 10}${font caviar dreams:size=38}${time %e}${font}
 ${voffset -30}${font caviar dreams:size=18}${time %b}${font}${voffset -3} ${font caviar dreams:size=20}${time %Y}${font}${hr}
 ${voffset 140}${font caviar dreams:size=8}
 
@@ -101,10 +102,15 @@ ${execi 3600 gcal .+|cut -c  1-22|tail -n 8| sed s/"< "/" <"/}
 ${execi 3600 gcal .+|cut -c 27-50|tail -n 8| head -n 5}
 ${hr}${font Liberation Mono:size=7.5}
 ${voffset -3.5}${if_running pianobar}  Station: ${execi 10 head -n 1  ~/.config/pianobar/nowplaying}
-## Add line: If text longer than 25, scroll, else, just display
-## Need to find a way to count string length
-  Artist:  ${scroll 24 6 ${execi 6 head -2  ~/.config/pianobar/nowplaying | tail -n 1}}
-  Title:   ${scroll 24 6 ${execi 6 head -3  ~/.config/pianobar/nowplaying | tail -n 1}}
+## TODO Make sure artist and title don't get out of sync 
+## TODO if they start scrolling at different times
+##  ${execi 6 echo $(echo -n $(head -2  ~/.config/pianobar/nowplaying | tail -n 1)| wc -m)}
+##  ${execi 6 echo $(echo -n $(head -3  ~/.config/pianobar/nowplaying | tail -n 1)| wc -m)}
+## If artist/title is longer than 24, scroll, else, display.
+  Artist:  ${if_match ${execi 6 echo $(echo -n $(head -2  ~/.config/pianobar/nowplaying | tail -n 1)| wc -m)} > 23}${scroll 24 6 ${execi 6 head -2  ~/.config/pianobar/nowplaying | tail -n 1}}${else}${execi 6 head -2  ~/.config/pianobar/nowplaying | tail -n 1}${endif}
+  Title:   ${if_match ${execi 6 echo $(echo -n $(head -3  ~/.config/pianobar/nowplaying | tail -n 1)| wc -m)} > 23}${scroll 24 6 ${execi 6 head -3  ~/.config/pianobar/nowplaying | tail -n 1}}${else}${execi 6 head -3  ~/.config/pianobar/nowplaying | tail -n 1}${endif}
+##  Artist:  ${scroll 24 6 ${execi 6 head -2  ~/.config/pianobar/nowplaying | tail -n 1}}
+##  Title:   ${scroll 24 6 ${execi 6 head -3  ~/.config/pianobar/nowplaying | tail -n 1}}
 ${voffset -5}${hr}${endif}${voffset 5}
 ${font Liberation Mono:size=9}Uptime: ${format_time $uptime_short "\dd \hh \mm"}
 Processes: ${processes}
