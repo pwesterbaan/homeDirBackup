@@ -75,19 +75,19 @@ ${voffset 140}${font caviar dreams:size=8}
 # -- http://weather.noaa.gov/pub/data/observations/metar/stations/ 
 #${image ~/.conky/new-ubuntu-logo.png -p 64,125 -s 70x20}
 #
-${color FFFFFF}${goto 7.5}${voffset 10}${cpu cpu0}%
-${color FFFFFF}${goto 7.5}CPU
-${color FFFFFF}${goto 7.5}${voffset 23}RAM: ${memperc}% 
-${color FFFFFF}${goto 7.5}Swap: ${swapperc}%
-${color FFFFFF}${goto 75}${voffset 25}${fs_used_perc}%
-${color FFFFFF}${goto 75}Disk
-${color FFFFFF}${goto 132}${voffset 15}${if_up wlp5s0f0}W${else}${endif}
-${color FFFFFF}${goto 90}${voffset -2}${if_up enp6s0}${downspeed enp6s0}${else}${downspeed wlp5s0f0}${endif}
-${color FFFFFF}${goto 90}${if_up enp6s0}${upspeed enp6s0}${else}${upspeed wlp5s0f0}${endif}
-${color FFFFFF}${goto 90}Net
-${color FFFFFF}${goto 105}${voffset 10}Battery
-${color FFFFFF}${goto 105}${format_time $battery_time "\hh \mm"}
-${color FFFFFF}${goto 105}${battery}
+${goto 7.5}${voffset 10}${cpu cpu0}%
+${goto 7.5}CPU
+${goto 7.5}${voffset 23}RAM: ${memperc}% 
+${goto 7.5}Swap: ${swapperc}%
+${goto 75}${voffset 25}${fs_used_perc}%
+${goto 75}Disk
+${goto 132}${voffset 15}${if_up enp6s0}${else}W${endif}
+${goto 90}${voffset -2}${if_up enp6s0}${downspeed enp6s0}${else}${downspeed wlp5s0f0}${endif}
+${goto 90}${if_up enp6s0}${upspeed enp6s0}${else}${upspeed wlp5s0f0}${endif}
+${goto 90}Net
+${goto 105}${voffset 10}Battery
+${goto 105}${format_time $battery_time "\hh \mm"}
+${goto 105}${battery}
 
 #${color FFFFFF}${hr}
 #${color FFFFFF}Process${alignr}%CPU
@@ -97,12 +97,18 @@ ${color FFFFFF}${goto 105}${battery}
 #${color FFFFFF}${top name 3}${alignr}${top cpu 3}
 #${color FFFFFF}${execi 60 cat ~/Dropbox/Documents/todo.txt}
 #
-${color FFFFFF}${hr}
-${color FFFFFF}${font DejaVu Sans Mono:size=11}${exec gcal .+|cut -c  1-22|tail -n 8| sed s/"< "/" <"/}
-${color FFFFFF}${font DejaVu Sans Mono:size=11}${exec gcal .+|cut -c 27-50|tail -n 8| head -n 5}
-${color FFFFFF}${hr}
-${color FFFFFF}${font caviar dreams:size=8}Uptime: ${format_time $uptime_short "\dd \hh \mm"}
-${color FFFFFF}${font caviar dreams:size=8}Processes: ${processes}
-${color FFFFFF}${font caviar dreams:size=8}Running: ${running_processes}
-${color FFFFFF}${font caviar dreams:size=8}${alignr}${nodename}
-${color FFFFFF}${font caviar dreams:size=8}${alignr}${exec cat /etc/issue.net} $machine
+${hr}${font Liberation Mono:size=11.5}
+${execi 3600 gcal .+|cut -c  1-22|tail -n 8| sed s/"< "/" <"/}
+${execi 3600 gcal .+|cut -c 27-50|tail -n 8| head -n 5}
+${hr}${font Liberation Mono:size=7.5}
+${voffset -3.5}${if_running pianobar}  Station: ${execi 10 head -n 1  ~/.config/pianobar/nowplaying}
+## Add line: If text longer than 24, scroll, else, just display
+## Need to find a way to count string length
+  Artist:  ${scroll 24 6 ${execi 6 head -2  ~/.config/pianobar/nowplaying | tail -n 1}}
+  Title:   ${scroll 24 6 ${execi 6 head -3  ~/.config/pianobar/nowplaying | tail -n 1}}
+${voffset -5}${hr}${endif}${voffset 5}
+${font caviar dreams:size=8}Uptime: ${format_time $uptime_short "\dd \hh \mm"}
+Processes: ${processes}
+Running: ${running_processes}
+${alignr}${nodename}
+${alignr}${exec cat /etc/issue.net} $machine
