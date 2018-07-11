@@ -30,11 +30,11 @@ own_window_transparent no
 own_window_hints undecorated,below,sticky,skip_taskbar,skip_pager
 own_window_argb_visual yes
 -- set darkness of box around conky
-own_window_argb_value 100
+own_window_argb_value 110
 
 
 border_inner_margin 0
-border_outer_margin 1
+border_outer_margin 0
 
 minimum_size  200
 maximum_width 200
@@ -102,13 +102,12 @@ ${execi 3600 gcal .+|cut -c  1-22|tail -n 8| sed s/"< "/" <"/}
 ${execi 3600 gcal .+|cut -c 27-50|tail -n 8| head -n 5}
 ${hr}${font Liberation Mono:size=7.5}
 ${voffset -3.5}${if_running pianobar}  Station: ${execi 10 head -n 1  ~/.config/pianobar/nowplaying}
-## TODO Make sure artist and title don't get out of sync 
-## TODO if they start scrolling at different times
+##  Find a way to store the strings/length of strings in a variable
 ##  ${execi 6 echo $(echo -n $(head -2  ~/.config/pianobar/nowplaying | tail -n 1)| wc -m)}
 ##  ${execi 6 echo $(echo -n $(head -3  ~/.config/pianobar/nowplaying | tail -n 1)| wc -m)}
-## If artist/title is longer than 24, scroll, else, display.
-  Artist:  ${if_match ${execi 6 echo $(echo -n $(head -2  ~/.config/pianobar/nowplaying | tail -n 1)| wc -m)} > 23}${scroll 24 6 ${execi 6 head -2  ~/.config/pianobar/nowplaying | tail -n 1}}${else}${execi 6 head -2  ~/.config/pianobar/nowplaying | tail -n 1}${endif}
-  Title:   ${if_match ${execi 6 echo $(echo -n $(head -3  ~/.config/pianobar/nowplaying | tail -n 1)| wc -m)} > 23}${scroll 24 6 ${execi 6 head -3  ~/.config/pianobar/nowplaying | tail -n 1}}${else}${execi 6 head -3  ~/.config/pianobar/nowplaying | tail -n 1}${endif}
+## If artist/title is longer than 22, scroll, else, display.
+  Artist:  ${if_match ${execi 6 echo $(echo -n $(head -2  ~/.config/pianobar/nowplaying | tail -n 1)| wc -m)} > 22}${scroll 24 6 ${execi 6 head -2  ~/.config/pianobar/nowplaying | tail -n 1}}${else}${execi 6 head -2  ~/.config/pianobar/nowplaying | tail -n 1}${endif}
+  Title:   ${if_match ${execi 6 echo $(echo -n $(head -3  ~/.config/pianobar/nowplaying | tail -n 1)| wc -m)} > 22}${scroll 24 6 ${execi 6 head -3  ~/.config/pianobar/nowplaying | tail -n 1}}${else}${execi 6 head -3  ~/.config/pianobar/nowplaying | tail -n 1}${endif}
 ##  Artist:  ${scroll 24 6 ${execi 6 head -2  ~/.config/pianobar/nowplaying | tail -n 1}}
 ##  Title:   ${scroll 24 6 ${execi 6 head -3  ~/.config/pianobar/nowplaying | tail -n 1}}
 ${voffset -5}${hr}${endif}${voffset 5}

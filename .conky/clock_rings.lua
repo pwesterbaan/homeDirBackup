@@ -237,10 +237,10 @@ function draw_clock_hands(cr,xc,yc)
     local secs,mins,hours,secs_arc,mins_arc,hours_arc
     local xh,yh,xm,ym,xs,ys
     
-    secs=os.date("%S")    
+    secs=os.date("%S")
     mins=os.date("%M")
     hours=os.date("%I")
-        
+
     secs_arc=(2*math.pi/60)*secs
     mins_arc=(2*math.pi/60)*mins+secs_arc/60
     hours_arc=(2*math.pi/12)*hours+mins_arc/12
@@ -287,15 +287,19 @@ function conky_clock_rings()
         local tmp
         
         str=string.format('${%s %s}',pt['name'],pt['arg'])
-        -- The following statement converts 00-59 mins to 00-99 decimals
         if str=='${time %I.%M}' or str=='${time %M.%S}' then
+          -- Use hours=0 so that 12:xx doesn't fill the hour ring
+          if str=='${time %I.%M}' and tonumber(conky_parse(str)) > 12 then
+            str=conky_parse(str)-12
+          end
+          -- The following statement converts 00-59 mins to 00-99 decimals
           str=conky_parse(str)+2/3*(conky_parse(str)%1)
         else
           str=conky_parse(str)
         end
         value=tonumber(str)
         pct=value/pt['max']
-        
+
         draw_ring(cr,pct,pt)
     end
     
