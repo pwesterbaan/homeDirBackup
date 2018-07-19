@@ -72,8 +72,9 @@ ${voffset -30}${font caviar dreams:size=18}${time %b}${font}${voffset -3} ${font
 ${voffset 140}${font caviar dreams:size=8}
 
 
-#--${font caviar dreams:size=12}${color FFFFFF}${alignr}${weather http://tgftp.nws.noaa.gov/data/observations/metar/stations KCEU temperature temperature 30} °F${font}
-# -- http://weather.noaa.gov/pub/data/observations/metar/stations/ 
+#${font caviar dreams:size=12}${color FFFFFF}${alignr}${weather http://tgftp.nws.noaa.gov/data/observations/metar/stations KCEU temperature temperature 30} °F${font}
+#$weather
+#-- http://weather.noaa.gov/pub/data/observations/metar/stations/ 
 #${image ~/.conky/new-ubuntu-logo.png -p 64,125 -s 70x20}
 #
 ${goto 25}${offset -5}${voffset 10}${cpu cpu0}%
@@ -85,6 +86,7 @@ ${goto 70}${offset 30}Disk
 ${goto 90}${voffset 25}${offset 35}${downspeed enp2s0}
 ${goto 90}${offset 35}${upspeed enp2s0}
 ${goto 90}${offset 35}Net
+${voffset -28}${exec ./.getWeather.sh}
 #${goto 150}${voffset 10}${offset -40}Battery
 #${goto 150}${offset -40}${format_time $battery_time "\hh \mm"}
 #${goto 150}${offset -40}${battery}
@@ -98,8 +100,8 @@ ${goto 90}${offset 35}Net
 #${execi 60 cat ~/Dropbox/Documents/todo.txt}
 #
 ${hr}${font Liberation Mono:size=11.5}
-${execi 3600 gcal .+|cut -c  1-22|tail -n 8| sed s/"< "/" <"/}
-${execi 3600 gcal .+|cut -c 27-50|tail -n 8| head -n 5}
+${execi 600 gcal .+|cut -c  1-22|tail -n 8| sed s/"< "/" <"/}
+${execi 600 gcal .+|cut -c 27-50|tail -n 8| head -n 5}
 ${hr}${font Liberation Mono:size=7.5}
 ${voffset -3.5}${if_running pianobar}  Station: ${execi 10 head -n 1  ~/.config/pianobar/nowplaying}
 ##  Find a way to store the strings/length of strings in a variable
@@ -108,8 +110,6 @@ ${voffset -3.5}${if_running pianobar}  Station: ${execi 10 head -n 1  ~/.config/
 ## If artist/title is longer than 22, scroll, else, display.
   Artist:  ${if_match ${execi 6 echo $(echo -n $(head -2  ~/.config/pianobar/nowplaying | tail -n 1)| wc -m)} > 22}${scroll 24 6 ${execi 6 head -2  ~/.config/pianobar/nowplaying | tail -n 1}}${else}${execi 6 head -2  ~/.config/pianobar/nowplaying | tail -n 1}${endif}
   Title:   ${if_match ${execi 6 echo $(echo -n $(head -3  ~/.config/pianobar/nowplaying | tail -n 1)| wc -m)} > 22}${scroll 24 6 ${execi 6 head -3  ~/.config/pianobar/nowplaying | tail -n 1}}${else}${execi 6 head -3  ~/.config/pianobar/nowplaying | tail -n 1}${endif}
-##  Artist:  ${scroll 24 6 ${execi 6 head -2  ~/.config/pianobar/nowplaying | tail -n 1}}
-##  Title:   ${scroll 24 6 ${execi 6 head -3  ~/.config/pianobar/nowplaying | tail -n 1}}
 ${voffset -5}${hr}${endif}${voffset 5}
 ${font Liberation Mono:size=9}Uptime: ${format_time $uptime_short "\dd \hh \mm"}
 Processes: ${processes}
