@@ -72,11 +72,6 @@ ${voffset -30}${font caviar dreams:size=18}${time %b}${font}${voffset -3} ${font
 ${voffset 140}${font caviar dreams:size=8}
 
 
-#${font caviar dreams:size=12}${color FFFFFF}${alignr}${weather http://tgftp.nws.noaa.gov/data/observations/metar/stations KCEU temperature temperature 30} °F${font}
-#$weather
-#-- http://weather.noaa.gov/pub/data/observations/metar/stations/ 
-#${image ~/.conky/new-ubuntu-logo.png -p 64,125 -s 70x20}
-#
 ${goto 25}${offset -5}${voffset 10}${cpu cpu0}%
 ${goto 25}${offset -5}CPU
 ${goto 50}${voffset 24}${offset -25}RAM: ${memperc}% 
@@ -86,19 +81,7 @@ ${goto 70}${offset 30}Disk
 ${goto 90}${voffset 25}${offset 35}${downspeed enp2s0}
 ${goto 90}${offset 35}${upspeed enp2s0}
 ${goto 90}${offset 35}Net
-${voffset -28}${exec ./.getWeather.sh}
-#${goto 150}${voffset 10}${offset -40}Battery
-#${goto 150}${offset -40}${format_time $battery_time "\hh \mm"}
-#${goto 150}${offset -40}${battery}
-#
-#${hr}
-#Process${alignr}%CPU
-#${hr}
-#${top_mem name 1}${alignr}${top cpu 1}
-#${top name 2}${alignr}${top cpu 2}
-#${top name 3}${alignr}${top cpu 3}
-#${execi 60 cat ~/Dropbox/Documents/todo.txt}
-#
+${voffset -30}${font caviar dreams:size=10}${execi 600 ./.getWeather.sh}
 ${hr}${font Liberation Mono:size=11.5}
 ${execi 600 gcal .+|cut -c  1-22|tail -n 8| sed s/"< "/" <"/}
 ${execi 600 gcal .+|cut -c 27-50|tail -n 8| head -n 5}
@@ -115,4 +98,4 @@ ${font Liberation Mono:size=9}Uptime: ${format_time $uptime_short "\dd \hh \mm"}
 Processes: ${processes}
 Running: ${running_processes}
 ${alignr}${nodename}
-${alignr}${exec cat /etc/issue.net} $machine
+${alignr}${execi 3600 cat /etc/issue.net} $machine
