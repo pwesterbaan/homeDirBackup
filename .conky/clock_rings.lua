@@ -37,31 +37,20 @@ settings_table = {
     {
         -- Edit this table to customise your rings.
         -- You can create more rings simply by adding more elements to settings_table.
-        -- "name" is the type of stat to display; you can choose from 'cpu', 'memperc', 'fs_used_perc', 'battery_used_perc'.
-        name='time',
-        -- "arg" is the argument to the stat type, e.g. if in Conky you would write ${cpu cpu0}, 'cpu0' would be the argument. If you would not use an argument in the Conky variable, use ''.
-        arg='%I.%M',
-        -- "max" is the maximum value of the ring. If the Conky variable outputs a percentage, use 100.
-        max=12,
-        -- "bg_colour" is the colour of the base ring.
-        bg_colour=0xFFFFFF,
-        -- "bg_alpha" is the alpha value of the base ring.
-        bg_alpha=0.1,
-        -- "fg_colour" is the colour of the indicator part of the ring.
-        fg_colour=0xFFFFFF,
-        -- "fg_alpha" is the alpha value of the indicator part of the ring.
-        fg_alpha=0.2,
-        -- "x" and "y" are the x and y coordinates of the centre of the ring, relative to the top left corner of the Conky window.
-        x=clock_x, y=clock_y,
-        -- "radius" is the radius of the ring.
-        radius=50,
-        -- "thickness" is the thickness of the ring, centred around the radius.
-        thickness=5,
-        -- "start_angle" is the starting angle of the ring, in degrees, clockwise from top. Value can be either positive or negative.
-        start_angle=0,
-        -- "end_angle" is the ending angle of the ring, in degrees, clockwise from top. Value can be either positive or negative, but must be larger than start_angle.
-        end_angle=360
-    },{
+        name='time',          -- "name" is the type of stat to display; you can choose from 'cpu', 'memperc', 'fs_used_perc', 'battery_used_perc'.
+        arg='%I.%M',          -- "arg" is the argument to the stat type, e.g. if in Conky you would write ${cpu cpu0}, 'cpu0' would be the argument. If you would not use an argument in the Conky variable, use ''.
+        max=12,               -- "max" is the maximum value of the ring. If the Conky variable outputs a percentage, use 100.
+        bg_colour=0xFFFFFF,   -- "bg_colour" is the colour of the base ring.
+        bg_alpha=0.1,         -- "bg_alpha" is the alpha value of the base ring.
+        fg_colour=0xFFFFFF,   -- "fg_colour" is the colour of the indicator part of the ring.
+        fg_alpha=0.2,         -- "fg_alpha" is the alpha value of the indicator part of the ring.
+        x=clock_x, y=clock_y, -- "x" and "y" are the x and y coordinates of the centre of the ring, relative to the top left corner of the Conky window.
+        radius=50,            -- "radius" is the radius of the ring.
+        thickness=5,          -- "thickness" is the thickness of the ring, centred around the radius.
+        start_angle=0,        -- "start_angle" is the starting angle of the ring, in degrees, clockwise from top. Value can be either positive or negative.
+        end_angle=360         -- "end_angle" is the ending angle of the ring, in degrees, clockwise from top. Value can be either positive or negative, but must be larger than start_angle.
+}
+,{
         name='time',
         arg='%M.%S',
         max=60,
@@ -195,6 +184,17 @@ settings_table = {
     }
 }
 
+clock_h = {
+    {name='time',                   arg='%H',                    max_value=12,
+    x=clock_x,                           y=clock_y,
+    graduation_radius=55,
+    graduation_thickness=18,        graduation_mark_thickness=1.0,
+    graduation_unit_angle=30,
+    graduation_fg_colour=0xFFFFFF,  graduation_fg_alpha=0.75,
+    }
+}
+
+
 -- Use these settings to define the origin and extent of your clock.
 
 clock_r=64.5
@@ -280,6 +280,27 @@ function draw_clock_hands(cr,xc,yc)
     end
 end
 
+function draw_graduations(display)
+    -- graduations marks
+    local x, y = clock_x, clock_y
+    local graduation_radius = 61
+    local graduation_thickness, graduation_mark_thickness = 5, 1.5
+    local graduation_unit_angle = 30
+    local graduation_fg_colour, graduation_fg_alpha = 0xFFFFFF, 0.75
+    if graduation_radius > 0 and graduation_thickness > 0 and graduation_unit_angle > 0 then
+        local nb_graduation = 360 / graduation_unit_angle
+        local i = 0
+        while i < nb_graduation do
+            cairo_set_line_width(display, graduation_thickness)
+            cairo_arc(display, x, y, graduation_radius, (((graduation_unit_angle * i)-(graduation_mark_thickness/2))*(2*math.pi/360))-(math.pi/2),(((graduation_unit_angle * i)+(graduation_mark_thickness/2))*(2*math.pi/360))-(math.pi/2))
+            cairo_set_source_rgba(display,rgb_to_r_g_b(graduation_fg_colour,graduation_fg_alpha))
+            cairo_stroke(display)
+            cairo_set_line_width(display, graph_thickness)
+            i = i + 1
+        end
+    end
+end
+
 function conky_clock_rings()
     local function setup_rings(cr,pt)
         local str=''
@@ -305,9 +326,11 @@ function conky_clock_rings()
     
     -- Check that Conky has been running for at least 5s
 
-    if conky_window==nil then return end
+    if conky_window==nil then 
+        return 
+    end
+
     local cs=cairo_xlib_surface_create(conky_window.display,conky_window.drawable,conky_window.visual, conky_window.width,conky_window.height)
-    
     local cr=cairo_create(cs)    
     
     local updates=conky_parse('${updates}')
@@ -317,7 +340,9 @@ function conky_clock_rings()
         for i in pairs(settings_table) do
             setup_rings(cr,settings_table[i])
         end
+        -- Adapted from Distro-Clock-Conky
+        -- https://www.noobslab.com/2013/03/install-distro-clock-conky-in.html
+        draw_graduations(cr)
     end
-    
     draw_clock_hands(cr,clock_x,clock_y)
 end
