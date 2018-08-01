@@ -1,80 +1,76 @@
---  http://www.NoobsLab.com 
---      Conky settings      
+conky.config = {
+	background = false,
+	update_interval = 1,
 
-background no
-update_interval 1
+	cpu_avg_samples = 2,
+	net_avg_samples = 2,
 
-cpu_avg_samples 2
-net_avg_samples 2
+	override_utf8_locale = true,
 
-override_utf8_locale yes
+	double_buffer = true,
+	no_buffers = true,
 
-double_buffer yes
-no_buffers yes
+	text_buffer_size = 2048,
+	--imlib_cache_size = '0',
 
-text_buffer_size 2048
---imlib_cache_size 0
+	temperature_unit = 'fahrenheit',
 
-temperature_unit fahrenheit
+	-- Only display eth0 if connected,
+	if_up_strictness = 'address',
 
--- Only display eth0 if connected
-if_up_strictness address
+	-- Window specifications,
 
--- Window specifications 
-
-own_window_class Conky
-own_window yes
-own_window_type normal
--- set transparent to yes to eliminate box
-own_window_transparent no
-own_window_hints undecorated,below,sticky,skip_taskbar,skip_pager
-own_window_argb_visual yes
--- set darkness of box around conky
-own_window_argb_value 100
+	own_window_class = 'Conky',
+	own_window = true,
+	own_window_type = 'normal',
+	-- set transparent to yes to eliminate box,
+	own_window_transparent = false,
+	own_window_hints = 'undecorated,below,sticky,skip_taskbar,skip_pager',
+	own_window_argb_visual = true,
+	-- set darkness of box around conky,
+	own_window_argb_value = 110,
 
 
-border_inner_margin 0
-border_outer_margin -50
+	border_inner_margin = 0,
+	border_outer_margin = -50,
 
-minimum_size 200 250
-maximum_width 200
+	minimum_width = 200, minimum_height = 200,
+	maximum_width = 200,
 
-alignment mr
-gap_x 35
-gap_y 15
+	alignment = 'middle_right',
+	gap_x = 35,
+	gap_y = 15,
 
--- Graphics settings 
-draw_shades yes
-draw_outline no
-draw_borders no
-draw_graph_borders no
+	-- Graphics settings,
+	draw_shades = true,
+	draw_outline = false,
+	draw_borders = false,
+	draw_graph_borders = false,
 
--- Text settings 
-use_xft yes
-xftfont caviar dreams:size=8
-xftalpha 0.5
+	-- Text settings,
+	use_xft = true,
+	font = 'caviar dreams:size=8',
+	xftalpha = 0.5,
 
-uppercase no
+	uppercase = false,
 
-default_color FFFFFF
+	default_color = '#FFFFFF',
 
-times_in_seconds true
+	times_in_seconds = true,
 
--- Lua Load 
-lua_load ~/.conky/clock_rings.lua
-lua_draw_hook_pre clock_rings
-# Weather location is a 4 character code: ''KCEU'' is Clemson found from searching & using url
-# -- http://weather.noaa.gov/
-TEXT
-${voffset 8}${color FFFFFF}${font caviar dreams:size=16}${time %A}${font}${voffset -8}${alignr 10}${color FFFFFF}${font caviar dreams:size=38}${time %e}${font}
-${color FFFFFF}${voffset -30}${color FFFFFF}${font caviar dreams:size=18}${time %b}${font}${voffset -3} ${color FFFFFF}${font caviar dreams:size=20}${time %Y}${font}${color FFFFFF}${hr}
+	-- Lua Load,
+	lua_load = '~/.conky/clock_rings.lua',
+	lua_draw_hook_pre = 'clock_rings',
+-- Weather location is a 4 character code: ''KCEU'' is Clemson found from searching & using url
+-- http://weather.noaa.gov/
+};
+
+conky.text = [[
+${voffset 8}${font caviar dreams:size=16}${time %A}${font}${voffset -8}${alignr 10}${font caviar dreams:size=38}${time %e}${font}
+${voffset -30}${font caviar dreams:size=18}${time %b}${font}${voffset -3}${font caviar dreams:size=20}${time %Y}${font}${hr}
 ${voffset 140}${font caviar dreams:size=8}
 
 
-#--${font caviar dreams:size=12}${color FFFFFF}${alignr}${weather http://tgftp.nws.noaa.gov/data/observations/metar/stations KCEU temperature temperature 30} °F${font}
-# -- http://weather.noaa.gov/pub/data/observations/metar/stations/ 
-#${image ~/.conky/new-ubuntu-logo.png -p 64,125 -s 70x20}
-#
 ${goto 7.5}${voffset 10}${cpu cpu0}%
 ${goto 7.5}CPU
 ${goto 7.5}${voffset 23}RAM: ${memperc}% 
@@ -85,18 +81,13 @@ ${goto 132}${voffset 15}${if_up enp6s0}${else}W${endif}
 ${goto 90}${voffset -2}${if_up enp6s0}${downspeed enp6s0}${else}${downspeed wlp5s0f0}${endif}
 ${goto 90}${if_up enp6s0}${upspeed enp6s0}${else}${upspeed wlp5s0f0}${endif}
 ${goto 90}Net
-${goto 105}${voffset 10}Battery
-${goto 105}${format_time $battery_time "\hh \mm"}
-${goto 105}${battery}
+${goto 125}${voffset 10}${battery_short}
+${goto 125}Battery
+## The following error message occurs when the battery is full
+# conky: $format_time didn't receive a time in seconds as first argument
+${goto 125}${format_time $battery_time "\hh \mm"}
 
-#${color FFFFFF}${hr}
-#${color FFFFFF}Process${alignr}%CPU
-#${color FFFFFF}${hr}
-#${color FFFFFF}${top_mem name 1}${alignr}${top cpu 1}
-#${color FFFFFF}${top name 2}${alignr}${top cpu 2}
-#${color FFFFFF}${top name 3}${alignr}${top cpu 3}
-#${color FFFFFF}${execi 60 cat ~/Dropbox/Documents/todo.txt}
-#
+${voffset -30}${font caviar dreams:size=10}${execi 300 ./.getWeather.sh}
 ${hr}${font Liberation Mono:size=11.5}
 ${execi 3600 gcal .+|cut -c  1-22|tail -n 8| sed s/"< "/" <"/}
 ${execi 3600 gcal .+|cut -c 27-50|tail -n 8| head -n 5}
@@ -104,11 +95,12 @@ ${hr}${font Liberation Mono:size=7.5}
 ${voffset -3.5}${if_running pianobar}  Station: ${execi 10 head -n 1  ~/.config/pianobar/nowplaying}
 ## Add line: If text longer than 24, scroll, else, just display
 ## Need to find a way to count string length
-  Artist:  ${scroll 24 6 ${execi 6 head -2  ~/.config/pianobar/nowplaying | tail -n 1}}
-  Title:   ${scroll 24 6 ${execi 6 head -3  ~/.config/pianobar/nowplaying | tail -n 1}}
+  Artist:  ${if_match ${execi 6 echo $(echo -n $(head -2  ~/.config/pianobar/nowplaying | tail -n 1)| wc -m)} > 22}${scroll 24 6 ${execi 6 head -2  ~/.config/pianobar/nowplaying | tail -n 1}}${else}${execi 6 head -2  ~/.config/pianobar/nowplaying | tail -n 1}${endif}
+  Title:   ${if_match ${execi 6 echo $(echo -n $(head -3  ~/.config/pianobar/nowplaying | tail -n 1)| wc -m)} > 22}${scroll 24 6 ${execi 6 head -3  ~/.config/pianobar/nowplaying | tail -n 1}}${else}${execi 6 head -3  ~/.config/pianobar/nowplaying | tail -n 1}${endif}
 ${voffset -5}${hr}${endif}${voffset 5}
-${font caviar dreams:size=8}Uptime: ${format_time $uptime_short "\dd \hh \mm"}
+${font Liberation Mono:size=9}Uptime: ${format_time $uptime_short "\dd \hh \mm"}
 Processes: ${processes}
 Running: ${running_processes}
 ${alignr}${nodename}
 ${alignr}${exec cat /etc/issue.net} $machine
+${voffset -70}]];
