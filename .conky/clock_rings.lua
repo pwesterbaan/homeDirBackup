@@ -57,7 +57,7 @@ settings_table = {
         bg_colour=0xFFFFFF,
         bg_alpha=0.1,
         fg_colour=0xFFFFFF,
-        fg_alpha=0.4,
+        fg_alpha=0.35,
         x=clock_x, y=clock_y,
         radius=56,
         thickness=5,
@@ -70,7 +70,7 @@ settings_table = {
         bg_colour=0xFFFFFF,
         bg_alpha=0.1,
         fg_colour=0xFFFFFF,
-        fg_alpha=0.6,
+        fg_alpha=0.5,
         x=clock_x, y=clock_y,
         radius=62,
         thickness=5,
@@ -83,7 +83,7 @@ settings_table = {
         bg_colour=0xFFFFFF,
         bg_alpha=0.1,
         fg_colour=0xFFFFFF,
-        fg_alpha=0.8,
+        fg_alpha=0.7,
         x=clock_x, y=clock_y,
         radius=70,
         thickness=5,
@@ -96,7 +96,7 @@ settings_table = {
         bg_colour=0xFFFFFF,
         bg_alpha=0.1,
         fg_colour=0xFFFFFF,
-        fg_alpha=1,
+        fg_alpha=0.9,
         x=clock_x, y=clock_y,
         radius=76,
         thickness=5,
@@ -283,8 +283,8 @@ end
 function draw_graduations(display)
     -- graduations marks
     local x, y = clock_x, clock_y
-    local graduation_radius = 61
-    local graduation_thickness, graduation_mark_thickness = 5, 1.5
+    local graduation_radius = 62
+    local graduation_thickness, graduation_mark_thickness = 8,1.5
     local graduation_unit_angle = 30
     local graduation_fg_colour, graduation_fg_alpha = 0xFFFFFF, 0.75
     if graduation_radius > 0 and graduation_thickness > 0 and graduation_unit_angle > 0 then
@@ -295,7 +295,7 @@ function draw_graduations(display)
             cairo_arc(display, x, y, graduation_radius, (((graduation_unit_angle * i)-(graduation_mark_thickness/2))*(2*math.pi/360))-(math.pi/2),(((graduation_unit_angle * i)+(graduation_mark_thickness/2))*(2*math.pi/360))-(math.pi/2))
             cairo_set_source_rgba(display,rgb_to_r_g_b(graduation_fg_colour,graduation_fg_alpha))
             cairo_stroke(display)
-            cairo_set_line_width(display, graph_thickness)
+            cairo_set_line_width(display, graduation_mark_thickness)
             i = i + 1
         end
     end
