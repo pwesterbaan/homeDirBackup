@@ -55,6 +55,11 @@ durp(){ # This silly function is for testing purposes
     echo "durpy durpy durp durp"
 }
 
+calc(){ 
+    printf "%f\n" `echo $@ |bc -l`;
+}
+
+
 mkLaTeX(){
     ########################################################
     ## Function to copy tex templates into pwd            ##
