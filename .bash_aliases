@@ -24,7 +24,7 @@ alias mkTex='latexmk -pdf -synctex=1'
 #alias gertrude='lp -d gertrude'
 alias hpadmin1='lp -q 1 -o sides=one-sided -d hpadmin1'
 alias hpadmin4='lp -q 1 -o sides=one-sided -d hpadmin4'
-alias batcave='lp -q 1 sides=one-sided -d batcave'
+alias batcave='lp -q 1 -o sides=one-sided -d batcave'
 ## modify printer options from localhost:631
 alias lCopier='lp -q 1 -d leftCopier'
 alias rCopier='lp -q 1 -d rightCopier'
@@ -74,7 +74,7 @@ mkLaTeX(){
       filename=$dir"_"$base".tex"
       title=$dir" "$base
       if ! confirm "Use $filename? (def Y)" -y $1; then 
-        exit 1;
+        return 1;
       fi
     else title=${1%%.*}
     fi
