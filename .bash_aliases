@@ -9,6 +9,7 @@ alias cls='clear && ls --group-directories-first && pwd'
 alias mkdir='mkdir -pv'
 alias db='cdls $DROPBOX_PATH'
 alias dbstat='dropbox status'
+alias jn='jupyter notebook'
 #alias dropbox='python $DROPBOX_PATH/dropbox.py'
 alias findPi='nmap -sP 192.168.1.*/24'
 alias getIP='ifconfig | grep -Po "inet addr:.+Bcast" | grep -Po "(?:\d{1,3}\.){3}\d{1,3}" > $DROPBOX_PATH/Documents/workhorseIP.txt && cat $DROPBOX_PATH/Documents/workhorseIP.txt'
@@ -17,7 +18,8 @@ alias iup=IUP
 alias clemson='cdls $DROPBOX_PATH/Grad_School/Clemson/'
 alias tocp='xclip -selection clipboard'
 alias cpwd='echo -n `pwd` | tocp'
-alias cpTikz='cat $TEX_FOLDER/tikzTemplate.tex | tocp'
+#alias cpTikz='cat $TEX_FOLDER/tikzTemplate.tex | tocp'
+alias cpTikz='mousepad $TEX_FOLDER/tikzTemplate.tex &'
 alias mvPics='mv -v $DROPBOX_PATH/Camera\ Uploads/* /mnt/Data/Pictures/Camera\ Uploads && echo Done!'
 alias myip="curl http://ipecho.net/plain; echo"
 alias mkTex='latexmk -pdf -synctex=1'
@@ -60,7 +62,7 @@ calc(){
 }
 
 
-mkLaTeX(){
+LaTeXtemplate(){
     ########################################################
     ## Function to copy tex templates into pwd            ##
     ## mkLaTeX <name> <opt>                               ##
