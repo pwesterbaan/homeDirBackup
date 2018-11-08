@@ -30,7 +30,6 @@ Dropbox/
 .config/update-notifier/
 .config/user-dirs.dirs
 .config/user-dirs.locale
-.config/xfce4/
 .config/xubuntu/
 .dmrc
 .dropbox-dist/
@@ -40,3 +39,10 @@ Dropbox/
 .xscreensaver
 .xsession-errors
 .xsession-errors.old
+.gitconfig
+Desktop/
+.config/QtProject.conf
+.config/evince/
+.config/xm1/
+.ipython/
+.config/xfce4/
