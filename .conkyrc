@@ -2,7 +2,7 @@ conky.config = {
 	-- http://www.NoobsLab.com,
 	-- Conky settings,
 
-	background = false,
+	background = true,
 	update_interval = 1,
 
 	cpu_avg_samples = 2,
@@ -39,10 +39,10 @@ conky.config = {
 
 	minimum_width = 200,
 	maximum_width = 200,
-        gap_x = -1250,
+        gap_x = 1300, -- CHANGED 11/16/18
 
 	alignment = 'middle_right',
-	--gap_x = 35,
+	--gap_x = 0,
 	gap_y = 35,
 
 	-- Graphics settings,
