@@ -79,3 +79,5 @@ Videos/
 .lesshst
 .texlive2017/
 .viminfo
+.config/cef_user_data/
+.config/kdeconnect/
