@@ -1,3 +1,7 @@
+-- nano ~/.xscreensaver
+-- "Conky"  conky -q \n\
+-- Must use default name. -c <conkyrc_name> doesn't seem to work?
+
 conky.config = {
 	background = false,
 	update_interval = 1,
@@ -65,17 +69,11 @@ ${voffset 8}${font caviar dreams:size=30}${time %A}${alignr}${time %b}${time %e}
 ${alignr}${time %Y}${font}
 
 ${voffset 390}
-${font caviar dreams:size=16}
+${font Liberation Mono:size=16}
 
-#${hr}${font Liberation Mono:size=11.5}
-#${execi 600 gcal .+|cut -c  1-22|tail -n 8| sed s/"< "/" <"/}
-#${execi 600 gcal .+|cut -c 27-50|tail -n 8| head -n 5}
-#${hr}${font Liberation Mono:size=7.5}
 ${if_running pianobar}  Station: ${execi 10 head -n 1  ~/.config/pianobar/nowplaying}
-## Add line: If text longer than 24, scroll, else, just display
-## Need to find a way to count string length
-  Artist:    ${execi 6 head -2  ~/.config/pianobar/nowplaying | tail -n 1}
-  Title:     ${execi 6 head -3  ~/.config/pianobar/nowplaying | tail -n 1}
+  Artist:  ${execi 6 head -2  ~/.config/pianobar/nowplaying | tail -n 1}
+  Title:   ${execi 6 head -3  ~/.config/pianobar/nowplaying | tail -n 1}
 ${voffset -5}${endif}${voffset 5}
 ${font}
 ]];
