@@ -33,7 +33,6 @@ conky.config = {
 	-- set darkness of box around conky,
 	own_window_argb_value = 0,
 
-
 	border_inner_margin = 0,
 	border_outer_margin = 0,
 
