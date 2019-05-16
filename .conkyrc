@@ -105,5 +105,5 @@ Processes: ${processes}
 Running: ${running_processes}
 ${addr enp2s0}
 #${alignr}${nodename}
-#${voffset -50}
+${voffset -45}
 ]];

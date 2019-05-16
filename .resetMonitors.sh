@@ -3,4 +3,8 @@
 ###cp .config/xfce4/xfconf/xfce-perchannel-xml/displays.xml.bak .config/xfce4/xfconf/xfce-perchannel-xml/displays.xml
 
 ### xrandr to find info
-xrandr --output DVI-0 --mode 1280x1024 --right-of DVI-1-0
+
+### use when left screen in 2nd card
+### xrandr --output DVI-0 --mode 1280x1024 --right-of DVI-1-0
+
+xrandr --output VGA-0 --mode 1280x1024 --left-of DVI-0
