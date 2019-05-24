@@ -189,7 +189,7 @@ function draw_graduations(display)
     end
 end
 
-function conky_clock_rings_screensaver()
+function conky_clock_rings()
     local function setup_rings(cr,pt)
         local str=''
         local value=0
@@ -198,7 +198,7 @@ function conky_clock_rings_screensaver()
         str=string.format('${%s %s}',pt['name'],pt['arg'])
         if str=='${time %I.%M}' or str=='${time %M.%S}' then
           -- Use hours=0 so that 12:xx doesn't fill the hour ring
-          if str=='${time %I.%M}' and tonumber(conky_parse(str)) > 12 then
+          if str=='${time %I.%M}' and tonumber(conky_parse(str)) >= 12 then
             str=conky_parse(str)-12
           end
           -- The following statement converts 00-59 mins to 00-99 decimals
@@ -222,7 +222,7 @@ function conky_clock_rings_screensaver()
     local updates=conky_parse('${updates}')
     update_num=tonumber(updates)
     
-    if update_num>2 then
+    if update_num>1 then
         for i in pairs(settings_table) do
             setup_rings(cr,settings_table[i])
         end

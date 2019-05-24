@@ -95,3 +95,9 @@ VirtualBox VMs/
 .xscreensaver
 .xsession-errors
 .xsession-errors.old
+.config/Foxit Software/
+.config/kactivitymanagerdrc
+.config/okularpartrc
+.config/okularrc
+Documents/
+opt/

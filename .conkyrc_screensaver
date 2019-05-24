@@ -1,6 +1,5 @@
 -- nano ~/.xscreensaver
--- "Conky"  conky -q \n\
--- Must use default name. -c <conkyrc_name> doesn't seem to work?
+-- "Conky"  conky -q --window-id=$XSCREENSAVER_WINDOW -c ~/.conkyrc_screensaver \n\
 
 conky.config = {
 	background = false,
@@ -62,7 +61,7 @@ conky.config = {
 
 	-- Lua Load,
 	lua_load = '~/.conky/clock_rings_screensaver.lua',
-	lua_draw_hook_pre = 'clock_rings_screensaver',
+	lua_draw_hook_pre = 'clock_rings',
 };
 
 conky.text = [[
@@ -76,7 +75,7 @@ ${font Liberation Mono:size=16}
 
 ${if_running pianobar}\
 Station: ${execi 12 head -n 1  ~/.config/pianobar/nowplaying}
-Artist:  ${execi 6 head -2  ~/.config/pianobar/nowplaying | tail -n 1}
-Title:   ${execi 6 head -3  ~/.config/pianobar/nowplaying | tail -n 1}
+Artist:  ${execi 2 head -2  ~/.config/pianobar/nowplaying | tail -n 1}
+Title:   ${execi 2 head -3  ~/.config/pianobar/nowplaying | tail -n 1}
 ${voffset -5}${endif}${voffset 5}
 ${execi 600 gcal | sed s/"< "/" <"/}${font}]];
