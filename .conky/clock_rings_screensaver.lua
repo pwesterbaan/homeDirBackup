@@ -1,5 +1,5 @@
 clock_x=305
-clock_y=325+102
+clock_y=330+25
 
 ring_sep=25
 ring_gap=2
