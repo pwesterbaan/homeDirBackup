@@ -101,3 +101,5 @@ VirtualBox VMs/
 .config/okularrc
 Documents/
 opt/
+Pictures/elizabeth/
+texmf/tlpkg/
