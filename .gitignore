@@ -103,3 +103,9 @@ Documents/
 opt/
 Pictures/elizabeth/
 texmf/tlpkg/
+.config/keepassxc/
+.gdfuse/
+.thunderbird/
+.keepassxc-snap-helper.sh
+snap/
+.weather/
