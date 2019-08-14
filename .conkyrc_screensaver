@@ -71,8 +71,8 @@ ${alignr}${time %b} ${time %e}
 ${alignr}${time %Y}${font}
 
 ${voffset 390}
-${font Liberation Mono:size=16}
-
+${voffset -25}${font Liberation Mono:size=24}${execi 300 ./.getWeather.sh}
+${voffset 15}${font Liberation Mono:size=18}
 ${if_running pianobar}\
 Station: ${execi 12 head -n 1  ~/.config/pianobar/nowplaying}
 Artist:  ${execi 2 head -2  ~/.config/pianobar/nowplaying | tail -n 1}
