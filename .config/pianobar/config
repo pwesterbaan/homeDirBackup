@@ -3,3 +3,4 @@ password = cheapPassword
 audio_quality = high
 format_nowplaying_song = "%t" by "%a" on "%l"%r%@%s
 event_command = ~/.pianobar-notify
+tls_fingerprint=4276BF238C730D920D4E9178AE96EF08643B1519
