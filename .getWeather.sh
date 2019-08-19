@@ -10,4 +10,5 @@
 
 ## weather Clemson, SC and then get fips code from results
 weather fips4514950 --headers=Temperature | grep Temperature | cut -c 17-22
+weather fips4514950 --headers="Relative Humidity" | grep Humidity | cut -c 23-26
 
