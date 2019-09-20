@@ -1,10 +1,10 @@
-clock_x=305
-clock_y=330+100
+clock_x=1260/2
+clock_y=1028/2+50
 
-ring_sep=25
-ring_gap=2
+ring_sep=45
+ring_gap=1.5
 ring_thickness=ring_sep-ring_gap
-hour_ring=150
+hour_ring=245
 min_ring=hour_ring+ring_sep
 sec_ring=min_ring+ring_sep
 day_ring=sec_ring+ring_sep
