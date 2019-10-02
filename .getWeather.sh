@@ -9,6 +9,6 @@
 #wget -qO- "$URL" | awk -F\" '/acm_RecentLocationsCarousel\.push/{print "  "$4"\n"}' | head -1
 
 ## weather Clemson, SC and then get fips code from results
-weather fips4514950 --headers=Temperature | grep Temperature | cut -c 17-22
-weather fips4514950 --headers="Relative Humidity" | grep Humidity | cut -c 23-26
+weather fips4514950 --headers=Temperature | grep Temperature | cut -c 16-22
+weather fips4514950 --headers="Relative Humidity" | grep Humidity | cut -c 22-26
 

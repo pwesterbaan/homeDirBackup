@@ -35,12 +35,13 @@ conky.config = {
 	border_inner_margin = 0,
 	border_outer_margin = 0,
 
-	minimum_width = 1260, minimum_height = 1028,
-	maximum_width = 1260, maximum_height = 1028,
+	minimum_width = 1280, minimum_height = 1100,
+	maximum_width = 1280, maximum_height = 1100,
 
-	alignment = 'mm',
+	alignment = 'tl',
         -- gap_x is used to shift from 'mm' to the middle of the left monitor
         gap_x=0*1280, 
+        gap_y=30,
 
 	-- Graphics settings,
 	draw_shades = true,
@@ -65,19 +66,19 @@ conky.config = {
 };
 
 conky.text = [[
-${voffset 100}${font caviar dreams:size=40}${time %A}\
-${alignr}${time %b} ${time %e}
-${alignr}${time %Y}${font}
+${voffset 0}${font caviar dreams:size=40}  ${time %A}\
+${alignr}${time %b} ${time %e}  
+${alignr}${time %Y}  ${font}
 
-${voffset 370}
+${voffset 330}
 ${font Liberation Mono:size=24}${execi 300 ./.getWeather.sh}
 ${font Liberation Mono:size=20}${voffset 15}
-${alignr}${addr enp2s0}${voffset -25}
+${alignr}${addr enp2s0} ${voffset -25}
 ${execi 600 gcal | sed s/"< "/" <"/}
 ${if_running pianobar}${voffset -5}\
-Station: ${execi 12 head -n 1  ~/.config/pianobar/nowplaying}
-Artist:  ${execi 2 head -2  ~/.config/pianobar/nowplaying | tail -n 1}
-Title:   ${execi 2 head -3  ~/.config/pianobar/nowplaying | tail -n 1}
+ Station: ${execi 12 head -n 1  ~/.config/pianobar/nowplaying}
+ Artist:  ${execi 2 head -2  ~/.config/pianobar/nowplaying | tail -n 1}
+ Title:   ${execi 2 head -3  ~/.config/pianobar/nowplaying | tail -n 1}
 ${endif}
 ${font}${voffset -20}
 ]];
