@@ -70,16 +70,16 @@ ${voffset 0}${font caviar dreams:size=40}  ${time %A}\
 ${alignr}${time %b} ${time %e}  
 ${alignr}${time %Y}  ${font}
 
-${voffset 330}
+${voffset 450}
 ${font Liberation Mono:size=24}${execi 300 ./.getWeather.sh}
-${font Liberation Mono:size=20}${voffset 15}
-${alignr}${addr enp2s0} ${voffset -25}
+${font Liberation Mono:size=20}${voffset -110}
+${alignr}${addr enp2s0} ${voffset 80}
 ${execi 600 gcal | sed s/"< "/" <"/}
-${if_running pianobar}${voffset -5}\
- Station: ${execi 12 head -n 1  ~/.config/pianobar/nowplaying}
- Artist:  ${execi 2 head -2  ~/.config/pianobar/nowplaying | tail -n 1}
- Title:   ${execi 2 head -3  ~/.config/pianobar/nowplaying | tail -n 1}
+${if_running pianobar}${voffset -125}\
+${goto 640}Station: ${execi 12 head -n 1  ~/.config/pianobar/nowplaying}
+${goto 640}Artist:  ${execi 2 head -2  ~/.config/pianobar/nowplaying | tail -n 1}
+${goto 640}Title:   ${execi 2 head -3  ~/.config/pianobar/nowplaying | tail -n 1}
 ${endif}
-${font}${voffset -20}
+${font}
 ]];
 
