@@ -116,6 +116,9 @@ if ! shopt -oq posix; then
     . /etc/bash_completion
   fi
 fi
+## https://stackoverflow.com/questions/791765/unable-to-forward-search-bash-history-similarly-as-with-ctrl-r/791800#791800
+## disable XOFF/ enable forward search: C-s
+[[ $- == *i* ]] && stty -ixon
 
 export TEXINPUTS="/usr/lib/sagemath/local/share/texmf//:/home/peter/texmf:"
 export PATH=$PATH:/home/peter/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/jvm/java-8-oracle/bin:/usr/lib/jvm/java-8-oracle/db/bin:/usr/lib/jvm/java-8-oracle/jre/bin:/home/peter/bin:/usr/local/java/jre1.8.0_25/bin

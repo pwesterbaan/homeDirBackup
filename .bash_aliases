@@ -11,7 +11,6 @@ alias db='cdls $DROPBOX_PATH'
 alias dbstat='dropbox status'
 alias jn='jupyter notebook'
 alias matlab='matlab -nodesktop -r "opengl info, desktop"'
-#alias dropbox='python $DROPBOX_PATH/dropbox.py'
 alias findPi='nmap -sP 192.168.1.*/24'
 alias getIP='ifconfig | grep -Po "inet.+broadcast" | grep -Po "(?:\d{1,3}\.){3}\d{1,3}" | head -n 1 > $DROPBOX_PATH/Documents/workhorseIP.txt && cat $DROPBOX_PATH/Documents/workhorseIP.txt'
 #ifconfig | grep -Po "inet.+broadcast" | grep -Po '(?:\d{1,3}\.){3}\d{1,3}' | head -n 1
@@ -21,7 +20,7 @@ alias clemson='cdls $DROPBOX_PATH/Grad_School/Clemson/'
 alias tocp='xargs echo -n | xclip -selection clipboard'
 alias cpwd='echo -n `pwd` | tocp'
 #alias cpTikz='cat $TEX_FOLDER/tikzTemplate.tex | tocp'
-alias cpTikz='mousepad $TEX_FOLDER/tikzTemplate.tex &'
+alias cpTikz='mousepad $TEX_FOLDER/tikz/tikzTemplate.tex &'
 alias mvPics='mv -v $DROPBOX_PATH/Camera\ Uploads/* /mnt/Data/Pictures/Camera\ Uploads && echo Done!'
 alias myip="curl http://ipecho.net/plain; echo"
 alias mkTex='latexmk -pdf -synctex=1'
@@ -33,16 +32,13 @@ alias batcave='lp -q 1 -o sides=one-sided -d batcave'
 ## modify printer options from localhost:631
 alias lCopier='lp -q 1 -d leftCopier'
 alias rCopier='lp -q 1 -d rightCopier'
-alias customSty='ln -s /home/peter/texmf/tex/latex/local/texPreamble.sty .'
+alias customSty='ln -s /home/peter/texmf/tex/latex/local/texPreamble.sty . && ln -s /home/peter/texmf/tex/latex/local/colorPalette.sty . && ln -s /home/peter/texmf/tex/latex/local/texShortcutsWesterbaan.tex .'
 alias texpreamble='xdg-open $TEX_FOLDER/texPreamble.sty'
-alias rwifi='nmcli r wifi off; read -p "Press enter"; nmcli r wifi on && cls'
-alias speedtest='wget -O /dev/null http://speedtest.wdc01.softlayer.com/downloads/test100.zip'
+alias texshortcuts='xdg-open $TEX_FOLDER/texShortcutsWesterbaan.tex'
+alias rwifi='nmcli r wifi off; read -p "Press enter"; nmcli r wifi on && ls -F --group-directories-first && pwd'
 alias snmr='sudo service network-manager restart'
 alias findcc='find $DROPBOX_PATH -name *conflicted\ copy*'
-alias arbf='find . -type f \( -iname \*.aux -o -iname \*.bbl -o -iname \*.blg -o -iname \*.fdb_latexmk -o -iname \*.fls -o -iname \*.log -o -iname \*.nav -o -iname \*.out -o -iname \*.snm -o -iname \*.synctex.gz -o -iname \*.toc -o -iname \*.lof -o -iname \*.lot -o -iname \*.dvi -o -iname \*-eps-converted-to -o -iname \*.goutputstream -o -iname \*.fuse_hidden* -o -iname \*-eps-converted-to.pdf \) -print -delete'
-alias rbf='arbf
-           read -p "Any key to continue"
-           cls'
+alias rbf='find . -type f \( -iname \*.aux -o -iname \*.bbl -o -iname \*.blg -o -iname \*.fdb_latexmk -o -iname \*.fls -o -iname \*.log -o -iname \*.nav -o -iname \*.out -o -iname \*.snm -o -iname \*.synctex.gz -o -iname \*.toc -o -iname \*.lof -o -iname \*.lot -o -iname \*.dvi -o -iname \*-eps-converted-to -o -iname \*.goutputstream -o -iname \*.fuse_hidden* -o -iname \*-eps-converted-to.pdf \) -print -delete'
 
 durp(){ # This silly function is for testing purposes
     if [[ -n "${1+x}" && ${1:-4} != *.tex ]]; then 
@@ -107,7 +103,7 @@ LaTeXtemplate(){
       fi
     elif [[ $* == *-p* ]]; then 
       echo "Copying presentation template..."
-      cp $TEX_FOLDER/PresentationTemplate/*.eps .
+      ln -s $TEX_FOLDER/PresentationTemplate/*{.eps,.jpg} .
       if [ -z ${filename+x} ]; then
           cp -i $TEX_FOLDER/PresentationTemplate/PresentationTemplate.tex .
           filename=PresentationTemplate.tex
@@ -127,7 +123,7 @@ LaTeXtemplate(){
     confirm 'Custom title ('"$title"')? (def Y)' -y && retitle "$filename" "$title"
     confirm "Open $filename? (def Y)" -y && xdg-open "$filename";
     chmod -x *.{tex,pdf};
-    cls;
+    ls -F --group-directories-first && pwd;
 }
 
 retitle(){
@@ -161,13 +157,14 @@ confirm(){
 rename(){
     for f in *"$1"*; 
     do 
-        echo "$f""-->" "${f//"$1"/"$2"}"; 
+        echo -e "$f""\n  -->" "${f//"$1"/"$2"}"; 
     done;
     confirm "Rename as such?" && for f in *"$1"*; 
     do 
         mv "$f" "${f//"$1"/"$2"}"; 
     done;
-    cls
+    ls -F --group-directories-first && pwd;
+
 }
 
 cpKey(){ #Function to compile the blank version of *_KEY*.tex
@@ -180,7 +177,7 @@ cpKey(){ #Function to compile the blank version of *_KEY*.tex
   if ls $pattern 1> /dev/null 2>&1; then
     for f in $pattern;
     do
-        arbf > /dev/null;
+        rbf > /dev/null;
         echo "*************";
         echo Compile blank;
         echo "*************";
@@ -199,8 +196,8 @@ cpKey(){ #Function to compile the blank version of *_KEY*.tex
         echo "***********";
         latexmk -pdf -silent -g -pdflatex='pdflatex %O -interaction=nonstopmode -synctex=1 "\PassOptionsToClass{answers}{exam}\input{%S}"' $f > /dev/null;
     done;
-    confirm "rbf? (def Y)" -y && arbf && cls;
-    evince ${f//"_KEY.tex"/""}*.pdf & # *.pdf
+    confirm "rbf? (def Y)" -y && rbf && ls -F --group-directories-first && pwd;
+    exo-open ${f//"_KEY.tex"/""}*.pdf & # *.pdf
   else
     echo "No files match *_KEY*.tex pattern";
   fi
@@ -209,9 +206,9 @@ cpKey(){ #Function to compile the blank version of *_KEY*.tex
 cdls(){
     if [ -z ${1+x} ]; then
         cd;
-        cls;
+        ls -F --group-directories-first && pwd;
     else
-        cd "$1" && cls;
+        cd "$1" && ls -F --group-directories-first && pwd;
     fi
 }
 
@@ -253,7 +250,7 @@ function customExtract {
 fi
 }
 
-cls
+ls -F --group-directories-first && pwd;
 
 export PETSC_DIR=~/petsc
 export PETSC_ARCH=linux-gnu
