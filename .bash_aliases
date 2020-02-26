@@ -1,6 +1,7 @@
 export DROPBOX_PATH=~/Dropbox
 export TEX_FOLDER=$DROPBOX_PATH/Coding/LaTex
 export DEAL_II_DIR=/home/peter/dealii/dealii-8.5.1
+export TEX_HOME=$(kpsewhich -var-value TEXMFHOME)/tex/latex/local/
 alias ll='ls -alF'
 alias la='ls -A'
 alias lsd='ls -d */'
@@ -33,8 +34,8 @@ alias batcave='lp -q 1 -o sides=one-sided -d batcave'
 alias lCopier='lp -q 1 -d leftCopier'
 alias rCopier='lp -q 1 -d rightCopier'
 alias customSty='ln -s /home/peter/texmf/tex/latex/local/texPreamble.sty . && ln -s /home/peter/texmf/tex/latex/local/colorPalette.sty . && ln -s /home/peter/texmf/tex/latex/local/texShortcutsWesterbaan.tex .'
-alias texpreamble='xdg-open $TEX_FOLDER/texPreamble.sty'
-alias texshortcuts='xdg-open $TEX_FOLDER/texShortcutsWesterbaan.tex'
+alias texpreamble='xdg-open $TEX_HOME/texPreamble.sty'
+alias texshortcuts='xdg-open $TEX_HOME/texShortcutsWesterbaan.tex'
 alias rwifi='nmcli r wifi off; read -p "Press enter"; nmcli r wifi on && ls -F --group-directories-first && pwd'
 alias snmr='sudo service network-manager restart'
 alias findcc='find $DROPBOX_PATH -name *conflicted\ copy*'
