@@ -28,7 +28,7 @@ alias mkTex='latexmk -pdf -synctex=1'
 #alias gertrude='lp -d gertrude'
 alias hpadmin1='lp -q 1 -o sides=one-sided -d hpadmin1'
 #alias hpadmin4='lp -q 1 -o sides=one-sided -d hpadmin4'
-alias mera='lp -q 1 -o sides=one-sided -d mera'
+alias mera='lp -q 1 -o sides=one-sided -o media=letter -d mera'
 alias batcave='lp -q 1 -o sides=one-sided -d batcave'
 ## modify printer options from localhost:631
 alias lCopier='lp -q 1 -d leftCopier'
