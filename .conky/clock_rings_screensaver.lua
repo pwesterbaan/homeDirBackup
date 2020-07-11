@@ -1,5 +1,5 @@
 clock_x=1280/2
-clock_y=1020/2-50
+clock_y=1020/2-45
 
 ring_sep=45
 ring_gap=1.5
@@ -7,7 +7,7 @@ ring_thickness=ring_sep-ring_gap
 hour_ring=250
 min_ring=hour_ring+ring_sep
 sec_ring=min_ring+ring_sep
-day_ring=sec_ring+ring_sep
+day_ring=sec_ring+1.25*ring_sep
 mnth_ring=day_ring+ring_sep
 hand_r_adjust=0.4*ring_sep
 clock_r=sec_ring+hand_r_adjust
@@ -171,10 +171,10 @@ end
 function draw_graduations(display)
     -- graduations marks
     local x, y = clock_x, clock_y
-    local graduation_radius = sec_ring
-    local graduation_thickness, graduation_mark_thickness = 0.9*ring_sep, 1.5
+    local graduation_radius = min_ring
+    local graduation_thickness, graduation_mark_thickness = 2.75*ring_sep, 0.25
     local graduation_unit_angle = 30
-    local graduation_fg_colour, graduation_fg_alpha = 0xFFFFFF, 0.75
+    local graduation_fg_colour, graduation_fg_alpha = 0xFFFFFF, 0.3
     if graduation_radius > 0 and graduation_thickness > 0 and graduation_unit_angle > 0 then
         local nb_graduation = 360 / graduation_unit_angle
         local i = 0

@@ -19,96 +19,115 @@ Changelog:
 clock_x=100
 clock_y=150
 
+ring_sep=6
+ring_gap=1
+ring_thickness=ring_sep-ring_gap
+hour_ring=50
+min_ring=hour_ring+ring_sep
+sec_ring=min_ring+ring_sep
+day_ring=sec_ring+1.25*ring_sep
+mnth_ring=day_ring+ring_sep
+hand_r_adjust=0*ring_sep
+clock_r=sec_ring+hand_r_adjust
+hour_r =(hour_ring+hand_r_adjust)/clock_r
+min_r =(min_ring+hand_r_adjust)/clock_r
+
+hrHandWidth=5
+minHandWidth=3
+secHandWidth=1
+
 x_sep=40
 y_sep=50
 
 disc_x=50
 disc_y=255
+mem_x=disc_x+x_sep
+mem_y=disc_y+y_sep
+fs_x=disc_x+2*x_sep
+fs_y=disc_y+2*y_sep
+network_x=disc_x+3*x_sep
+network_y=disc_y+3*y_sep
+batt_x=disc_x+4*x_sep
+batt_y=disc_y+4*y_sep
 
-mem_x=80
-mem_y=310
-fs_x=110
-fs_y=365
-network_x=140
-network_y=420
-batt_x=170
-batt_y=475
+backgroundColor=0xFFFFFF
+foregroundColor=0xFFFFFF
 settings_table = {
     {
         -- Edit this table to customise your rings.
         -- You can create more rings simply by adding more elements to settings_table.
-        name='time',          -- "name" is the type of stat to display; you can choose from 'cpu', 'memperc', 'fs_used_perc', 'battery_used_perc'.
-        arg='%I.%M',          -- "arg" is the argument to the stat type, e.g. if in Conky you would write ${cpu cpu0}, 'cpu0' would be the argument. If you would not use an argument in the Conky variable, use ''.
-        max=12,               -- "max" is the maximum value of the ring. If the Conky variable outputs a percentage, use 100.
-        bg_colour=0xFFFFFF,   -- "bg_colour" is the colour of the base ring.
-        bg_alpha=0.1,         -- "bg_alpha" is the alpha value of the base ring.
-        fg_colour=0xFFFFFF,   -- "fg_colour" is the colour of the indicator part of the ring.
-        fg_alpha=0.2,         -- "fg_alpha" is the alpha value of the indicator part of the ring.
-        x=clock_x, y=clock_y, -- "x" and "y" are the x and y coordinates of the centre of the ring, relative to the top left corner of the Conky window.
-        radius=50,            -- "radius" is the radius of the ring.
-        thickness=5,          -- "thickness" is the thickness of the ring, centred around the radius.
-        start_angle=0,        -- "start_angle" is the starting angle of the ring, in degrees, clockwise from top. Value can be either positive or negative.
-        end_angle=360         -- "end_angle" is the ending angle of the ring, in degrees, clockwise from top. Value can be either positive or negative, but must be larger than start_angle.
+        name='time',               -- "name" is the type of stat to display; you can choose from 'cpu', 'memperc', 'fs_used_perc', 'battery_used_perc'.
+        arg='%I.%M',               -- "arg" is the argument to the stat type, e.g. if in Conky you would write ${cpu cpu0}, 'cpu0' would be the argument. If you would not use an argument in the Conky variable, use ''.
+        max=12,                    -- "max" is the maximum value of the ring. If the Conky variable outputs a percentage, use 100.
+        bg_colour=backgroundColor, -- "bg_colour" is the colour of the base ring.
+        bg_alpha=0.1,              -- "bg_alpha" is the alpha value of the base ring.
+        fg_colour=foregroundColor, -- "fg_colour" is the colour of the indicator part of the ring.
+        fg_alpha=0.2,              -- "fg_alpha" is the alpha value of the indicator part of the ring.
+        x=clock_x, y=clock_y,      -- "x" and "y" are the x and y coordinates of the centre of the ring, relative to the top left corner of the Conky window.
+        radius=hour_ring,          -- "radius" is the radius of the ring.
+        thickness=ring_thickness,  -- "thickness" is the thickness of the ring, centred around the radius.
+        start_angle=0,             -- "start_angle" is the starting angle of the ring, in degrees, clockwise from top. Value can be either positive or negative.
+        end_angle=360              -- "end_angle" is the ending angle of the ring, in degrees, clockwise from top. Value can be either positive or negative, but must be larger than start_angle.
 }
 ,{
         name='time',
         arg='%M.%S',
         max=60,
-        bg_colour=0xFFFFFF,
+        bg_colour=backgroundColor,
         bg_alpha=0.1,
-        fg_colour=0xFFFFFF,
+        fg_colour=foregroundColor,
         fg_alpha=0.35,
         x=clock_x, y=clock_y,
-        radius=56,
-        thickness=5,
+        radius=min_ring,
+        thickness=ring_thickness,
         start_angle=0,
         end_angle=360
     },{
         name='time',
         arg='%S',
         max=60,
-        bg_colour=0xFFFFFF,
+        bg_colour=backgroundColor,
         bg_alpha=0.1,
-        fg_colour=0xFFFFFF,
+        fg_colour=foregroundColor,
         fg_alpha=0.5,
         x=clock_x, y=clock_y,
-        radius=62,
-        thickness=5,
+        radius=sec_ring,
+        thickness=ring_thickness,
         start_angle=0,
         end_angle=360
     },{
         name='time',
         arg='%d',
         max=31,
-        bg_colour=0xFFFFFF,
+        bg_colour=foregroundColor,
         bg_alpha=0.1,
-        fg_colour=0xFFFFFF,
+        fg_colour=foregroundColor,
         fg_alpha=0.7,
         x=clock_x, y=clock_y,
-        radius=70,
-        thickness=5,
+        radius=day_ring,
+        thickness=ring_thickness,
         start_angle=-90,
         end_angle=90
     },{
         name='time',
         arg='%m',
         max=12,
-        bg_colour=0xFFFFFF,
+        bg_colour=foregroundColor,
         bg_alpha=0.1,
-        fg_colour=0xFFFFFF,
+        fg_colour=foregroundColor,
         fg_alpha=0.9,
         x=clock_x, y=clock_y,
-        radius=76,
-        thickness=5,
+        radius=mnth_ring,
+        thickness=ring_thickness,
         start_angle=-90,
         end_angle=90
     },{
         name='cpu',
         arg='cpu0',
         max=100,
-        bg_colour=0xFFFFFF,
+        bg_colour=foregroundColor,
         bg_alpha=0.2,
-        fg_colour=0xFFFFFF,
+        fg_colour=foregroundColor,
         fg_alpha=0.8,
         x=disc_x, y=disc_y,
         radius=25,
@@ -119,11 +138,11 @@ settings_table = {
         name='memperc',
         arg='',
         max=100,
-        bg_colour=0xFFFFFF,
+        bg_colour=foregroundColor,
         bg_alpha=0.2,
-        fg_colour=0xFFFFFF,
+        fg_colour=foregroundColor,
         fg_alpha=0.8,
-        x=disc_x+x_sep, y=disc_y+y_sep,
+        x=mem_x, y=mem_y,
         radius=20,
         thickness=5,
         start_angle=-90,
@@ -132,11 +151,11 @@ settings_table = {
         name='swapperc',
         arg='',
         max=100,
-        bg_colour=0xFFFFFF,
+        bg_colour=foregroundColor,
         bg_alpha=0.2,
-        fg_colour=0xFFFFFF,
+        fg_colour=foregroundColor,
         fg_alpha=0.8,
-        x=disc_x+x_sep, y=disc_y+y_sep,
+        x=mem_x, y=mem_y,
         radius=25,
         thickness=5,
         start_angle=-90,
@@ -145,11 +164,11 @@ settings_table = {
         name='fs_used_perc',
         arg='/',
         max=100,
-        bg_colour=0xFFFFFF,
+        bg_colour=foregroundColor,
         bg_alpha=0.2,
-        fg_colour=0xFFFFFF,
+        fg_colour=foregroundColor,
         fg_alpha=0.8,
-        x=disc_x+2*x_sep, y=disc_y+2*y_sep,
+        x=fs_x, y=fs_y,
         radius=25,
         thickness=5,
         start_angle=-90,
@@ -159,11 +178,11 @@ settings_table = {
         name='downspeedf',
         arg='enp2s0',
         max=500,
-        bg_colour=0xFFFFFF,
+        bg_colour=foregroundColor,
         bg_alpha=0.2,
-        fg_colour=0xFFFFFF,
+        fg_colour=foregroundColor,
         fg_alpha=0.8,
-        x=disc_x+3*x_sep, y=disc_y+3*y_sep,
+        x=network_x, y=network_y,
         radius=25,
         thickness=5,
         start_angle=-90,
@@ -172,11 +191,11 @@ settings_table = {
         name='upspeedf',
         arg='enp2s0',
         max=500,
-        bg_colour=0xFFFFFF,
+        bg_colour=foregroundColor,
         bg_alpha=0.2,
-        fg_colour=0xFFFFFF,
+        fg_colour=foregroundColor,
         fg_alpha=0.8,
-        x=disc_x+3*x_sep, y=disc_y+3*y_sep,
+        x=network_x, y=network_y,
         radius=20,
         thickness=5,
         start_angle=-90,
@@ -184,22 +203,7 @@ settings_table = {
     }
 }
 
-clock_h = {
-    {name='time',                   arg='%H',                    max_value=12,
-    x=clock_x,                           y=clock_y,
-    graduation_radius=55,
-    graduation_thickness=18,        graduation_mark_thickness=1.0,
-    graduation_unit_angle=30,
-    graduation_fg_colour=0xFFFFFF,  graduation_fg_alpha=0.75,
-    }
-}
-
-
 -- Use these settings to define the origin and extent of your clock.
-
-clock_r=64.5
-hour_r =48/clock_r
-min_r  =56/clock_r
 
 show_seconds=true
 
@@ -215,13 +219,13 @@ function draw_ring(cr,t,pt)
     local xc,yc,ring_r,ring_w,sa,ea=pt['x'],pt['y'],pt['radius'],pt['thickness'],pt['start_angle'],pt['end_angle']
     local bgc, bga, fgc, fga=pt['bg_colour'], pt['bg_alpha'], pt['fg_colour'], pt['fg_alpha']
 
+    -- convert to radians
     local angle_0=sa*(2*math.pi/360)-math.pi/2
     local angle_f=ea*(2*math.pi/360)-math.pi/2
-    -- math.min is used to prevent ring over-fill
-    local t_arc=math.min(t*(angle_f-angle_0),angle_f+math.pi)
+    -- math.min is used to prevent ring over-fill -- t\in[0,1]
+    local t_arc=math.min(t,1)*(angle_f-angle_0)
 
     -- Draw background ring
-
     cairo_arc(cr,xc,yc,ring_r,angle_0,angle_f)
     cairo_set_source_rgba(cr,rgb_to_r_g_b(bgc,bga))
     cairo_set_line_width(cr,ring_w)
@@ -242,40 +246,39 @@ function draw_clock_hands(cr,xc,yc)
     hours=os.date("%I")
 
     secs_arc=(2*math.pi/60)*secs
+    -- minutes relies on seconds
     mins_arc=(2*math.pi/60)*mins+secs_arc/60
+    -- hours relies on minutes and seconds
     hours_arc=(2*math.pi/12)*hours+mins_arc/12
 
     -- Draw hour hand
-
     xh=xc+hour_r*clock_r*math.sin(hours_arc)
     yh=yc-hour_r*clock_r*math.cos(hours_arc)
     cairo_move_to(cr,xc,yc)
     cairo_line_to(cr,xh,yh)
     
     cairo_set_line_cap(cr,CAIRO_LINE_CAP_ROUND)
-    cairo_set_line_width(cr,5)
+    cairo_set_line_width(cr,hrHandWidth)
     cairo_set_source_rgba(cr,1.0,1.0,1.0,1.0)
     cairo_stroke(cr)
     
     -- Draw minute hand
-    
     xm=xc+min_r*clock_r*math.sin(mins_arc)
     ym=yc-min_r*clock_r*math.cos(mins_arc)
     cairo_move_to(cr,xc,yc)
     cairo_line_to(cr,xm,ym)
     
-    cairo_set_line_width(cr,3)
+    cairo_set_line_width(cr,minHandWidth)
     cairo_stroke(cr)
     
     -- Draw seconds hand
-    
     if show_seconds then
         xs=xc+clock_r*math.sin(secs_arc)
         ys=yc-clock_r*math.cos(secs_arc)
         cairo_move_to(cr,xc,yc)
         cairo_line_to(cr,xs,ys)
     
-        cairo_set_line_width(cr,1)
+        cairo_set_line_width(cr,secHandWidth)
         cairo_stroke(cr)
     end
 end
@@ -283,10 +286,10 @@ end
 function draw_graduations(display)
     -- graduations marks
     local x, y = clock_x, clock_y
-    local graduation_radius = 62
-    local graduation_thickness, graduation_mark_thickness = 8,1.5
+    local graduation_radius = min_ring
+    local graduation_thickness, graduation_mark_thickness = 2.75*ring_sep,1.0
     local graduation_unit_angle = 30
-    local graduation_fg_colour, graduation_fg_alpha = 0xFFFFFF, 0.75
+    local graduation_fg_colour, graduation_fg_alpha = foregroundColor, 0.35
     if graduation_radius > 0 and graduation_thickness > 0 and graduation_unit_angle > 0 then
         local nb_graduation = 360 / graduation_unit_angle
         local i = 0
@@ -325,7 +328,6 @@ function conky_clock_rings()
     end
     
     -- Check that Conky has been running for at least 5s
-
     if conky_window==nil then 
         return 
     end

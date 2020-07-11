@@ -88,18 +88,18 @@ ${goto 90}${offset 35}Net
 ${goto 3}${voffset -35}${font caviar dreams:size=10}${execi 300 ./.getWeather.sh}
 ${voffset -22.5}
 ${hr}${font Liberation Mono:size=11.5}
-${execi 600 gcal .+|cut -c  1-22|tail -n 8| sed s/"< "/" <"/}
-${execi 600 gcal .+|cut -c 27-50|tail -n 8| head -n 5}
+${execi 300 gcal .+|cut -c  1-22|tail -n 8| sed s/"< "/" <"/}
+${execi 300 gcal .+|cut -c 27-50|tail -n 8| head -n 5}
 ${hr}${font Liberation Mono:size=7.5}
 ${voffset -3.5}${if_running pianobar}\
- Station: ${execi 6 head -n 1 ~/.config/pianobar/nowplaying}
+ Station: ${execi 3 head -n 1 ~/.config/pianobar/nowplaying}
 ##  Find a way to store the strings/length of strings in a variable
 ##  TODO make durp.txt. Try saving to variable. Try printing variable
 ##  ${execi 6 echo $(echo -n $(head -2  ~/.config/pianobar/nowplaying | tail -n 1)| wc -m)}
 ##  ${execi 6 echo $(echo -n $(head -3  ~/.config/pianobar/nowplaying | tail -n 1)| wc -m)}
 ## If artist/title is longer than 22, scroll, else, display.
- Artist:  ${if_match ${execi 6 echo $(echo -n $(head -2  ~/.config/pianobar/nowplaying | tail -n 1)| wc -m)} > 22}${scroll 24 6 ${execi 6 head -2  ~/.config/pianobar/nowplaying | tail -n 1}}${else}${execi 6 head -2  ~/.config/pianobar/nowplaying | tail -n 1}${endif}
- Title:   ${if_match ${execi 6 echo $(echo -n $(head -3  ~/.config/pianobar/nowplaying | tail -n 1)| wc -m)} > 22}${scroll 24 6 ${execi 6 head -3  ~/.config/pianobar/nowplaying | tail -n 1}}${else}${execi 6 head -3  ~/.config/pianobar/nowplaying | tail -n 1}${endif}
+ Artist:  ${if_match ${execi 3 echo $(echo -n $(head -2  ~/.config/pianobar/nowplaying | tail -n 1)| wc -m)} > 22}${scroll 24 6 ${execi 6 head -2  ~/.config/pianobar/nowplaying | tail -n 1}}${else}${execi 6 head -2  ~/.config/pianobar/nowplaying | tail -n 1}${endif}
+ Title:   ${if_match ${execi 3 echo $(echo -n $(head -3  ~/.config/pianobar/nowplaying | tail -n 1)| wc -m)} > 22}${scroll 24 6 ${execi 6 head -3  ~/.config/pianobar/nowplaying | tail -n 1}}${else}${execi 6 head -3  ~/.config/pianobar/nowplaying | tail -n 1}${endif}
 ${voffset -5}${hr}${endif}${voffset 5}
 ${font Liberation Mono:size=9}\
  Uptime: ${format_time $uptime_short "\dd \hh \mm"}
