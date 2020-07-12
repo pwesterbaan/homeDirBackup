@@ -63,7 +63,7 @@ conky.config = {
 	times_in_seconds = true,
 
 	-- Lua Load,
-	lua_load = '~/.conky/clock_rings.lua',
+	lua_load = '~/.scripts/conky/clock_rings.lua',
 	lua_draw_hook_pre  = 'clock_rings',
 
 -- Weather location is a 4 character code: ''KCEU'' is Clemson found from searching & using url
