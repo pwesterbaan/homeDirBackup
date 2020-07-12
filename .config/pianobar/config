@@ -2,4 +2,4 @@ user = 2003z440@gmail.com
 password = cheapPassword
 audio_quality = high
 format_nowplaying_song = "%t" by "%a" on "%l"%r%@%s
-event_command = ~/.pianobar-notify
+event_command = ~/.scripts/pianobar-notify

@@ -1,5 +1,5 @@
 -- nano ~/.xscreensaver
--- "Conky"  conky -q --window-id=$XSCREENSAVER_WINDOW -c ~/.conkyrc_screensaver \n\
+-- "Conky"  conky -q --window-id=$XSCREENSAVER_WINDOW -c ~/.scripts/conkyrc_screensaver \n\
 
 conky.config = {
 	background = false,
@@ -80,6 +80,7 @@ ${goto 640}Station: ${execi 12 head -n 1  ~/.config/pianobar/nowplaying}
 ${goto 640}Artist:  ${execi 2 head -2  ~/.config/pianobar/nowplaying | tail -n 1}
 ${goto 640}Title:   ${execi 2 head -3  ~/.config/pianobar/nowplaying | tail -n 1}
 ${endif}
+${voffset -5}${alignc}${execi 10 ~/.scripts/randomPhrases.py}
 ${font}
 ]];
 
