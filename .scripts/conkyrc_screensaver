@@ -75,13 +75,11 @@ ${font Liberation Mono:size=24}${execi 300 ./.scripts/getWeather.sh}
 ${font Liberation Mono:size=20}${voffset -110}
 ${alignr}${addr enp2s0} ${voffset 80}
 ${execi 600 gcal |tail -n 8| sed s/"< "/" <"/}
-${voffset -70}
-${if_running pianobar}${voffset -80}\
+${if_running pianobar}${voffset -120}\
 ${goto 640}Station: ${execi 12 head -n 1  ~/.config/pianobar/nowplaying}
 ${goto 640}Artist:  ${execi 2 head -2  ~/.config/pianobar/nowplaying | tail -n 1}
 ${goto 640}Title:   ${execi 2 head -3  ~/.config/pianobar/nowplaying | tail -n 1}
-${voffset -44}
-${endif}
+${voffset -8}${else}${voffset -35}${endif}
 ${alignc}${execi 10 ~/.scripts/randomPhrases.py}
 ${voffset -5}
 ${font}
