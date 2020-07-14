@@ -1,16 +1,11 @@
 #!/bin/sh
-#TODO Auto-start pianobar with play
-#TODO Auto-kill pianobar with stop
 
-#SERVICE="pianobar"
-#RESULT=`ps -a | sed -n /${SERVICE}/p`
+SERVICE="pianobar"
 
-#if [ "${RESULT:-null}" = null ]; then
-#    echo "not running"
-#else
-#    echo "running"
-#fi
-
-
-echo "p" >> ~/.config/pianobar/ctl
-
+if ps -eo cmd | grep -v grep | grep -x $SERVICE > /dev/null
+then
+    echo "p" >> ~/.config/pianobar/ctl
+else
+    notify-send "starting $SERVICE"
+    pianobar &
+fi
