@@ -16,7 +16,9 @@ phrases=[
 "In this economy?",
 "…and then the wolves came.",
 "Six one way, half a dozen the other.",
-"Fear not! -- ScoOoOoter"]
+"Fear not! -- ScoOoOoter",
+"Has anyone really been far as decided to use even go want to do more like?",
+"I've been further even more decided to use even go need to do look as anyone can!"]
 
 randInt=random.randint(0,len(phrases)-1)
 print(phrases[randInt])
