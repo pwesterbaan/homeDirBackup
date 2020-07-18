@@ -18,7 +18,8 @@ phrases=[
 "Six one way, half a dozen the other.",
 "Fear not! -- ScoOoOoter",
 "Has anyone really been far as decided to use even go want to do more like?",
-"I've been further even more decided to use even go need to do look as anyone can!"]
+"I've been further even more decided to use even go need to do look as anyone can!",
+"My best idea was walking to the edge of the earth but no one would go with me. has-anyone-really-been-far-as it goes I do-look-more-like."]
 
 randInt=random.randint(0,len(phrases)-1)
 print(phrases[randInt])
