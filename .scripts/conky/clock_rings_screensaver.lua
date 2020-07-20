@@ -1,4 +1,4 @@
-clock_x=1280/2
+clock_x=1680/2
 clock_y=1020/2-45
 
 ring_sep=45

@@ -1,5 +1,6 @@
 ampl/
 .android/
+.anyconnect/
 .audacity-data/
 .bash_history
 .cache/
@@ -84,6 +85,7 @@ VirtualBox VMs/
 .wget-hsts
 .Xauthority
 .Xdefaults
+.xournal/
 .xscreensaver
 .xsession-errors
 .xsession-errors.old

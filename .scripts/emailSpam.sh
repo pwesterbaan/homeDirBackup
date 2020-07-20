@@ -12,7 +12,7 @@ touch $1_tmp.txt
 for i in $(seq 1 $numIters);
   do
   echo $i
-  echo -n ""> $1_tmp.txt;
+  echo -n "Subject: " $i> $1_tmp.txt;
   for j in $(seq 1 $i);
     do
       echo -n "$message" >> $1_tmp.txt;
