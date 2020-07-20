@@ -38,10 +38,10 @@ conky.config = {
 	minimum_width = 1680, minimum_height = 1100,
 	maximum_width = 1680, maximum_height = 1100,
 
-	alignment = 'tl',
-        -- gap_x is used to shift from 'mm' to the middle of the left monitor
-        gap_x=-1*1680, 
-        gap_y=30,
+	alignment = 'mm',
+	-- gap_x is used to shift from 'mm' to the middle of the left monitor
+	gap_x=1.5*1680,
+	gap_y=-0.035*1100,
 
 	-- Graphics settings,
 	draw_shades = true,
@@ -84,4 +84,3 @@ ${font Liberation Mono:size=18}${alignc}${execi 10 ~/.scripts/randomPhrases.py}
 ${voffset -5}
 ${font}
 ]];
-
