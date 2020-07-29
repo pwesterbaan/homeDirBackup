@@ -9,7 +9,7 @@ done < <(grep -e '^\(title\|artist\|album\|stationName\|pRet\|pRetStr\|wRet\|wRe
 
 case "$1" in
   songstart)
-  notify-send "Pianobar - $stationName" "Now Playing: $artist - $title"
+  notify-send -t 5500 "Pianobar - $stationName" "Now Playing: $artist - $title"
   STRLENGTH1=$(echo -n "$artist" | wc -m)
   STRLENGTH2=$(echo -n "$title" | wc -m)
   SPACE=$(( $STRLENGTH1 > $STRLENGTH2 ? $STRLENGTH1 : $STRLENGTH2 ))
