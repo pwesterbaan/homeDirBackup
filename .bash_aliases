@@ -1,45 +1,47 @@
+export DEAL_II_DIR=/home/peter/dealii/dealii-8.5.1
 export DROPBOX_PATH=~/Dropbox
 export TEX_FOLDER=$DROPBOX_PATH/Coding/LaTex
-export DEAL_II_DIR=/home/peter/dealii/dealii-8.5.1
 export TEX_HOME=$(kpsewhich -var-value TEXMFHOME)/tex/latex/local/
-alias ll='ls -alF'
-alias la='ls -A'
-alias lsd='ls -d */'
-alias l='ls -CF'
-alias cls='clear && ls -F --group-directories-first && pwd'
-alias mkdir='mkdir -pv'
-alias db='cdls $DROPBOX_PATH'
-alias dbstat='dropbox status'
-alias jn='jupyter notebook'
-alias matlab='matlab -nodesktop -r "opengl info, desktop"'
-alias findPi='nmap -sP 192.168.1.*/24'
-alias getIP='ifconfig | grep -Po "inet.+broadcast" | grep -Po "(?:\d{1,3}\.){3}\d{1,3}" | head -n 1 > $DROPBOX_PATH/Documents/workhorseIP.txt && cat $DROPBOX_PATH/Documents/workhorseIP.txt'
-#ifconfig | grep -Po "inet.+broadcast" | grep -Po '(?:\d{1,3}\.){3}\d{1,3}' | head -n 1
-alias IUP='cdls $DROPBOX_PATH/Grad_School/IUP/'
-alias iup=IUP
+export PETSC_ARCH=linux-gnu
+export PETSC_DIR=~/petsc
+
+alias batcave='lp -q 1 -o sides=one-sided -d batcave'
 alias clemson='cdls $DROPBOX_PATH/Grad_School/Clemson/'
-alias tocp='xargs echo -n | xclip -selection clipboard'
-alias cpwd='echo -n `pwd` | tocp'
+alias cls='clear && ls -F --group-directories-first && pwd'
 #alias cpTikz='cat $TEX_FOLDER/tikzTemplate.tex | tocp'
 alias cpTikz='mousepad $TEX_FOLDER/tikz/tikzTemplate.tex &'
-alias mvPics='mv -v $DROPBOX_PATH/Camera\ Uploads/* /mnt/Data/Pictures/Camera\ Uploads && echo Done!'
-alias myip="curl http://ipecho.net/plain; echo"
-alias mkTex='latexmk -pdf -synctex=1'
+alias cpwd='echo -n `pwd` | tocp'
+alias customSty='ln -s /home/peter/texmf/tex/latex/local/texPreamble.sty . && ln -s /home/peter/texmf/tex/latex/local/colorPalette.sty . && ln -s /home/peter/texmf/tex/latex/local/texShortcutsWesterbaan.tex .'
+alias db='cdls $DROPBOX_PATH'
+alias dbstat='dropbox status'
+alias findcc='find $DROPBOX_PATH -name *conflicted\ copy*'
+alias findPi='nmap -sP 192.168.1.*/24'
 #alias gertrude='lp -d gertrude'
+alias getIP='ifconfig | grep -Po "inet.+broadcast" | grep -Po "(?:\d{1,3}\.){3}\d{1,3}" | head -n 1 > $DROPBOX_PATH/Documents/workhorseIP.txt && cat $DROPBOX_PATH/Documents/workhorseIP.txt'
 alias hpadmin1='lp -q 1 -o sides=one-sided -d hpadmin1'
 #alias hpadmin4='lp -q 1 -o sides=one-sided -d hpadmin4'
-alias mera='lp -q 1 -o sides=one-sided -o media=letter -d mera'
-alias batcave='lp -q 1 -o sides=one-sided -d batcave'
-## modify printer options from localhost:631
+alias IUP='cdls $DROPBOX_PATH/Grad_School/IUP/'
+alias iup=IUP
+alias jn='jupyter notebook'
+alias la='ls -A'
 alias lCopier='lp -q 1 -d leftCopier'
+alias ll='ls -alF'
+alias l='ls -CF'
+alias lsd='ls -d */'
+alias matlab='matlab -nodesktop -r "opengl info, desktop"'
+alias mera='lp -q 1 -o sides=one-sided -o media=letter -d mera'
+alias mkdir='mkdir -pv'
+alias mkTex='latexmk -pdf -synctex=1'
+alias mvPics='mv -v $DROPBOX_PATH/Camera\ Uploads/* /mnt/Data/Pictures/Camera\ Uploads && echo Done!'
+alias myip="curl http://ipecho.net/plain; echo"
+alias rbf='find . -type f \( -iname \*.aux -o -iname \*.bbl -o -iname \*.blg -o -iname \*.fdb_latexmk -o -iname \*.fls -o -iname \*.log -o -iname \*.nav -o -iname \*.out -o -iname \*.snm -o -iname \*.synctex.gz -o -iname \*.toc -o -iname \*.lof -o -iname \*.lot -o -iname \*.dvi -o -iname \*-eps-converted-to -o -iname \*.goutputstream -o -iname \*.fuse_hidden* -o -iname \*-eps-converted-to.pdf \) -print -delete'
 alias rCopier='lp -q 1 -d rightCopier'
-alias customSty='ln -s /home/peter/texmf/tex/latex/local/texPreamble.sty . && ln -s /home/peter/texmf/tex/latex/local/colorPalette.sty . && ln -s /home/peter/texmf/tex/latex/local/texShortcutsWesterbaan.tex .'
-alias texpreamble='xdg-open $TEX_HOME/texPreamble.sty'
-alias texshortcuts='xdg-open $TEX_HOME/texShortcutsWesterbaan.tex'
 alias rwifi='nmcli r wifi off; read -p "Press enter"; nmcli r wifi on && ls -F --group-directories-first && pwd'
 alias snmr='sudo service network-manager restart'
-alias findcc='find $DROPBOX_PATH -name *conflicted\ copy*'
-alias rbf='find . -type f \( -iname \*.aux -o -iname \*.bbl -o -iname \*.blg -o -iname \*.fdb_latexmk -o -iname \*.fls -o -iname \*.log -o -iname \*.nav -o -iname \*.out -o -iname \*.snm -o -iname \*.synctex.gz -o -iname \*.toc -o -iname \*.lof -o -iname \*.lot -o -iname \*.dvi -o -iname \*-eps-converted-to -o -iname \*.goutputstream -o -iname \*.fuse_hidden* -o -iname \*-eps-converted-to.pdf \) -print -delete'
+alias tex2png='~/.scripts/genEqnImage.sh'
+alias texpreamble='xdg-open $TEX_HOME/texPreamble.sty'
+alias texshortcuts='xdg-open $TEX_HOME/texShortcutsWesterbaan.tex'
+alias tocp='xargs echo -n | xclip -selection clipboard'
 
 durp(){ # This silly function is for testing purposes
     if [[ -n "${1+x}" && ${1:-4} != *.tex ]]; then 
@@ -168,7 +170,8 @@ rename(){
 
 }
 
-cpKey(){ #Function to compile the blank version of *_KEY*.tex
+cpKey(){ 
+  #Function to compile the blank version of *_KEY*.tex
   if [ $# -eq 0 ]
     then
       pattern=*_KEY*.tex;
@@ -215,8 +218,9 @@ cdls(){
 
 mkcdir ()
 {
+    # mkdir $NAME && cd $NAME
     mkdir -p -- "$1" &&
-      cdls "$1"
+    cdls "$1"
 }
 
 function customExtract {
@@ -226,7 +230,6 @@ function customExtract {
  else
     if [ -f $1 ] ; then
         # NAME=${1%.*}
-        # mkdir $NAME && cd $NAME
         case $1 in
           *.tar.bz2)   tar xvjf ../$1    ;;
           *.tar.gz)    tar xvzf ../$1    ;;
@@ -252,6 +255,3 @@ fi
 }
 
 ls -F --group-directories-first && pwd;
-
-export PETSC_DIR=~/petsc
-export PETSC_ARCH=linux-gnu
