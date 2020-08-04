@@ -24,7 +24,7 @@ phrases=[
 "I have no strong feelings one way or the other.",
 "I think there's a \"k\" in knucklehead.",
 "I have 4 other goals to accomplish today.",
-"…in the noon. -- ScoOoOoter"]
+"…in the noon. -- ScoOoOoter",
+"I punch those numbers into my calculator, it makes a happy face!"]
 
-randInt=random.randint(0,len(phrases)-1)
-print(phrases[randInt])
+print(phrases[random.randint(0,len(phrases)-1)])
