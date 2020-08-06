@@ -40,7 +40,7 @@ conky.config = {
 
 	alignment = 'mm',
 	-- gap_x is used to shift from 'mm' to the middle of the left monitor
-	gap_x=0*1680,
+	gap_x=1.5*1680,
 	gap_y=-0.035*1100,
 
 	-- Graphics settings,

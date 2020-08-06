@@ -25,6 +25,8 @@ phrases=[
 "I think there's a \"k\" in knucklehead.",
 "I have 4 other goals to accomplish today.",
 "…in the noon. -- ScoOoOoter",
-"I punch those numbers into my calculator, it makes a happy face!"]
+"I punch those numbers into my calculator, it makes a happy face!",
+"It\'s my first day!",
+"Send in the clergy! They can move diagonally!"]
 
 print(phrases[random.randint(0,len(phrases)-1)])
