@@ -27,6 +27,9 @@ phrases=[
 "…in the noon. -- ScoOoOoter",
 "I punch those numbers into my calculator, it makes a happy face!",
 "It\'s my first day!",
-"Send in the clergy! They can move diagonally!"]
+"Send in the clergy! They can move diagonally!",
+"Rest assured that all lethal military androids have been provided with one copy of the Laws of Robotics. To share.",
+"To shreds you say?",
+"Super easy! Barely an inconvenience!"]
 
 print(phrases[random.randint(0,len(phrases)-1)])
