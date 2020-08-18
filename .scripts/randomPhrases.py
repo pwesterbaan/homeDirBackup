@@ -30,6 +30,7 @@ phrases=[
 "Send in the clergy! They can move diagonally!",
 "Rest assured that all lethal military androids have been provided with one copy of the Laws of Robotics. To share.",
 "To shreds you say?",
-"Super easy! Barely an inconvenience!"]
+"Super easy! Barely an inconvenience!",
+"All hail Hypnotoad!"]
 
-print(phrases[random.randint(0,len(phrases)-1)])
+print(random.choice(phrases))
