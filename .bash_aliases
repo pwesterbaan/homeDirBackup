@@ -198,7 +198,11 @@ cpKey(){
         echo "***********";
         echo Compile key;
         echo "***********";
-        latexmk -pdf -silent -g -pdflatex='pdflatex %O -interaction=nonstopmode -synctex=1 "\PassOptionsToClass{answers}{exam}\input{%S}"' $f > /dev/null;
+        JOBOPTS="pdflatex %O \
+          -interaction=nonstopmode \
+          -synctex=1 \
+          '\PassOptionsToClass{answers}{exam}\input{%S}'"
+        latexmk -pdf -silent -g -pdflatex="$JOBOPTS" $f > /dev/null;
     done;
     confirm "rbf? (def Y)" -y && rbf && ls -F --group-directories-first && pwd;
     exo-open ${f//"_KEY.tex"/""}*.pdf & # *.pdf
