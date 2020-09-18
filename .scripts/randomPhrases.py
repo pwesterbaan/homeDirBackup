@@ -17,7 +17,7 @@ phrases=[
 "…and then the wolves came.",
 "Six one way, half a dozen the other.",
 "Fear not! -- ScoOoOoter",
-"Has anyone really been far as decided to use even go want to do more like?",
+"Has anyone really been far even as decided to use even go want to do more like?",
 "I've been further even more decided to use even go need to do look as anyone can!",
 "My best idea was walking to the edge of the earth but no one would go with me.",
 "has-anyone-really-been-far-as it goes I do-look-more-like.",
@@ -31,6 +31,8 @@ phrases=[
 "Rest assured that all lethal military androids have been provided with one copy of the Laws of Robotics. To share.",
 "To shreds you say?",
 "Super easy! Barely an inconvenience!",
-"All hail Hypnotoad!"]
+"All hail Hypnotoad!",
+"Hold on, let me grab my cheese funnel.",
+"Bob Vance - Vance refridgeration"]
 
 print(random.choice(phrases))
