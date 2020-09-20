@@ -1,6 +1,6 @@
 conky.config = {
 	background = false,
-	update_interval = 1,
+	update_interval = 1/2,
 
 	cpu_avg_samples = 2,
 	net_avg_samples = 2,
@@ -19,7 +19,6 @@ conky.config = {
 	if_up_strictness = 'address',
 
 	-- Window specifications,
-
 	own_window_class = 'Conky',
 	own_window = true,
 	own_window_type = 'normal',
@@ -38,7 +37,7 @@ conky.config = {
 	maximum_width = 200,
 
 	alignment = 'middle_right',
-	gap_x = 35,
+	gap_x = 0*1960+1*35,
 	gap_y = 15,
 
 	-- Graphics settings,
@@ -66,37 +65,42 @@ conky.config = {
 };
 
 conky.text = [[
-${voffset 8}${font caviar dreams:size=16}${time %A}${font}${voffset -8}${alignr 10}${font caviar dreams:size=38}${time %e}${font}
+${voffset 8}${font caviar dreams:size=16}${time %A}${font}${voffset -8}${alignr}${font caviar dreams:size=38}${time %e}${font}
 ${voffset -30}${font caviar dreams:size=18}${time %b}${font}${voffset -3}${font caviar dreams:size=20}${time %Y}${font}${hr}
 ${voffset 140}${font caviar dreams:size=8}
 
 
 ${goto 7.5}${voffset 10}${cpu cpu0}%
 ${goto 7.5}CPU
-${goto 7.5}${voffset 23}RAM: ${memperc}% 
-${goto 7.5}Swap: ${swapperc}%
+${goto 4}${voffset 23}RAM: ${memperc}% 
+${goto 4}Swap: ${swapperc}%
 ${goto 75}${voffset 25}${fs_used_perc}%
 ${goto 75}Disk
-${goto 132}${voffset 15}${if_up enp6s0}${else}W${endif}
-${goto 90}${voffset -2}${if_up enp6s0}${downspeed enp6s0}${else}${downspeed wlp5s0f0}${endif}
-${goto 90}${if_up enp6s0}${upspeed enp6s0}${else}${upspeed wlp5s0f0}${endif}
-${goto 90}Net
-${goto 125}${voffset 10}${battery_short}
-${goto 125}Battery
+${voffset 12.5}\
+${goto 90}${voffset 10}${battery_short}
+${goto 90}Battery
 ## The following error message occurs when the battery is full
 # conky: $format_time didn't receive a time in seconds as first argument
-${goto 125}${format_time $battery_time "\hh \mm"}
-
-${voffset -30}${font caviar dreams:size=10}${execi 300 ./.getWeather.sh}
+${goto 90}${format_time $battery_time "\hh \mm"}
+${alignr}${goto 160}${if_up enp6s0}${else}${wireless_link_qual wlp5s0f0}%${endif}
+${goto 125}${voffset -2}${if_up enp6s0}${downspeed enp6s0}${else}${downspeed wlp5s0f0}${endif}
+${goto 125}${if_up enp6s0}${upspeed enp6s0}${else}${upspeed wlp5s0f0}${endif}
+${goto 125}Net
+${goto 7.5}${voffset -25}${font caviar dreams:size=10}${execi 300 ./.getWeather.sh}\
+${if_up enp6s0}${else}\
+${voffset 5}${alignr}${wireless_link_bar 5,100 wlp5s0f0}${voffset -5}\
+${endif}
+${voffset -20}
 ${hr}${font Liberation Mono:size=11.5}
-${execi 3600 gcal .+|cut -c  1-22|tail -n 8| sed s/"< "/" <"/}
-${execi 3600 gcal .+|cut -c 27-50|tail -n 8| head -n 5}
+${execi 600 gcal .+|cut -c  1-22|tail -n 8| sed s/"< "/" <"/}
+${execi 600 gcal .+|cut -c 27-50|tail -n 8| head -n 5}
 ${hr}${font Liberation Mono:size=7.5}
-${voffset -3.5}${if_running pianobar}  Station: ${execi 10 head -n 1  ~/.config/pianobar/nowplaying}
+${voffset -1.5}${if_running pianobar}  Station: ${execi 10 head -n 1  ~/.config/pianobar/nowplaying}
 ## Add line: If text longer than 24, scroll, else, just display
 ## Need to find a way to count string length
-  Artist:  ${if_match ${execi 6 echo $(echo -n $(head -2  ~/.config/pianobar/nowplaying | tail -n 1)| wc -m)} > 22}${scroll 24 6 ${execi 6 head -2  ~/.config/pianobar/nowplaying | tail -n 1}}${else}${execi 6 head -2  ~/.config/pianobar/nowplaying | tail -n 1}${endif}
-  Title:   ${if_match ${execi 6 echo $(echo -n $(head -3  ~/.config/pianobar/nowplaying | tail -n 1)| wc -m)} > 22}${scroll 24 6 ${execi 6 head -3  ~/.config/pianobar/nowplaying | tail -n 1}}${else}${execi 6 head -3  ~/.config/pianobar/nowplaying | tail -n 1}${endif}
+#  Artist:  ${if_match ${execi 3 echo $(echo -n $(head -2  ~/.config/pianobar/nowplaying | tail -n 1)| wc -m)} > 22}${scroll 24 6 ${execi 6 head -n 2  ~/.config/pianobar/nowplaying | tail -n 1}}${else}${execi 6 head -2  ~/.config/pianobar/nowplaying | tail -n 1}${endif}
+  Artist:  ${execi 3 head -n 2  ~/.config/pianobar/nowplaying | tail -n 1}
+  Title:   ${if_match ${execi 3 echo $(echo -n $(head -3  ~/.config/pianobar/nowplaying | tail -n 1)| wc -m)} > 22}${scroll 24 2 ${execi 6 tail -n 1  ~/.config/pianobar/nowplaying}}${else}${execi 6 tail -n 1  ~/.config/pianobar/nowplaying}${endif}
 ${voffset -5}${hr}${endif}${voffset 5}
 ${font Liberation Mono:size=9}Uptime: ${format_time $uptime_short "\dd \hh \mm"}
 Processes: ${processes}
