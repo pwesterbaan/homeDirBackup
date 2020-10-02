@@ -16,6 +16,9 @@ Downloads/
 Dropbox/
 .dropbox-dist/
 Edraw/
+.elinks
+.eLinks/
+.emacs.d/
 .fonts/
 games/
 .gdfuse/
@@ -23,6 +26,7 @@ get-pip.py
 .gimp-2.8/
 .gitconfig
 github-recovery-codes.txt
+.gnome
 .gnupg/
 .hplip/
 .ICEauthority
