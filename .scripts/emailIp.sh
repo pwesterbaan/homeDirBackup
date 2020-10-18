@@ -8,3 +8,6 @@ ifconfig | grep "inet" | grep -Po "(?:\d{1,3}\.){3}\d{1,3}" | head -n 1 | /usr/b
 
 ## email with attachment
 # echo "message" | mail -s "subject" <recipient> -A <file>
+
+## A feeble attempt to restore my WOL abilities
+#ethtool -s enp2s0 wol g

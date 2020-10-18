@@ -79,8 +79,8 @@ ${if_running pianobar}${voffset -120}\
 ${goto 840}Station: ${execi 12 head -n 1  ~/.config/pianobar/nowplaying}
 ${goto 840}Artist:  ${execi 2 head -2  ~/.config/pianobar/nowplaying | tail -n 1}
 ${goto 840}Title:   ${execi 2 head -3  ~/.config/pianobar/nowplaying | tail -n 1}
-${voffset -8}${else}${voffset -35}${endif}
-${font Liberation Mono:size=18}${alignc}${execi 10 ~/.scripts/randomPhrases.py}
+${voffset -5}${else}${voffset -32}${endif}
+${font Liberation Mono:size=16}${alignc}${execi 10 ~/.scripts/randomPhrases.py}
 ${voffset -5}
 ${font}
 ]];
