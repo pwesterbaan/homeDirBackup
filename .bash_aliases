@@ -36,6 +36,7 @@ alias mkTex='latexmk -pdf -synctex=1'
 alias mvPics='mv -v $DROPBOX_PATH/Camera\ Uploads/* /mnt/Data/Pictures/Camera\ Uploads && echo Done!'
 alias myip="curl http://ipecho.net/plain; echo"
 #alias opal="pwester@opal.ces.clemson.edu"
+alias qtcreator='/opt/qtcreator-4.13.2/bin/qtcreator'
 alias rbf='find . -type f \( -iname \*.aux -o -iname \*.bbl -o -iname \*.blg -o -iname \*.fdb_latexmk -o -iname \*.fls -o -iname \*.log -o -iname \*.nav -o -iname \*.out -o -iname \*.snm -o -iname \*.synctex.gz -o -iname \*.toc -o -iname \*.lof -o -iname \*.lot -o -iname \*.dvi -o -iname \*-eps-converted-to -o -iname \*.goutputstream -o -iname \*.fuse_hidden* -o -iname \*-eps-converted-to.pdf \) -print -delete'
 alias rCopier='lp -q 1 -d rightCopier'
 alias rwifi='nmcli r wifi off; read -p "Press enter"; nmcli r wifi on && ls -F --group-directories-first && pwd'
