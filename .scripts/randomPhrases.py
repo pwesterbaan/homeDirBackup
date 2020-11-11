@@ -38,7 +38,8 @@ phrases=[
     "At no point in your rambling, incoherent response were you even close to anything that could be considered a rational thought",
     "I award you no points and may God have mercy on your soul",
     "It\'s Halloween.... That\'s really good timing!",
-    "Ok, lamp time\'s over!"
+    "Ok, lamp time\'s over!",
+    "This isn\'t Sesame Street..."
 ]
 
 
