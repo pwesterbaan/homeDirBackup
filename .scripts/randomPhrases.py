@@ -39,7 +39,8 @@ phrases=[
     "I award you no points and may God have mercy on your soul",
     "It\'s Halloween.... That\'s really good timing!",
     "Ok, lamp time\'s over!",
-    "This isn\'t Sesame Street..."
+    "This isn\'t Sesame Street...",
+    "Exit only!"
 ]
 
 
