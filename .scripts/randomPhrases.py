@@ -40,7 +40,8 @@ phrases=[
     "It\'s Halloween.... That\'s really good timing!",
     "Ok, lamp time\'s over!",
     "This isn\'t Sesame Street...",
-    "Exit only!"
+    "Exit only!",
+    "My plan is to forget the whole thing and hope for the best."
 ]
 
 
