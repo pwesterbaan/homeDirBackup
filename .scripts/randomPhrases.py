@@ -42,7 +42,8 @@ phrases=[
     "This isn\'t Sesame Street...",
     "Exit only!",
     "My plan is to forget the whole thing and hope for the best.",
-    "Please stop screaming into the void. It's getting full."
+    "Please stop screaming into the void. It's getting full.",
+    "Today is brought to you by the letters \"W\", \"T\", and \"F\""
 ]
 
 
