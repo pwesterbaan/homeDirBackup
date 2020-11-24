@@ -47,7 +47,8 @@ phrases=[
     "That sentence ended a lot better than it began!",
     "Now with even less asbestos!",
     "Not everyone who wears a sweater is Mr. Rogers.",
-    "He doesn\'t know how to use the 3 seashells!"
+    "He doesn\'t know how to use the 3 seashells!",
+    "Am I sgeaking a different language?!?"
 ]
 
 
