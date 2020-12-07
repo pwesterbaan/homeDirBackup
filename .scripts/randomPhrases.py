@@ -49,7 +49,9 @@ phrases=[
     "Not everyone who wears a sweater is Mr. Rogers.",
     "He doesn\'t know how to use the 3 seashells!",
     "Am I sgeaking a different language?!?",
-    "You can\'t steer with a rudder like that!"
+    "You can\'t steer with a rudder like that!",
+    "Whatever boats your float!",
+    "Boaty McBoatface"
 ]
 
 
