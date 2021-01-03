@@ -173,13 +173,15 @@ rename(){
 
 }
 
-cpKey(){ 
-  #Function to compile the blank version of *_KEY*.tex
+cpKey(){
+  #Function to compile the blank version of *_KEY.tex
+  CURRENT_DIR=$(pwd)
   if [ $# -eq 0 ]
     then
       pattern=*_KEY*.tex;
     else
-      pattern=$1
+      pattern="$(basename -- $1)"
+      cd "$(dirname -- $1)"
   fi
   if ls $pattern 1> /dev/null 2>&1; then
     for f in $pattern;
@@ -209,6 +211,7 @@ cpKey(){
     done;
     confirm "rbf? (def Y)" -y && rbf && ls -F --group-directories-first && pwd;
     exo-open ${f//"_KEY.tex"/""}*.pdf & # *.pdf
+    cdls $CURRENT_DIR
   else
     echo "No files match *_KEY*.tex pattern";
   fi
