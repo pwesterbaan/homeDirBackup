@@ -16,6 +16,7 @@ alias db='cdls $DROPBOX_PATH'
 alias dbstat='dropbox status'
 alias findcc='find $DROPBOX_PATH -name *conflicted\ copy*'
 alias findPi='nmap -sP 192.168.1.*/24'
+alias flaskCommands='export FLASK_APP=app.py; export FLASK_ENV=development; flask run'
 #alias gertrude='lp -d gertrude'
 alias getIP='ifconfig | grep -Po "inet.+broadcast" | grep -Po "(?:\d{1,3}\.){3}\d{1,3}" | head -n 1 > $DROPBOX_PATH/Documents/workhorseIP.txt && cat $DROPBOX_PATH/Documents/workhorseIP.txt'
 alias hpadmin1='lp -q 1 -o sides=one-sided -d hpadmin1'
@@ -265,3 +266,5 @@ fi
 }
 
 ls -F --group-directories-first && pwd;
+
+shopt -s direxpand
