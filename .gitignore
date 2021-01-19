@@ -45,6 +45,7 @@ github-recovery-codes.txt
 .mozilla/
 *.mp3
 Music/
+.mysql_history
 *.ogg
 .openarena/
 opt/

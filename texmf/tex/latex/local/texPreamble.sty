@@ -55,7 +55,7 @@
 \RequirePackage[linesnumbered,lined,ruled,commentsnumbered]{algorithm2e}
 \RequirePackage{scalerel}
 \RequirePackage{pgfplots}
-  \pgfplotsset{compat=1.15}
+  \pgfplotsset{compat=newest}
   \usepgfplotslibrary{fillbetween}
   \usetikzlibrary{patterns}
   \usetikzlibrary{arrows}
@@ -77,6 +77,8 @@
   \renewcommand\thesubfigure{(\alph{subfigure})}
 \RequirePackage{listings}
 \RequirePackage{tabularx}
+\RequirePackage{tabto}                          %provides \tab command
+\RequirePackage{harpoon}
 \RequirePackage[super]{nth}                     %\nth{1}
 \RequirePackage{wrapfig}                        %\begin{wrapfigure}
 \RequirePackage{diagbox}                        %diagonal line in table cell
