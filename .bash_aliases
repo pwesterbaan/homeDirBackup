@@ -46,6 +46,7 @@ alias tex2png='~/.scripts/genEqnImage.sh'
 alias texpreamble='xdg-open $TEX_HOME/texPreamble.sty'
 alias texshortcuts='xdg-open $TEX_HOME/texShortcutsWesterbaan.tex'
 alias tocp='xargs echo -n | xclip -selection clipboard'
+alias todo='emacs /home/peter/Dropbox/Documents/todo.txt'
 
 durp(){ # This silly function is for testing purposes
     if [[ -n "${1+x}" && ${1:-4} != *.tex ]]; then 
