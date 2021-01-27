@@ -51,7 +51,8 @@ phrases=[
     "Am I sgeaking a different language?!?",
     "You can\'t steer with a rudder like that!",
     "Whatever boats your float!",
-    "Boaty McBoatface"
+    "Boaty McBoatface",
+    "Never underestimate the cleverness of fools"
 ]
 
 
