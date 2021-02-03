@@ -33,6 +33,7 @@ github-recovery-codes.txt
 .gnupg/
 .hplip/
 .ICEauthority
+.ipynb_checkpoints
 .ipython/
 .java/
 .jupyter/

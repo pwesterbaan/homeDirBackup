@@ -52,7 +52,8 @@ phrases=[
     "You can\'t steer with a rudder like that!",
     "Whatever boats your float!",
     "Boaty McBoatface",
-    "Never underestimate the cleverness of fools"
+    "Never underestimate the cleverness of fools",
+    "On today's episode of \'Why is this sticky?\'..."
 ]
 
 
