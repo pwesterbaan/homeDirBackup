@@ -53,7 +53,8 @@ phrases=[
     "Whatever boats your float!",
     "Boaty McBoatface",
     "Never underestimate the cleverness of fools",
-    "On today's episode of \'Why is this sticky?\'..."
+    "On today's episode of \'Why is this sticky?\'...",
+    "A lack of planning on your part does not constitute an emergency on mine."
 ]
 
 
