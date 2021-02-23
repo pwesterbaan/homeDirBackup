@@ -46,7 +46,7 @@
 %TODO %%Boxed definition. mdframed box was inconsistent
 \newenvironment{thmBox*}[2][]{\setlength{\parindent}{0pt}%
   \begin{framed}
-  \textbf{Theorem \ifstrempty{#1}{\ }{#1}} %
+  \textbf{\ifstrempty{#1}{\ }{#1}} %
   
   #2}{\end{framed}}
 \newenvironment{defn*}[2][]{\setlength{\parindent}{0pt}%
