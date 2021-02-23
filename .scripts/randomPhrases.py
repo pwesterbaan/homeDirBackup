@@ -56,7 +56,8 @@ phrases=[
     "On today's episode of \'Why is this sticky?\'...",
     "A lack of planning on your part does not constitute an emergency on mine.",
     "Technically correct... the best kind of correct!",
-    "0118 999 811 999 119 7253"
+    "0118 999 811 999 119 7253",
+    "Quando omni flunks moritati"
 ]
 
 
