@@ -32,7 +32,7 @@ phrases=[
     "To shreds you say?",
     "Super easy! Barely an inconvenience!",
     "All hail Hypnotoad!",
-    "Hold on, let me grab my cheese funnel.",
+    # "Hold on, let me grab my cheese funnel.",
     "Bob Vance - Vance refridgeration",
     "And that\'s the way the cookie crumbles",
     "At no point in your rambling, incoherent response were you even close to anything that could be considered a rational thought",
@@ -57,7 +57,8 @@ phrases=[
     "A lack of planning on your part does not constitute an emergency on mine.",
     "Technically correct... the best kind of correct!",
     "0118 999 881 999 119 7253",
-    "Quando omni flunks moritati"
+    "Quando omni flunks moritati",
+    "The early bird gets the worm, but the second rat gets the cheese."
 ]
 
 
