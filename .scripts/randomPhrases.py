@@ -58,7 +58,8 @@ phrases=[
     "Technically correct... the best kind of correct!",
     "0118 999 881 999 119 7253",
     "Quando omni flunks moritati",
-    "The early bird gets the worm, but the second rat gets the cheese."
+    "The early bird gets the worm, but the second rat gets the cheese.",
+    "I'm watching you...."
 ]
 
 
