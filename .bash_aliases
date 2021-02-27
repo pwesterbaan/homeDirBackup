@@ -28,6 +28,7 @@ alias la='ls -A'
 alias lCopier='lp -q 1 -d leftCopier'
 alias ll='ls -alF'
 alias l='ls -CF'
+#https://www.reddit.com/r/linux/comments/lj4v0w/some_nifty_stuff_ffmpeg_can_do/?utm_source=share&utm_medium=web2x&context=3
 alias lofiStudy='youtube-dl https://www.youtube.com/watch?v=5qap5aO4i9A -o - | ffplay - -nodisp -autoexit -loglevel quiet'
 alias lsd='ls -d */'
 alias matlab='matlab -nodesktop -r "opengl info, desktop"'
