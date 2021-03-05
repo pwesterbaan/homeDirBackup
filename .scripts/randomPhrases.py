@@ -59,7 +59,10 @@ phrases=[
     "0118 999 881 999 119 7253",
     "Quando omni flunks moritati",
     "The early bird gets the worm, but the second rat gets the cheese.",
-    "I'm watching you...."
+    # "I'm watching you....",
+    "That happens sometimes",
+    "...and my middle name is Kurt, not Fart",
+    "Never do this to a badger..."
 ]
 
 
