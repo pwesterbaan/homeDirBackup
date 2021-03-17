@@ -62,7 +62,9 @@ phrases=[
     # "I'm watching you....",
     "That happens sometimes",
     "...and my middle name is Kurt, not Fart",
-    "Never do this to a badger..."
+    "Never do this to a badger...",
+    "KWYJIBO",
+    "You're paying way too much for worms, man. Who's your worm guy?"
 ]
 
 
