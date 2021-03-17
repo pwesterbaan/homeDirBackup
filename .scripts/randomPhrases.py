@@ -40,7 +40,7 @@ phrases=[
     "It\'s Halloween.... That\'s really good timing!",
     "Ok, lamp time\'s over!",
     "This isn\'t Sesame Street...",
-    "Exit only!",
+    # "Exit only!",
     "My plan is to forget the whole thing and hope for the best.",
     "Please stop screaming into the void. It's getting full.",
     "Today is brought to you by the letters \"W\", \"T\", and \"F\"",
@@ -64,7 +64,8 @@ phrases=[
     "...and my middle name is Kurt, not Fart",
     "Never do this to a badger...",
     "KWYJIBO",
-    "You're paying way too much for worms, man. Who's your worm guy?"
+    "You\'re paying way too much for worms, man. Who's your worm guy?",
+    "I\'m the reason we have rules."
 ]
 
 
