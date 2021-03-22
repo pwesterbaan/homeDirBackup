@@ -65,7 +65,8 @@ phrases=[
     "Never do this to a badger...",
     "KWYJIBO",
     "You\'re paying way too much for worms, man. Who's your worm guy?",
-    "I\'m the reason we have rules."
+    "I\'m the reason we have rules.",
+    "If I can\'t scuba, then what\'s this all been about?"
 ]
 
 
