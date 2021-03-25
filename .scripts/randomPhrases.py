@@ -66,7 +66,10 @@ phrases=[
     "KWYJIBO",
     "You\'re paying way too much for worms, man. Who's your worm guy?",
     "I\'m the reason we have rules.",
-    "If I can\'t scuba, then what\'s this all been about?"
+    "If I can\'t scuba, then what\'s this all been about?",
+    "The Enrichment Center reminds you that the Weighted Companion Cube cannot speak.",
+    "Well done. Here come the test results: You are a horrible person.",
+    "I\'m serious, that's what it says: A horrible person. We weren\'t even testing for that."
 ]
 
 
