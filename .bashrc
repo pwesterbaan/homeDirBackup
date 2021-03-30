@@ -120,16 +120,17 @@ fi
 ## disable XOFF/ enable forward search: C-s
 [[ $- == *i* ]] && stty -ixon
 
-export TEXINPUTS="/usr/lib/sagemath/local/share/texmf//:/home/peter/texmf:"
+# export TEXINPUTS="/usr/lib/sagemath/local/share/texmf//:/home/peter/texmf:"
 export PATH=$PATH:/home/peter/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/jvm/java-8-oracle/bin:/usr/lib/jvm/java-8-oracle/db/bin:/usr/lib/jvm/java-8-oracle/jre/bin:/home/peter/bin:/usr/local/java/jre1.8.0_25/bin
 
-export LINGO_15_HOME="/home/peter/lingo15"
-export PATH="$PATH:$LINGO_15_HOME"
+# export LINGO_15_HOME="/home/peter/lingo15"
+# export PATH="$PATH:$LINGO_15_HOME"
 
-export DAKOTA_PATH="/usr/local/Dakota"
-export PATH="$PATH:$DAKOTA_PATH"
-export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$DAKOTA_PATH/bin:$DAKOTA_PATH/lib"
-export PATH="$DAKOTA_PATH/bin:$DAKOTA_PATH/test:$PATH"
-export path="/opt/ParaView-5.4.1-822-g597adef-Qt5-MPI-Linux-64bit/bin/:$PATH"
-export path="/home/peter/dealii/dealii-8.5.1/:$PATH"
-export path="/home/peter/.local/bin/:$PATH"
+# export DAKOTA_PATH="/usr/local/Dakota"
+# export PATH="$PATH:$DAKOTA_PATH"
+# export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$DAKOTA_PATH/bin:$DAKOTA_PATH/lib"
+# export PATH="$DAKOTA_PATH/bin:$DAKOTA_PATH/test:$PATH"
+# export path="/opt/ParaView-5.4.1-822-g597adef-Qt5-MPI-Linux-64bit/bin/:$PATH"
+# export path="/home/peter/dealii/dealii-8.5.1/:$PATH"
+# export path="/home/peter/.local/bin/:$PATH"
+export EDITOR=emacs
