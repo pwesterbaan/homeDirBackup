@@ -69,7 +69,10 @@ phrases=[
     "If I can\'t scuba, then what\'s this all been about?",
     "The Enrichment Center reminds you that the Weighted Companion Cube cannot speak.",
     "Well done. Here come the test results: You are a horrible person.",
-    "I\'m serious, that's what it says: A horrible person. We weren\'t even testing for that."
+    "I\'m serious, that's what it says: A horrible person. We weren\'t even testing for that.",
+    "How the turns have tabled...",
+    "So do both of yourselves a favor and just let that handsome devil go about his business.",
+    "...that's not part of the test. That's asbestos."
 ]
 
 
