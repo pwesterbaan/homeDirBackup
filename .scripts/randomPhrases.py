@@ -72,7 +72,8 @@ phrases=[
     "I\'m serious, that's what it says: A horrible person. We weren\'t even testing for that.",
     "How the turns have tabled...",
     "So do both of yourselves a favor and just let that handsome devil go about his business.",
-    "...that's not part of the test. That's asbestos."
+    "...that's not part of the test. That's asbestos.",
+    "You\'re not a super cop are you? You\'re just an ordinary idiot."
 ]
 
 
