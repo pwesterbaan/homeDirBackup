@@ -59,7 +59,6 @@ phrases=[
     "0118 999 881 999 119 7253",
     "Quando omni flunks moritati",
     "The early bird gets the worm, but the second rat gets the cheese.",
-    # "I'm watching you....",
     "That happens sometimes",
     "...and my middle name is Kurt, not Fart",
     "Never do this to a badger...",
@@ -73,7 +72,9 @@ phrases=[
     "How the turns have tabled...",
     "So do both of yourselves a favor and just let that handsome devil go about his business.",
     "...that's not part of the test. That's asbestos.",
-    "You\'re not a super cop are you? You\'re just an ordinary idiot."
+    "You\'re not a super cop are you? You\'re just an ordinary idiot.",
+    "But for the love of God Patrick, you\'re not a sheep dog!",
+    "Do you know how expensive that cheese was? We might as well had built a children\'s hospital!"
 ]
 
 
