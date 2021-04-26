@@ -8,6 +8,8 @@ export PETSC_DIR=~/petsc
 alias batcave='lp -q 1 -o sides=one-sided -d batcave'
 alias clemson='cdls $DROPBOX_PATH/Grad_School/Clemson/'
 alias cls='clear && ls -F --group-directories-first && pwd'
+alias connect_headphones='sudo bluetoothctl connect 2C:FD:B3:19:88:F6'
+alias connect_mouse='sudo bluetoothctl connect E5:4A:11:2D:71:54'
 #alias cpTikz='cat $TEX_FOLDER/tikzTemplate.tex | tocp'
 alias cpTikz='emacs $TEX_FOLDER/tikz/tikzTemplate.tex &'
 alias cpwd='echo -n `pwd` | tocp'
