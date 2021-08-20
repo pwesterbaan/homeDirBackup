@@ -75,7 +75,13 @@ phrases=[
     "You\'re not a super cop are you? You\'re just an ordinary idiot.",
     "But for the love of God Patrick, you\'re not a sheep dog!",
     "Do you know how expensive that cheese was? We might as well had built a children\'s hospital!",
-    "In this house we obey the laws of thermodynamics!"
+    "In this house we obey the laws of thermodynamics!",
+    "Why do I get the feeling that someday I\'ll be describing this to a psychiatrist?",
+    "Anyway, don\'t stress yourself thinking about it. Visualizing the scenario while under stress actually triggers the reaction.",
+    "Go to the Winchester, have a nice cold pint, and wait for all of this to blow over.",
+    "Freaking Canada",
+    "I found it on the hair dryer!",
+    "Me fail English? That\'s unpossible!"
 ]
 
 

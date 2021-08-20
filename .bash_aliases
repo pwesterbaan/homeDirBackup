@@ -170,18 +170,18 @@ confirm(){
     esac
 }
 
-rename(){
-    for f in *"$1"*; 
-    do 
-        echo -e "$f""\n  -->" "${f//"$1"/"$2"}"; 
-    done;
-    confirm "Rename as such?" && for f in *"$1"*; 
-    do 
-        mv "$f" "${f//"$1"/"$2"}"; 
-    done;
-    ls -F --group-directories-first && pwd;
+# rename(){
+#     for f in *"$1"*; 
+#     do 
+#         echo -e "$f""\n  -->" "${f//"$1"/"$2"}"; 
+#     done;
+#     confirm "Rename as such?" && for f in *"$1"*; 
+#     do 
+#         mv "$f" "${f//"$1"/"$2"}"; 
+#     done;
+#     ls -F --group-directories-first && pwd;
 
-}
+# }
 
 cpKey(){
   #Function to compile the blank version of *_KEY.tex
