@@ -84,7 +84,7 @@ ${goto 70}${offset 30}Disk
 ${goto 90}${voffset 25}${offset 35}${downspeed enp2s0}
 ${goto 90}${offset 35}${upspeed enp2s0}
 ${goto 90}${offset 35}Net
-${goto 3}${voffset -35}${font caviar dreams:size=10}${execi 300 ~/.scripts/getWeather.sh}
+${goto 3}${voffset -35}${font caviar dreams:size=10}${execi 30 ~/.scripts/getWeather.sh}
 ${voffset -22.5}
 ${hr}${font Liberation Mono:size=11.5}
 ${execi 300 gcal .+|cut -c  1-22|tail -n 8| sed s/"< "/" <"/}
