@@ -61,14 +61,15 @@ pianobar/
 Pictures/cropCombTrim.sh
 Pictures/elizabeth/
 Pictures/homecomingpics/
-Pictures/kayla/
 Pictures/Lester/
+Pictures/linuxFileSystemStructure.jpg
 Pictures/Norman/
 Pictures/random/cAndH_No.png
 Pictures/random/philosoraptorQuestion.jpg
 Pictures/random/unstoppableTrex.jpg
 Pictures/random/vaccineCard.jpg
 .pki/
+pranks/
 .profile
 .pulse-cookie
 .purple/
@@ -100,6 +101,7 @@ Videos/
 VirtualBox VMs/
 .weather/
 .wget-hsts
+.Wolfram/
 .WolframPlayer/
 .Xauthority
 .Xdefaults
