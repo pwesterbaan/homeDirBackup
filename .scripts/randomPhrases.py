@@ -55,7 +55,7 @@ phrases=[
     "Never underestimate the cleverness of fools",
     "On today\'s episode of \'Why is this sticky?\'...",
     "A lack of planning on your part does not constitute an emergency on mine.",
-    "Technically correct... the best kind of correct",
+    "You are technically correct. The best kind of correct.",
     "0118 999 881 999 119 7253",
     "Quando omni flunks moritati",
     "The early bird gets the worm, but the second rat gets the cheese.",
@@ -87,11 +87,27 @@ phrases=[
     "Kerfonta University: Home of the Schooler",
     "We do what we must because we can",
     "Luck is a concept invented by the weak to explain their failures.",
-    "Apathy's a tragedy and boredom is a crime.",
+    "Apathy\'s a tragedy and boredom is a crime.",
     "I eat all of the cheese",
     "My mush is brian",
     "I can\'t believe you\'ve done this",
-    "I like the on that insults me sometimes better"
+    "I like the ones that insults me sometimes better",
+    "How \'bout eggs?",
+    "It\'s pronounced \'gif\', not \'gif\'.",
+    "Today is a day",
+    "How long do you think the curb life of cheese is?",
+    "I\'m assuming in this case that I am your homeboy -- Shrek",
+    "I always thought they were saying, \'There\'s a bathroom on the right...\'",
+    "I am not a clever man.",
+    "You\'re family tree is more twisted than your DNA.",
+    "With an 'a' it looks like Gary if you're an idiot.",
+    "These random numbers suck",
+    "Milk is the gateway drug to cheese.",
+    "My therapist thought this was funny.",
+    "Good news! It\'s a repository!",
+    "It\'s ok to pray naked",
+    "Well, goodbye socks",
+    "It doesn\'t take a lot to keep a chicken busy."
 ]
 
 
