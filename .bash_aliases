@@ -73,7 +73,8 @@ durp(){ # This silly function is for testing purposes
 }
 
 calc(){ 
-    printf "%f\n" `echo $@ |bc -l`;
+    # printf "%f\n" `echo $@ |bc -l`;
+    python3 -c "print($1)"
 }
 
 
