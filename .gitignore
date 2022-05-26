@@ -1,4 +1,3 @@
-*~
 ampl/
 .android/
 .anyconnect
@@ -22,6 +21,7 @@ Edraw/
 .eLinks/
 .emacs~
 .emacs.d/
+.fltk
 .fonts/
 games/
 .gdfuse/
@@ -29,6 +29,7 @@ get-pip.py
 .gimp-2.8/
 .gitconfig
 github-recovery-codes.txt
+.gmshrc
 .gnome
 .gnupg/
 .hplip/
@@ -48,6 +49,7 @@ mathsci_backup/
 .minecraft/
 .mozilla/
 *.mp3
+*.mp4
 Music/
 .mysql_history
 *.ogg

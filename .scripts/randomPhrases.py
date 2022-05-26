@@ -19,8 +19,8 @@ phrases=[
     "Fear not! -- ScoOoOoter",
     "Has anyone really been far even as decided to use even go want to do more like?",
     "I\'ve been further even more decided to use even go need to do look as anyone can!",
-    "My best idea was walking to the edge of the earth but no one would go with me.",
-    "has-anyone-really-been-far-as it goes I do-look-more-like.",
+    #"My best idea was walking to the edge of the earth but no one would go with me.",
+    #"has-anyone-really-been-far-as it goes I do-look-more-like.",
     "I have no strong feelings one way or the other.",
     "I think there\'s a \"k\" in knucklehead.",
     "I have 4 other goals to accomplish today.",
@@ -32,7 +32,6 @@ phrases=[
     "To shreds you say?",
     "Super easy! Barely an inconvenience!",
     "All hail Hypnotoad!",
-    # "Hold on, let me grab my cheese funnel.",
     "Bob Vance - Vance refrigeration",
     "And that\'s the way the cookie crumbles",
     "At no point in your rambling, incoherent response were you even close to anything that could be considered a rational thought",
@@ -107,7 +106,13 @@ phrases=[
     "Good news! It\'s a repository!",
     "It\'s ok to pray naked",
     "Well, goodbye socks",
-    "It doesn\'t take a lot to keep a chicken busy."
+    "It doesn\'t take a lot to keep a chicken busy.",
+    "Well, that wasn't such a chore, now, was it?",
+    "I think I saw a 2...",
+    "I\'ve created a new 9 bit system..... the 9th bit is always on",
+    "correcthorsebatterystaple",
+    "I found a banana!",
+    "Then who was phone?"
 ]
 
 
