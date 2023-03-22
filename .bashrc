@@ -121,7 +121,7 @@ fi
 [[ $- == *i* ]] && stty -ixon
 
 # export TEXINPUTS="/usr/lib/sagemath/local/share/texmf//:/home/peter/texmf:"
-export PATH=$PATH:/home/peter/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/jvm/java-8-oracle/bin:/usr/lib/jvm/java-8-oracle/db/bin:/usr/lib/jvm/java-8-oracle/jre/bin:/home/peter/bin:/usr/local/java/jre1.8.0_25/bin
+export PATH=$PATH:/home/peter/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/jvm/java-8-oracle/bin:/usr/lib/jvm/java-8-oracle/db/bin:/usr/lib/jvm/java-8-oracle/jre/bin:/home/peter/bin:/usr/local/java/jre1.8.0_25/bin:/usr/local/go/bin
 
 # export LINGO_15_HOME="/home/peter/lingo15"
 # export PATH="$PATH:$LINGO_15_HOME"
@@ -134,3 +134,4 @@ export PATH=$PATH:/home/peter/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/
 # export path="/home/peter/dealii/dealii-8.5.1/:$PATH"
 # export path="/home/peter/.local/bin/:$PATH"
 export EDITOR=emacs
+export WEGORC=/home/peter/.scripts/wegorc

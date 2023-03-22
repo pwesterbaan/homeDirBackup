@@ -22,7 +22,6 @@ conky.config = {
 	if_up_strictness = 'address',
 
 	-- Window specifications,
-
 	own_window_class = 'Conky',
 	own_window = true,
 	own_window_type = 'dock',
@@ -31,7 +30,7 @@ conky.config = {
 	own_window_hints = 'undecorated,below,sticky,skip_taskbar,skip_pager',
 	own_window_argb_visual = true,
 	-- set darkness of box around conky,
-	own_window_argb_value = 128,
+	own_window_argb_value = 205,
 
 
 	border_inner_margin = 1,
@@ -41,7 +40,7 @@ conky.config = {
 	maximum_width = 200,
 
         alignment = 'middle_right',
-        gap_x = 1*1680+20,
+        gap_x = 0*1680+30,
 	gap_y = 35,
 
 	-- Graphics settings,
@@ -63,10 +62,8 @@ conky.config = {
 
 	-- Lua Load,
 	lua_load = '~/.scripts/conky/clock_rings.lua',
-	lua_draw_hook_pre  = 'clock_rings',
+	lua_draw_hook_pre = 'clock_rings',
 
--- Weather location is a 4 character code: ''KCEU'' is Clemson found from searching & using url
--- http://weather.noaa.gov/
 };
 
 conky.text = [[
@@ -77,34 +74,34 @@ ${voffset 140}${font caviar dreams:size=8}
 
 ${goto 25}${offset -5}${voffset 17.5}${cpu cpu0}%
 ${goto 25}${offset -5}CPU
-${goto 50}${voffset 24}${offset -25}RAM: ${memperc}% 
+${goto 50}${voffset 24}${offset -25}RAM:   ${memperc}% 
 ${goto 50}${offset -25}Swap: ${swapperc}%
 ${goto 70}${voffset 25}${offset 30}${fs_used_perc}%
 ${goto 70}${offset 30}Disk
-${goto 90}${voffset 25}${offset 35}${downspeed enp2s0}
-${goto 90}${offset 35}${upspeed enp2s0}
-${goto 90}${offset 35}Net
-${goto 3}${voffset -35}${font caviar dreams:size=10}${execi 30 ~/.scripts/getWeather.sh}
+${goto 88}${voffset 25}${offset 35}${downspeed enp2s0}
+${goto 88}${offset 35}${upspeed enp2s0}
+${goto 88}${offset 35}Net
+${goto 3}${font caviar dreams:size=10}${voffset -18}${execpi 60 ~/.scripts/getWeather.sh | ansito -}
 ${voffset -22.5}
 ${hr}${font Liberation Mono:size=11.5}
 ${execi 300 gcal .+|cut -c  1-22|tail -n 8| sed s/"< "/" <"/}
 ${execi 300 gcal .+|cut -c 27-50|tail -n 8| head -n 5}
 ${hr}${font Liberation Mono:size=7.5}
 ${voffset -3.5}${if_running pianobar}\
- Station: ${execi 3 head -n 1 ~/.config/pianobar/nowplaying}
-##  Find a way to store the strings/length of strings in a variable
-##  TODO make durp.txt. Try saving to variable. Try printing variable
-##  ${execi 6 echo $(echo -n $(head -2  ~/.config/pianobar/nowplaying | tail -n 1)| wc -m)}
-##  ${execi 6 echo $(echo -n $(head -3  ~/.config/pianobar/nowplaying | tail -n 1)| wc -m)}
-## If artist/title is longer than 22, scroll, else, display.
- Artist:  ${if_match ${execi 3 echo $(echo -n $(head -2  ~/.config/pianobar/nowplaying | tail -n 1)| wc -m)} > 22}${scroll 24 6 ${execi 6 head -2  ~/.config/pianobar/nowplaying | tail -n 1}}${else}${execi 6 head -2  ~/.config/pianobar/nowplaying | tail -n 1}${endif}
- Title:   ${if_match ${execi 3 echo $(echo -n $(head -3  ~/.config/pianobar/nowplaying | tail -n 1)| wc -m)} > 22}${scroll 24 6 ${execi 6 head -3  ~/.config/pianobar/nowplaying | tail -n 1}}${else}${execi 6 head -3  ~/.config/pianobar/nowplaying | tail -n 1}${endif}
+ Station: ${execi 3 ~/.scripts/formatNowPlaying.sh 1}
+${if_match ${execi 3 echo $(echo -n $(tail -2 ~/.config/pianobar/nowplaying | wc -L))} > 26}\
+ Artist:  ${scroll 24 8 ${execi 3 ~/.scripts/formatNowPlaying.sh 2}}
+ Title:   ${scroll 24 8 ${execi 3 ~/.scripts/formatNowPlaying.sh 3}}\
+ ${else}\
+ Artist:  ${execi 3 ~/.scripts/formatNowPlaying.sh 2}
+ Title:   ${execi 3 ~/.scripts/formatNowPlaying.sh 3}\
+ ${endif}
 ${voffset -5}${hr}${endif}${voffset 5}
 ${font Liberation Mono:size=9}\
  Uptime: ${format_time $uptime_short "\dd \hh \mm"}
  Processes: ${processes}
  Running: ${running_processes}
  ${addr enp2s0}
-#${alignr}${nodename}
-${voffset -75}
+ #${alignr}${nodename}
+${voffset -48}
 ]];

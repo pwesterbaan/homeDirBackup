@@ -54,6 +54,7 @@ alias texpreamble='emacs $TEX_HOME/texPreamble.sty'
 alias texshortcuts='emacs $TEX_HOME/texShortcutsWesterbaan.tex'
 alias tocp='xargs echo -n | xclip -selection clipboard'
 alias todo='emacs /home/peter/Dropbox/Documents/todo.txt'
+alias wego='/home/peter/.scripts/go/bin/wego'
 
 durp(){ # This silly function is for testing purposes
     if [[ -n "${1+x}" && ${1:-4} != *.tex ]]; then 
