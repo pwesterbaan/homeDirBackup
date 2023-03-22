@@ -3,6 +3,7 @@ ampl/
 .anyconnect
 .anyconnect/
 .audacity-data/
+.authinfo
 .bash_history
 .cache/
 cellMusic/
@@ -21,17 +22,20 @@ Edraw/
 .eLinks/
 .emacs~
 .emacs.d/
+firefox_ppa_instructions
 .fltk
 .fonts/
 games/
 .gdfuse/
 get-pip.py
 .gimp-2.8/
+.gitattributes
 .gitconfig
 github-recovery-codes.txt
 .gmshrc
 .gnome
 .gnupg/
+.gtk-custom-papers
 .hplip/
 .ICEauthority
 .ipynb_checkpoints
@@ -46,6 +50,9 @@ github-recovery-codes.txt
 Mathematica\ 12.3.1/
 mathsci_backup/
 .matlab/
+matlab*
+.megaCmd/
+MEGA-RECOVERYKEY.txt
 .minecraft/
 .mozilla/
 *.mp3
@@ -93,7 +100,7 @@ Steam/
 .suspendCmds
 tensorflow/
 *.tex
-.texlive2017/
+.texlive*/
 texmf/tlpkg/
 texmf/web2c/
 .thumbnails/
@@ -102,7 +109,9 @@ Videos/
 .viminfo
 VirtualBox VMs/
 .weather/
+.wegorc
 .wget-hsts
+.wine/
 .Wolfram/
 .WolframPlayer/
 .Xauthority

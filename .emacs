@@ -10,7 +10,9 @@
 ;; enable visual feedback on selections
 ;(setq transient-mark-mode t)
 
-;; default to better frame titles
+;; enable desktop-save-mode
+;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Saving-Emacs-Sessions.html
+;(desktop-save-mode 1)
 
 ;; Added by Package.el.  This must come before configurations of
 ;; installed packages.  Don't delete this line.  If you don't want it,
@@ -18,6 +20,7 @@
 ;; You may delete these explanatory comments.
 (package-initialize)
 
+;; default to better frame titles
 (setq frame-title-format
       (concat  "%b - emacs@" (system-name)))
 
@@ -174,3 +177,4 @@ the character typed."
  )
 
 (add-hook 'prog-mode-hook 'display-line-numbers-mode)
+(with-eval-after-load 'package (add-to-list 'package-archives '("nongnu" . "https://elpa.nongnu.org/nongnu/")))
