@@ -65,16 +65,13 @@ conky.config = {
 	lua_load = '~/.scripts/conky/clock_rings_screensaver.lua',
 	lua_draw_hook_pre = 'clock_rings',
 };
---${font Liberation Mono:size=24}${execi 2 ~/.scripts/getWeather.sh | ansito -}
 
 conky.text = [[
 ${voffset 10}${font caviar dreams:size=40}  ${time %A}\
-${alignr}${time %b} ${time %e}  
+${alignr}${time %b} ${time %e}
 ${alignr}${time %Y}  ${font}
 
-${exec ~/.scripts/getWeather.sh}\
-${voffset 440}${font Liberation Mono:size=24}${execi 30 curl -s wttr.in/29631?format="%t+%f+%h" | awk -v FS=' ' '{print $1}' | cut -c 2-}
-${font Liberation Mono:size=24}${execi 30 curl -s wttr.in/29631?format="%t+%f+%h" | awk -v FS=' ' '{print $3}'}
+${voffset 475}${font Liberation Mono:size=24}${execi 30 ~/.scripts/getWeather.sh}\
 ${font Liberation Mono:size=20}${voffset -75}
 ${alignr}${addr enp2s0} ${voffset 80}
 ${execi 600 gcal |tail -n 8| sed s/"< "/" <"/}

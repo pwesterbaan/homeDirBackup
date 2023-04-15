@@ -14,6 +14,7 @@ phrases=[
     "Loose Change",
     "Moe's",
     "Nick's",
+    "Panda Express",
     "Peppino's",
     "Poke Star",
     "Schletter",
@@ -27,7 +28,6 @@ phrases=[
     # "Backstreet's",
     # "Evolve",
     # "La Madeleine",
-    # "Panda Express",
     # "Which Wich",
 ]
 

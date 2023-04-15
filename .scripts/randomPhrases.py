@@ -142,7 +142,7 @@ phrases=[
     "Occam’s razor: The simplest explanation is most likely",
     "Hanlen’s razor: Never attribute to malice that which can be attributed to incompetence",
     "It\'s not a lie if you believe it.",
-    "Have you seen my marble bag?",
+    # "Have you seen my marble bag?",
     # "Lollipop! Lollipop! Someone smooshed my lollipop!",
     "A change in perspective is worth 80 IQ points.",
     "It ain\'t stupid if it works...",
@@ -167,6 +167,7 @@ phrases=[
     "Stairs or scramble?",
     "No Fair! You changed the outcome by measuring it!",
     "thoughts create feelings",
+    "What is today, but yesterday's tomorrow?",
 ]
 
 print(random.choice(phrases))

@@ -17,14 +17,14 @@
 
 
 ## based on wttr.in
-# OUTPUT=$(curl -s wttr.in/29631?format="%t+%f+%h")
-# ACTUALTEMP=$(echo $OUTPUT | awk -v FS=' ' '{print $1}' | cut -c 2-)
-# REALFEEL=$(echo $OUTPUT| awk -v FS=' ' '{print $2}' | cut -c 2-)
-# HUMIDITY=$(echo $OUTPUT | awk -v FS=' ' '{print $3}')
+OUTPUT=$(curl -s wttr.in/29631?format="%t+%f+%h")
+ACTUALTEMP=$(echo $OUTPUT | awk -v FS=' ' '{print $1}' | cut -c 2-)
+REALFEEL=$(echo $OUTPUT| awk -v FS=' ' '{print $2}' | cut -c 2-)
+HUMIDITY=$(echo $OUTPUT | awk -v FS=' ' '{print $3}')
 
-# echo -e "$ACTUALTEMP ($REALFEEL)\n$HUMIDITY"
+echo -e "$ACTUALTEMP ($REALFEEL)\n$HUMIDITY"
 
 
-WEGO=/home/peter/.scripts/go/bin/wego
-$WEGO 1 29631 | head -n 4 | tail -n 1 #when frontend=emoji
+# WEGO=/home/peter/.scripts/go/bin/wego
+# $WEGO 1 29631 | head -n 4 | tail -n 1 #when frontend=emoji
 # $WEGO 1 29631 | head -n 6 | tail -n 4 #when frontend=ascii-art-table
