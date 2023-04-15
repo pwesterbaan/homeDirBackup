@@ -42,7 +42,7 @@
 ;; uncomment for CJK utf-8 support for non-Asian users
 ;; (require 'un-define)
 
-(defvar close-bracket-on-new-line t  
+(defvar close-bracket-on-new-line t
 "True if the closing bracket must go onto a new line.")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -65,7 +65,7 @@ the character typed."
 
 (defun c-closing-brace () (interactive) "puts } where it belongs to"
   (save-excursion
-    (beginning-of-line) 
+    (beginning-of-line)
     (skip-chars-forward "^{\n")
     (setq close-bracket-on-new-line (eolp)))
   (if (eq 't close-bracket-on-new-line)
@@ -73,12 +73,12 @@ the character typed."
   (insert "}")
   (indent-for-tab-command)
   (forward-line -1)
-  (if (save-excursion 
-	(beginning-of-line) 
-	(skip-chars-forward " \t") 
+  (if (save-excursion
+	(beginning-of-line)
+	(skip-chars-forward " \t")
 	(eolp))
-      (progn 
-	(beginning-of-line) 
+      (progn
+	(beginning-of-line)
 	(kill-line 1))
     (progn
       (forward-line 1)))
@@ -148,6 +148,21 @@ the character typed."
 	  (function (lambda ()
 		      (define-key makefile-mode-map "\M-c" 'compile)
 		      )))
+
+;; delete trailing whitespace
+(add-hook 'before-save-hook
+          'delete-trailing-whitespace)
+
+;; tex options
+(setq TeX-auto-save t)
+(setq TeX-parse-self t)
+;; (setq-default TeX-master nil)
+
+(setq auto-mode-alist
+      (cons
+       '("\\.m$" . octave-mode)
+       auto-mode-alist))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (custom-set-variables
@@ -159,13 +174,13 @@ the character typed."
    [default default default italic underline success warning error])
  '(blink-cursor-mode nil)
  '(column-number-mode t)
- '(custom-enabled-themes (quote (tango-dark)))
+ '(custom-enabled-themes '(tango-dark))
  '(font-use-system-font t)
- '(indicate-buffer-boundaries (quote ((t . right) (top . left))))
+ '(indicate-buffer-boundaries '((t . right) (top . left)))
  '(indicate-empty-lines t)
  '(inhibit-startup-screen t)
- '(package-selected-packages (quote (auctex)))
- '(scroll-bar-mode (quote right))
+ '(package-selected-packages '(auctex))
+ '(scroll-bar-mode 'right)
  '(show-paren-mode t)
  '(size-indication-mode t)
  '(tool-bar-mode nil))
@@ -174,7 +189,7 @@ the character typed."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ '(default ((t (:family "DejaVu Sans Mono" :foundry "PfEd" :slant normal :weight normal :height 98 :width normal)))))
 
 (add-hook 'prog-mode-hook 'display-line-numbers-mode)
 (with-eval-after-load 'package (add-to-list 'package-archives '("nongnu" . "https://elpa.nongnu.org/nongnu/")))
