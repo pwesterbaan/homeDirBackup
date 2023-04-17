@@ -4,6 +4,7 @@ ampl/
 .anyconnect/
 .audacity-data/
 .authinfo
+auto/
 .bash_history
 .cache/
 cellMusic/
@@ -64,7 +65,7 @@ Music/
 opt/
 *.opus
 .oracle_jre_usage/
-*.pdf 
+*.pdf
 pianobar/
 .pianobar-tlsFingerprint
 Pictures/cropCombTrim.sh

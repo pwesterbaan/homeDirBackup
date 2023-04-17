@@ -6,11 +6,12 @@
 \newcommand*{\thefname}[0]{\@fname}
 \newcommand*{\lname}[1][Westerbaan]{\newcommand*{\@lname}{#1}}
 \newcommand*{\thelname}[0]{\@lname}
+\fname\lname
 \newcommand*{\collab}[1]{\newcommand*{\@collab}{#1}}
 \newcommand*{\thecollab}[0]{\@collab}
 \makeatother
 
-%% Custom table column: 
+%% Custom table column:
   % Math mode
 \newcolumntype{L}{>{$}l<{$}}
 \newcolumntype{C}{>{$}c<{$}}
@@ -46,12 +47,12 @@
 \newenvironment{thmBox*}[2][]{\setlength{\parindent}{0pt}%
   \begin{framed}
   \textbf{\ifstrempty{#1}{\ }{#1}} %
-  
+
   #2}{\end{framed}}
 \newenvironment{defn*}[2][]{\setlength{\parindent}{0pt}%
   \begin{framed}
   \textbf{Definition. \ifstrempty{#1}{\ }{(#1)}} %
-  
+
   #2}{\end{framed}}
 %\newenvironment{defn*}[1][]{\setlength{\parindent}{0pt}%
 %  \begin{mdframed}[frametitle={Definition. \ifstrempty{#1}{\ }{(#1)}}]}%{\end{mdframed}}

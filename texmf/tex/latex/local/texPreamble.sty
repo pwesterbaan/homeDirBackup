@@ -1,6 +1,6 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{texPreamble}[09/18/2019]
-%% Original copy in Dropbox (kpsewhich --expand-path='$TEXMFHOME') and 
+%% Original copy in Dropbox (kpsewhich --expand-path='$TEXMFHOME') and
 %%     ln -s $TEX_FOLDER/texPreamble.sty ~/texmf/tex/latex/local/texPreamble.sty
 %% Update texhash
 %% Call me with \usepackage{texPreamble}
@@ -51,7 +51,7 @@
 \RequirePackage{xifthen}
 \RequirePackage{moreverb}
 %load fancybox before fancyvrb or VerbatimInput breaks? :(
-\RequirePackage{fancybox, framed} 
+\RequirePackage{fancybox, framed}
 \RequirePackage{fancyvrb}                       %VerbatimInput
   \let\verbatiminput=\verbatimtabinput          %respects tabbing
 \RequirePackage[linesnumbered,lined,ruled,commentsnumbered]{algorithm2e}
@@ -169,11 +169,11 @@
 \makeatletter
 \tikzset{reuse path/.code={\pgfsyssoftpath@setcurrentpath{#1}}}
 \makeatother
-\tikzstyle{myNode} = [circle, 
+\tikzstyle{myNode} = [circle,
     fill=black!10,
-    rounded corners, 
-    minimum width=20pt, 
-    text centered, 
+    rounded corners,
+    minimum width=20pt,
+    text centered,
     thick,
     draw=black]
 
