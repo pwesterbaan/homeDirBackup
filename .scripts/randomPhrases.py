@@ -168,6 +168,13 @@ phrases=[
     "No Fair! You changed the outcome by measuring it!",
     "thoughts create feelings",
     "What is today, but yesterday's tomorrow?",
+    "Hello. I am Inigo Montoya. You killed my father. Prepare to die.",
+    "I find that answer vague and unconvincing",
+    "Quiet! And there's a fresh one if you mouth off again.",
+    "Congratulations, you are being rescued.",
+    "I'm not very optimistic about our odds.",
+    "There were a lot of explosions for two people blending in.",
+    "Tell me have you seen the marvelous breadfish, swimming in the ocean water?",
 ]
 
 print(random.choice(phrases))
