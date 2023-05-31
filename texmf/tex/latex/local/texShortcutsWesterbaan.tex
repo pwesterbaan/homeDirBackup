@@ -31,6 +31,8 @@
 \newcommand*\cecol{\cellcolor{hiLiYel}}
 \newcolumntype{h}{>{\columncolor{hiLiYel}}{c}}
 
+
+
 % ----------------------------------------------------------------
 \vfuzz2pt % Don't report over-full v-boxes if over-edge is small
 \hfuzz2pt % Don't report over-full h-boxes if over-edge is small
@@ -38,9 +40,15 @@
 \newtheorem*{theorem*}{Theorem} %% Theorem without numbering
 \newtheorem{theorem}{Theorem}
 \newtheorem{thm}{Theorem}
+\crefname{cor}{Corollary}{Corollaries}
+\Crefname{cor}{Corollary}{Corollaries}
 \newtheorem{cor}[thm]{Corollary}
+\crefname{lem}{Lemma}{Lemmas}
+\Crefname{lem}{Lemma}{Lemmas}
 \newtheorem*{lem*}{Lemma}
 \newtheorem{lem}[thm]{Lemma}
+\crefname{prop}{Proposition}{Propositions}
+\Crefname{prop}{Proposition}{Propositions}
 \newtheorem{prop}[thm]{Proposition}
 %%
 %TODO %%Boxed definition. mdframed box was inconsistent
@@ -104,6 +112,7 @@
 \DeclareMathOperator{\Rank}{Rank}
 \DeclareMathOperator{\Ran}{Ran}
 \DeclareMathOperator{\Range}{Range}
+\DeclareMathOperator{\range}{range}
 \DeclareMathOperator{\row}{Row}
 \DeclareMathOperator{\sign}{sign}
 \DeclareMathOperator{\sech}{sech}

@@ -23,14 +23,14 @@ conky.config = {
 
 	-- Window specifications,
 	own_window_class = 'Conky',
-	own_window = true,
-	-- own_window_type = 'normal',
+	own_window = false,
+	own_window_type = 'normal',
 	-- set transparent to yes to eliminate box,
 	own_window_transparent = true,
 	own_window_hints = 'undecorated,below,sticky,skip_taskbar,skip_pager',
 	own_window_argb_visual = true,
 	-- set darkness of box around conky,
-	own_window_argb_value = 256,
+	own_window_argb_value = 255,
 
 	border_inner_margin = 0,
 	border_outer_margin = 0,
@@ -39,10 +39,10 @@ conky.config = {
 	maximum_width = 1680,
 
 	alignment = 'mm',
-	-- gap_x is used to shift from 'mm' to the middle of the left monitor
-	gap_x=1.0*1680,
-	-- gap_y=-0.035*1100,
-	gap_y=0,
+	-- gap_x is used to shift from 'mm' to the middle of the primary monitor
+	gap_x=0,
+	gap_y=0.025*1100,
+	-- gap_y=0,
 
 	-- Graphics settings,
 	draw_shades = true,
@@ -66,21 +66,20 @@ conky.config = {
 	lua_draw_hook_pre = 'clock_rings',
 };
 
-conky.text = [[
-${voffset 10}${font caviar dreams:size=40}  ${time %A}\
-${alignr}${time %b} ${time %e}
-${alignr}${time %Y}  ${font}
+--${goto 0}${execi 600 gcal |tail -n 8| sed s/"< "/" <"/}
 
-${voffset 475}${font Liberation Mono:size=24}${execi 30 ~/.scripts/getWeather.sh}\
-${font Liberation Mono:size=20}${voffset -75}
-${alignr}${addr enp2s0} ${voffset 80}
-${execi 600 gcal |tail -n 8| sed s/"< "/" <"/}
-${if_running pianobar}${voffset -120}\
+conky.text = [[
+${goto 0}${voffset 10}${font caviar dreams:size=40}  ${time %A}\
+${goto 1400}${time %b} ${time %e}
+${goto 1400}${time %Y}  ${font}
+
+${goto 0}${voffset 475}${font Liberation Mono:size=24}  ${execi 2 ~/.scripts/getWeather.sh | head -n 1}${goto 1400}${font Liberation Mono:size=20}${addr enp2s0} ${voffset 150}
+${if_running pianobar}${voffset 50}\
 ${goto 840}Station: ${execi 12 ~/.scripts/formatNowPlaying.sh 1}
 ${goto 840}Artist:  ${execi 2  ~/.scripts/formatNowPlaying.sh 2}
 ${goto 840}Title:   ${execi 2  ~/.scripts/formatNowPlaying.sh 3}
 ${voffset -5}${else}${voffset -32}${endif}
-${font Liberation Mono:size=15}${alignc}${execi 30 ~/.scripts/randomPhrases.py}
+${goto 0}${font Liberation Mono:size=15}  ${execi 30 ~/.scripts/randomPhrases.py}
 ${voffset -5}
 ${font}
 ]];

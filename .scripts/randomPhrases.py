@@ -174,7 +174,10 @@ phrases=[
     "Congratulations, you are being rescued.",
     "I'm not very optimistic about our odds.",
     "There were a lot of explosions for two people blending in.",
-    "Tell me have you seen the marvelous breadfish, swimming in the ocean water?",
+    "Tell me have you seen the marvelous breadfish swimming in the ocean water?",
+    "Who doesn't like hats?",
+    "They don't give PhDs to the smartest people. They give them to the most stubborn.",
+    "There seems to be no sign of intelligent life anywhere.",
 ]
 
 print(random.choice(phrases))
