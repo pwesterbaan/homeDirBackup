@@ -31,7 +31,17 @@
 \newcommand*\cecol{\cellcolor{hiLiYel}}
 \newcolumntype{h}{>{\columncolor{hiLiYel}}{c}}
 
-
+% command to create diagonal line in top left cell of table
+\newcommand\mydiagbox[4]{%
+  \multicolumn{1}{p{#2}}{\hskip-\tabcolsep
+  $\vcenter{\begin{tikzpicture}[baseline=0,anchor=south west,inner sep=#1]
+  \path[use as bounding box] (0,0) rectangle (#2+2\tabcolsep,\baselineskip);
+  \node[minimum width={#2+2\tabcolsep-\pgflinewidth},
+        minimum  height=\baselineskip+\extrarowheight-\pgflinewidth] (box) {};
+  \draw[line cap=round] (box.north west) -- (box.south east);
+  \node[anchor=south west, yshift=-1pt] at (box.south west) {#3};
+  \node[anchor=north east, yshift=2pt] at (box.north east) {#4};
+ \end{tikzpicture}}$\hskip-\tabcolsep}}
 
 % ----------------------------------------------------------------
 \vfuzz2pt % Don't report over-full v-boxes if over-edge is small
@@ -40,6 +50,10 @@
 \newtheorem*{theorem*}{Theorem} %% Theorem without numbering
 \newtheorem{theorem}{Theorem}
 \newtheorem{thm}{Theorem}
+\crefname{assump}{Assumption}{Assumptions}
+\Crefname{assump}{Assumption}{Assumptions}
+\newtheorem*{assump*}{Assumption}
+\newtheorem{assump}[thm]{Assumption}
 \crefname{cor}{Corollary}{Corollaries}
 \Crefname{cor}{Corollary}{Corollaries}
 \newtheorem{cor}[thm]{Corollary}
