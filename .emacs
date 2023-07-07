@@ -179,7 +179,7 @@ the character typed."
  '(indicate-buffer-boundaries '((t . right) (top . left)))
  '(indicate-empty-lines t)
  '(inhibit-startup-screen t)
- '(package-selected-packages '(auctex))
+ '(package-selected-packages '(matlab-mode auctex))
  '(scroll-bar-mode 'right)
  '(show-paren-mode t)
  '(size-indication-mode t)
@@ -193,3 +193,5 @@ the character typed."
 
 (add-hook 'prog-mode-hook 'display-line-numbers-mode)
 (with-eval-after-load 'package (add-to-list 'package-archives '("nongnu" . "https://elpa.nongnu.org/nongnu/")))
+(add-to-list 'package-archives
+             '("melpa" . "http://melpa.org/packages/") t)

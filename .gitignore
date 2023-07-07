@@ -62,6 +62,7 @@ Music/
 .mysql_history
 *.ogg
 .openarena/
+.openshot_qt/
 opt/
 *.opus
 .oracle_jre_usage/
@@ -91,6 +92,7 @@ scrcpy/
 .selected_editor
 snap/
 .ssh/
+.ssr/
 .startupScript.sh
 .steam/
 Steam/
