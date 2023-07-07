@@ -178,6 +178,13 @@ phrases=[
     "Who doesn't like hats?",
     "They don't give PhDs to the smartest people. They give them to the most stubborn.",
     "There seems to be no sign of intelligent life anywhere.",
+    "It's a fusion of jazz and funk. It's called 'junk'!",
+    "What's the difference between a tube and a foolish Dutchman? One's a hollow cylinder, and the other a silly Hollander.",
+    "G is for war crimes",
+    "R is for heinous",
+    "Would you be willing to drive me to papa John's if I gave you a slice of pizza?",
+    "Expectations are premediated resentments",
+    "A slice of applie pie is $2.50 in Jamaica and $3.00 in the Bahamas. These are the pie rates of the Caribbean.",
 ]
 
 print(random.choice(phrases))
