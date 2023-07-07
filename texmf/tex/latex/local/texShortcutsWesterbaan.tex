@@ -54,6 +54,9 @@
 \Crefname{assump}{Assumption}{Assumptions}
 \newtheorem*{assump*}{Assumption}
 \newtheorem{assump}[thm]{Assumption}
+\crefname{conj}{Conjecture}{Conjectures}
+\Crefname{conj}{Conjecture}{Conjectures}
+\newtheorem{conj}[thm]{Conjecture}
 \crefname{cor}{Corollary}{Corollaries}
 \Crefname{cor}{Corollary}{Corollaries}
 \newtheorem{cor}[thm]{Corollary}
@@ -105,6 +108,7 @@
 \DeclareMathOperator*{\argmin}{arg\,min}
 \DeclareMathOperator{\aut}{Aut}
 \DeclareMathOperator{\Char}{char}
+\DeclareMathOperator{\cn}{cn}
 \DeclareMathOperator{\col}{Col}
 \DeclareMathOperator{\cond}{Cond}
 \DeclareMathOperator{\cone}{Cone}
@@ -131,6 +135,7 @@
 \DeclareMathOperator{\sign}{sign}
 \DeclareMathOperator{\sech}{sech}
 \DeclareMathOperator{\sgn}{sgn}
+\DeclareMathOperator{\sn}{sn}
 \DeclareMathOperator{\Span}{Span}
 \DeclareMathOperator{\SSE}{SSE}
 \DeclareMathOperator{\SSR}{SSR}
@@ -140,20 +145,42 @@
 
 %% Special Delimiters ---------------------------------------------
 \DeclarePairedDelimiter\abs{\lvert}{\rvert}
+\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
 \DeclarePairedDelimiterX\norm[1]\lVert\rVert{
   \ifblank{#1}{\:\cdot\:}{#1}
-}
+  }
+% \DeclarePairedDelimiter\parens{(}{)} %does not work in captions
+\DeclarePairedDelimiter\sbrkt{[}{]}
+\DeclarePairedDelimiter\set{\{}{\}}
+
 
 \makeatletter
 \let\oldabs\abs
 \def\abs{\@ifstar{\oldabs}{\oldabs*}}
 %
+\let\oldceil\ceil
+\def\ceil{\@ifstar{\oldceil}{\oldceil*}}
+%
+\let\oldfloor\floor
+\def\floor{\@ifstar{\oldfloor}{\oldfloor*}}
+%
 \let\oldnorm\norm
 \def\norm{\@ifstar{\oldnorm}{\oldnorm*}}
+%
+% \let\oldparens\parens
+% \def\parens{\@ifstar{\oldparens}{\oldparens*}}
+%
+\let\oldsbrkt\sbrkt
+\def\sbrkt{\@ifstar{\oldsbrkt}{\oldsbrkt*}}
+%
+\let\oldset\set
+\def\set{\@ifstar{\oldset}{\oldset*}}
 \makeatother
 
 %% General Macros -------------------------------------------------
 \newcommand*{\A}{\mathcal{A}}
+\newcommand*{\ahat}{\hat{a}}
 %\newcommand*{\abs}[1]{{\left\vert#1\right\vert}}
 \newcommand*{\bbb}{\mathbb{B}}
 \newcommand*{\bbc}{\mathbb{C}}
@@ -177,17 +204,20 @@
 \newcommand*{\bfy}{{\bm{y}}}
 \newcommand*{\bfY}{{\bm{Y}}}
 \newcommand*{\bfz}{{\bm{z}}}
+\newcommand*{\bhat}{\hat{b}}
 \newcommand*{\bmO}{\bm{O}}
 \newcommand*{\bracket}[1]{{\left\langle #1 \right\rangle}}
 \newcommand*{\BX}{\mathbf{B}(X)}
-\newcommand*{\ceil}[1]{{\left\lceil #1 \right\rceil}}
+%\newcommand*{\ceil}[1]{{\left\lceil #1 \right\rceil}}
 \newcommand*\circled[1]{\tikz[baseline=(char.base)]{\node[shape=circle,draw,inner sep=2pt] (char) {#1};}}
 \newcommand*{\contradiction}[1][]{\overset{#1}{\Rightarrow\hspace{-2pt}\Leftarrow}}
+\newcommand*{\chat}{\hat{c}}
 %% replace "to" with en-dash in cref{,,}
 \newcommand{\crefrangeconjunction}{--\,}
 \newcommand*{\ddt}[1][]{{\frac{d^{#1}}{dt^{#1}}}}
 \newcommand*{\ddx}[1][]{{\frac{d^{#1}}{dx^{#1}}}}
 \newcommand*{\ddy}[1][]{{\frac{d^{#1}}{dy^{#1}}}}
+\newcommand*{\dhat}{\hat{d}}
 \newcommand*{\ds}{\displaystyle}
 \newcommand*{\dydx}[1][]{{\frac{d^{#1}y}{dx^{#1}}}}
 \newcommand*{\email}{\href{mailto:pwester@clemson.edu}{pwester@clemson.edu}}
@@ -198,7 +228,7 @@
 \newcommand*{\expArg}[1][]{\operatorname{exp}\left\{#1\right\}}
 \newcommand*{\expNoArg}{\operatorname{exp}}
 \makeatother
-\newcommand*{\floor}[1]{{\left\lfloor #1 \right\rfloor}}
+%\newcommand*{\floor}[1]{{\left\lfloor #1 \right\rfloor}}
 \newcommand*{\grad}{\nabla}
 \renewcommand{\ij}{{ij}}
 \newcommand*{\inprod}[1][\cdot{,}\cdot]{{\left\langle #1 \right\rangle}}
@@ -244,11 +274,11 @@
 \newcommand*{\tmpnpo}[1][]{\ifthenelse{\isempty{#1}}{n+1}{n+#1}\egroup}
 \newcommand*{\ntn}{{n\times n}}
 \newcommand*{\nto}[1][1]{_{n=#1}}
-\newcommand*{\OO}[1]{\mathcal{O}_{#1}}
 \newcommand*{\parens}[1]{{\left(#1\right)}}
+\newcommand*{\OO}[1]{\mathcal{O}_{#1}}
 \newcommand*{\rref}[1][r]{\xrightarrow{#1ref}}  %\ref is already taken. Use \rref[]
-\newcommand*{\sbrkt}[1]{{\left[#1\right]}}
-\newcommand*{\set}[1]{{\left\{#1\right\}}}
+% \newcommand*{\sbrkt}[1]{{\left[#1\right]}}
+% \newcommand*{\set}[1]{{\left\{#1\right\}}}
 \newcommand*{\seteq}{\overset{\textnormal{set}}{=}}
 \newcommand*{\sig}{\includegraphics[scale=0.65]{\texFolder/sig.pdf}}
 \newcommand*{\Sum}{\displaystyle\sum}
