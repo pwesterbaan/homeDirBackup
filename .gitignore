@@ -108,9 +108,11 @@ texmf/tlpkg/
 texmf/web2c/
 .thumbnails/
 .thunderbird/
+venv/
 Videos/
 .viminfo
 VirtualBox VMs/
+.waterfox
 .weather/
 .wegorc
 .wget-hsts
