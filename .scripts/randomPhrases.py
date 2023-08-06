@@ -142,8 +142,6 @@ phrases=[
     "Occam’s razor: The simplest explanation is most likely",
     "Hanlen’s razor: Never attribute to malice that which can be attributed to incompetence",
     "It\'s not a lie if you believe it.",
-    # "Have you seen my marble bag?",
-    # "Lollipop! Lollipop! Someone smooshed my lollipop!",
     "A change in perspective is worth 80 IQ points.",
     "It ain\'t stupid if it works...",
     "1000101",
@@ -185,6 +183,9 @@ phrases=[
     "Would you be willing to drive me to papa John's if I gave you a slice of pizza?",
     "Expectations are premediated resentments",
     "A slice of applie pie is $2.50 in Jamaica and $3.00 in the Bahamas. These are the pie rates of the Caribbean.",
+    "...why don't we just take the safety labels off of everything and let the problem solve itself?",
+    "hunter2",
+    "99.9% of people are idiots. Fortunately, I belong to the 1% of intelligent people.",
 ]
 
 print(random.choice(phrases))

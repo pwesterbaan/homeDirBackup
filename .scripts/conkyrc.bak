@@ -41,7 +41,7 @@ conky.config = {
 
         alignment = 'middle_right',
         gap_x = 0*1680+30,
-	gap_y = 0,
+	gap_y = 35,
 
 	-- Graphics settings,
 	draw_shades = true,
@@ -74,7 +74,7 @@ ${voffset 140}${font caviar dreams:size=8}
 
 ${goto 25}${offset -5}${voffset 17.5}${cpu cpu0}%
 ${goto 25}${offset -5}CPU
-${goto 50}${voffset 24}${offset -25}RAM:   ${memperc}%
+${goto 50}${voffset 24}${offset -25}RAM:   ${memperc}% 
 ${goto 50}${offset -25}Swap: ${swapperc}%
 ${goto 70}${voffset 25}${offset 30}${fs_used_perc}%
 ${goto 70}${offset 30}Disk
@@ -87,9 +87,15 @@ ${hr}${font Liberation Mono:size=11.5}
 ${execi 300 gcal .+|cut -c  1-22|tail -n 8| sed s/"< "/" <"/}
 ${execi 300 gcal .+|cut -c 27-50|tail -n 8| head -n 5}
 ${hr}${font Liberation Mono:size=7.5}
-${voffset -3.5}${if_running spotify}
-${image $HOME/.scripts/conky/spotify/current_artwork.jpg -p 113,725-s 87x87 -n}
-${execpi 2 $HOME/.scripts/conky/spotify/spotify_getinfo.pl}
+${voffset -3.5}${if_running pianobar}\
+ Station: ${execi 3 ~/.scripts/formatNowPlaying.sh 1}
+${if_match ${execi 3 echo $(echo -n $(tail -2 ~/.config/pianobar/nowplaying | wc -L))} > 26}\
+ Artist:  ${scroll 24 8 ${execi 3 ~/.scripts/formatNowPlaying.sh 2}}
+ Title:   ${scroll 24 8 ${execi 3 ~/.scripts/formatNowPlaying.sh 3}}\
+ ${else}\
+ Artist:  ${execi 3 ~/.scripts/formatNowPlaying.sh 2}
+ Title:   ${execi 3 ~/.scripts/formatNowPlaying.sh 3}\
+ ${endif}
 ${voffset -5}${hr}${endif}${voffset 5}
 ${font Liberation Mono:size=9}\
  Uptime: ${format_time $uptime_short "\dd \hh \mm"}
