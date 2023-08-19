@@ -89,6 +89,8 @@ R/
 .Rhistory
 .rstudio-desktop/
 scrcpy/
+.scripts/conky/spotify/current_artwork.jpg
+.scripts/conky/spotify/stored_track.txt
 .selected_editor
 snap/
 .ssh/
