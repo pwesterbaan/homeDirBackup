@@ -60,8 +60,8 @@ if ($current_track_status eq "Playing") {
 } else {
     print "\${voffset -30}\${offset 129}\${color0}\${font LL_Record:size=50}k\n";
 }
-print "\${voffset -50}\${offset 5 }\${font}\${color1}".$current_track_artist."\n";
-print "\${offset 5}".$current_track_title."\n";
+print "\${voffset -50}\${offset 5 }\${font}\${color1} ".$current_track_artist."\n";
+print "\${offset 5} ".$current_track_title."\n";
 
 # update the track information and artwork
 if ($stored_current_track ne $current_track_title ) {

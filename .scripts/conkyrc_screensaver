@@ -23,7 +23,7 @@ conky.config = {
 
 	-- Window specifications,
 	own_window_class = 'Conky_screensaver',
-	own_window = false,
+	own_window = true,
 	own_window_type = 'desktop',
 	-- set transparent to yes to eliminate box,
 	own_window_transparent = true,
