@@ -22,9 +22,9 @@ conky.config = {
 	if_up_strictness = 'address',
 
 	-- Window specifications,
-	own_window_class = 'Conky',
+	own_window_class = 'Conky_screensaver',
 	own_window = false,
-	own_window_type = 'normal',
+	own_window_type = 'desktop',
 	-- set transparent to yes to eliminate box,
 	own_window_transparent = true,
 	own_window_hints = 'undecorated,below,sticky,skip_taskbar,skip_pager',
@@ -32,15 +32,15 @@ conky.config = {
 	-- set darkness of box around conky,
 	own_window_argb_value = 255,
 
-	border_inner_margin = 0,
-	border_outer_margin = 0,
+	border_inner_margin = 10,
+	border_outer_margin = 10,
 
 	minimum_width = 1680, minimum_height = 1050,
 	maximum_width = 1680,
 
 	alignment = 'mm',
 	-- gap_x is used to shift from 'mm' to the middle of the primary monitor
-	gap_x=0,
+	gap_x=1680,
 	gap_y=0.025*1100,
 	-- gap_y=0,
 
@@ -52,7 +52,7 @@ conky.config = {
 
 	-- Text settings,
 	use_xft = true,
-	font = 'caviar dreams:size=8',
+	font = 'Liberation Mono:size=15',
 	xftalpha = 0.5,
 
 	uppercase = false,
@@ -67,22 +67,22 @@ conky.config = {
 };
 
 -- text must start with ${goto 0}
--- Multiline text only shows the first line
-
---${goto 0}${execi 600 gcal |tail -n 8| sed s/"< "/" <"/}
--- ${if_running spotify}
--- ${goto 0}${image $HOME/.scripts/conky/spotify/current_artwork.jpg -p -1,0 -s 100x100}
--- ${goto 0}${execpi 2 $HOME/.scripts/conky/spotify/spotify_getinfo.pl}
--- ${voffset -5}${else}${voffset -32}${endif}
+-- Multiline text only aligns the first line
 
 conky.text = [[
-${goto 0}${voffset 10}${font caviar dreams:size=40}  ${time %A}\
+${voffset 10}${font caviar dreams:size=40}  ${time %A}\
 ${goto 1400}${time %b} ${time %e}
 ${goto 1400}${time %Y}  ${font}
 
-${goto 0}${voffset 475}${font Liberation Mono:size=24}  ${execi 2 ~/.scripts/getWeather.sh | head -n 1}${goto 1400}${font Liberation Mono:size=20}${addr enp2s0} ${voffset 150}
+${alignr}${voffset 200}${font Liberation Mono:size=24}  ${execi 2 ~/.scripts/getWeather.sh | head -n 1}
+${alignr}${addr enp2s0}${font}
+${if_running spotify}
+${image $HOME/.scripts/conky/spotify/current_artwork.jpg -p 15,385 -s 125x125}
+${voffset 0}  ${execpi 2 $HOME/.scripts/conky/spotify/spotify_getinfo.pl}
+${else}${voffset 145}${endif}
 ${voffset 50}
-${goto 0}${font Liberation Mono:size=15}  ${execi 30 ~/.scripts/randomPhrases.py}
+${execi 600 gcal |tail -n 8| sed s/"< "/" <"/}${font}
+${alignc}${execi 30 ~/.scripts/randomPhrases.py}
 ${voffset -5}
-${font}
+
 ]];

@@ -24,7 +24,7 @@ conky.config = {
 	-- Window specifications,
 	own_window_class = 'Conky',
 	own_window = true,
-	own_window_type = 'dock',
+	own_window_type = 'normal',
 	-- set transparent to yes to eliminate box,
 	own_window_transparent = false,
 	own_window_hints = 'undecorated,below,sticky,skip_taskbar,skip_pager',
