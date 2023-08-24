@@ -23,7 +23,7 @@ conky.config = {
 
 	-- Window specifications,
 	own_window_class = 'Conky_screensaver',
-	own_window = true,
+	own_window = false,
 	own_window_type = 'desktop',
 	-- set transparent to yes to eliminate box,
 	own_window_transparent = true,
@@ -41,7 +41,7 @@ conky.config = {
 	alignment = 'mm',
 	-- gap_x is used to shift from 'mm' to the middle of the primary monitor
 	gap_x=1680,
-	gap_y=0.025*1100,
+	gap_y=-75+0*0.025*1100,
 	-- gap_y=0,
 
 	-- Graphics settings,
