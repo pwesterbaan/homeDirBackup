@@ -186,6 +186,8 @@ phrases=[
     "...why don't we just take the safety labels off of everything and let the problem solve itself?",
     "hunter2",
     "99.9% of people are idiots. Fortunately, I belong to the 1% of intelligent people.",
+    "Good morning, that's a nice tnetennba.",
+    "My dear, here we must run as fast as we can, just to stay in place. And if you wish to go anywhere you must run twice as fast as that.",
 ]
 
 print(random.choice(phrases))
