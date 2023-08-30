@@ -9,12 +9,14 @@ alias batcave='lp -q 1 -o sides=one-sided -d batcave'
 alias clemson='cdls $DROPBOX_PATH/Grad_School/Clemson/'
 alias cls='clear && ls -F --group-directories-first && pwd'
 alias connect_headphones='sudo bluetoothctl connect 2C:FD:B3:19:88:F6'
+alias connect_jbl='sudo bluetoothctl connect 74:2A:8A:A6:2F:C3'
 alias connect_mouse='sudo bluetoothctl connect E5:4A:11:2D:71:54'
 alias cpTikz='emacs $TEX_FOLDER/tikz/tikzTemplate.tex &'
 alias cpwd='echo -n `pwd` | tocp'
 alias customSty='ln -s /home/peter/texmf/tex/latex/local/texPreamble.sty . && ln -s /home/peter/texmf/tex/latex/local/colorPalette.sty . && ln -s /home/peter/texmf/tex/latex/local/texShortcutsWesterbaan.tex .'
 alias db='cdls $DROPBOX_PATH'
 alias dbstat='dropbox status'
+alias disconnect_jbl='sudo bluetoothctl disconnect 74:2A:8A:A6:2F:C3'
 alias ffplayNodisp='ffplay -nodisp -autoexit -loglevel quiet'
 alias findcc='find $DROPBOX_PATH -name *conflicted\ copy*'
 alias findPi='nmap -sP 192.168.1.*/24'
@@ -57,9 +59,9 @@ alias todo='emacs /home/peter/Dropbox/Documents/todo.txt'
 alias wego='/home/peter/.scripts/go/bin/wego'
 
 durp(){ # This silly function is for testing purposes
-    if [[ -n "${1+x}" && ${1:-4} != *.tex ]]; then 
+    if [[ -n "${1+x}" && ${1:-4} != *.tex ]]; then
       filename="$1"".tex"
-    elif [[ ${1:-4} == *.tex ]]; then 
+    elif [[ ${1:-4} == *.tex ]]; then
       filename=$1
     fi
     #echo $filename
@@ -72,7 +74,7 @@ durp(){ # This silly function is for testing purposes
     echo "durpy durpy durp durp"
 }
 
-calc(){ 
+calc(){
     # printf "%f\n" `echo $@ |bc -l`;
     python3 -c "print($1)"
 }
@@ -91,7 +93,7 @@ LaTeXtemplate(){
       base="${PWD##*/}"; dir="${PWD%/*}"; dir="${dir##*/}";
       filename=$dir"_"$base".tex"
       title=$dir" "$base
-      if ! confirm "Use $filename? (def Y)" -y $1; then 
+      if ! confirm "Use $filename? (def Y)" -y $1; then
         return 1;
       fi
     else title=${1%%.*}
@@ -101,24 +103,24 @@ LaTeXtemplate(){
     confirm "Include copy of custom .sty file?" && customSty;
     # if filename blank, base filename on current directory and sublevel
     # if filename given, give the filename the .tex extension
-    if [[ -n "${1+x}" && ${1:-4} != *.tex ]]; then 
+    if [[ -n "${1+x}" && ${1:-4} != *.tex ]]; then
       filename="$1"".tex"
-    elif [[ ${1:-4} == *.tex ]]; then 
+    elif [[ ${1:-4} == *.tex ]]; then
       filename=$1
     fi
   #####################################
     # Include 4 cases here: homework, test, presentation
     # These cases should be triggered by flags with the default behavior being homework
   #####################################
-    if [[ $* == *-t* ]]; then 
+    if [[ $* == *-t* ]]; then
       echo "Copying test template..."
       if [ -z ${filename+x} ]; then
         cp -i $TEX_FOLDER/examTemplate.tex .
         filename=examTemplate.tex
-      else 
+      else
         cp --backup -i $TEX_FOLDER/examTemplate.tex "$filename"
       fi
-    elif [[ $* == *-p* ]]; then 
+    elif [[ $* == *-p* ]]; then
       echo "Copying presentation template..."
       ln -s $TEX_FOLDER/PresentationTemplate/*{.eps,.jpg} .
       if [ -z ${filename+x} ]; then
@@ -132,7 +134,7 @@ LaTeXtemplate(){
       if [ -z ${filename+x} ]; then
         cp -i $TEX_FOLDER/HW_Template.tex .
         filename=HW_Template.tex
-      else 
+      else
         cp --backup -i $TEX_FOLDER/HW_Template.tex "$filename"
       fi
     fi
@@ -158,13 +160,13 @@ confirm(){
     # call with a prompt string or use a default
     read -r -p "${1:-Are you sure? [y/N]} " response
     case $response in
-        [yY][eE][sS]|[yY]) 
+        [yY][eE][sS]|[yY])
             true
             ;;
         *)
             if [[ $response != n && $* == *-y* ]]; then
               true
-            else 
+            else
               false
             fi
             ;;
@@ -172,13 +174,13 @@ confirm(){
 }
 
 # rename(){
-#     for f in *"$1"*; 
-#     do 
-#         echo -e "$f""\n  -->" "${f//"$1"/"$2"}"; 
+#     for f in *"$1"*;
+#     do
+#         echo -e "$f""\n  -->" "${f//"$1"/"$2"}";
 #     done;
-#     confirm "Rename as such?" && for f in *"$1"*; 
-#     do 
-#         mv "$f" "${f//"$1"/"$2"}"; 
+#     confirm "Rename as such?" && for f in *"$1"*;
+#     do
+#         mv "$f" "${f//"$1"/"$2"}";
 #     done;
 #     ls -F --group-directories-first && pwd;
 
