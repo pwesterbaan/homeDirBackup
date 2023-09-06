@@ -47,26 +47,27 @@
 \vfuzz2pt % Don't report over-full v-boxes if over-edge is small
 \hfuzz2pt % Don't report over-full h-boxes if over-edge is small
 %% THEOREMS -------------------------------------------------------
+\theoremstyle{plain}
 \newtheorem*{theorem*}{Theorem} %% Theorem without numbering
-\newtheorem{theorem}{Theorem}
+\newtheorem{theorem}{Theorem}[section]
 \newtheorem{thm}{Theorem}
 \crefname{assump}{Assumption}{Assumptions}
 \Crefname{assump}{Assumption}{Assumptions}
 \newtheorem*{assump*}{Assumption}
-\newtheorem{assump}[thm]{Assumption}
+\newtheorem{assump}{Assumption}[section]
 \crefname{conj}{Conjecture}{Conjectures}
 \Crefname{conj}{Conjecture}{Conjectures}
-\newtheorem{conj}[thm]{Conjecture}
+\newtheorem{conj}{Conjecture}[section]
 \crefname{cor}{Corollary}{Corollaries}
 \Crefname{cor}{Corollary}{Corollaries}
-\newtheorem{cor}[thm]{Corollary}
+\newtheorem{cor}{Corollary}[section]
 \crefname{lem}{Lemma}{Lemmas}
 \Crefname{lem}{Lemma}{Lemmas}
 \newtheorem*{lem*}{Lemma}
-\newtheorem{lem}[thm]{Lemma}
+\newtheorem{lem}{Lemma}[section]
 \crefname{prop}{Proposition}{Propositions}
 \Crefname{prop}{Proposition}{Propositions}
-\newtheorem{prop}[thm]{Proposition}
+\newtheorem{prop}{Proposition}[section]
 %%
 %TODO %%Boxed definition. mdframed box was inconsistent
 \newenvironment{thmBox*}[2][]{\setlength{\parindent}{0pt}%
@@ -96,7 +97,7 @@
 \newtheorem{claim}{Claim}
 %%
 \theoremstyle{remark}
-\newtheorem{rem}[thm]{Remark}
+\newtheorem{rem}{Remark}
 %\numberwithin{equation}{section}
 
 %% Special Constants  ----------------------------------------------
