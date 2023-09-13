@@ -2,6 +2,7 @@ ampl/
 .android/
 .anyconnect
 .anyconnect/
+.aspell.en.*
 .audacity-data/
 .authinfo
 auto/
@@ -67,6 +68,7 @@ opt/
 *.opus
 .oracle_jre_usage/
 *.pdf
+.php_history
 pianobar/
 .pianobar-tlsFingerprint
 Pictures/cropCombTrim.sh
