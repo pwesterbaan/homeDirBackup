@@ -189,6 +189,7 @@ phrases=[
     "Good morning, that's a nice tnetennba.",
     "My dear, here we must run as fast as we can, just to stay in place. And if you wish to go anywhere you must run twice as fast as that.",
     "Speak only if it improves upon the silence.",
+    "Put your oxygen mask on before helping others.",
 ]
 
 print(random.choice(phrases))
