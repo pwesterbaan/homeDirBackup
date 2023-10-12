@@ -25,6 +25,7 @@ alias flaskCommands='export FLASK_APP=run.py; export FLASK_ENV=development; flas
 alias foxPrank="ssh pi@130.127.186.127 'python3 foxPrank/foxSayPicker.py'"
 #alias gertrude='lp -d gertrude'
 alias getIP='ifconfig | grep -Po "inet.+broadcast" | grep -Po "(?:\d{1,3}\.){3}\d{1,3}" | head -n 1 > $DROPBOX_PATH/Documents/workhorseIP.txt && cat $DROPBOX_PATH/Documents/workhorseIP.txt'
+alias getWeather='/home/peter/.scripts/getWeather.sh'
 alias hpadmin1='lp -q 1 -o sides=one-sided -d hpadmin1'
 #alias hpadmin4='lp -q 1 -o sides=one-sided -d hpadmin4'
 alias IUP='cdls $DROPBOX_PATH/Grad_School/IUP/'
@@ -46,6 +47,7 @@ alias mkTex='latexmk -pdf -synctex=1'
 alias myip="curl http://ipecho.net/plain; echo"
 #alias opal="pwester@opal.ces.clemson.edu"
 alias qtcreator='/opt/qtcreator-4.13.2/bin/qtcreator'
+alias restartBluetooth='/home/peter/.scripts/restartBluetooth.sh'
 alias rbf='find . -type f \( -iname \*.aux -o -iname \*.bbl -o -iname \*.blg -o -iname \*.fdb_latexmk -o -iname \*.fls -o -iname \*.log -o -iname \*.nav -o -iname \*.out -o -iname \*.snm -o -iname \*.synctex.gz -o -iname \*.lof -o -iname \*.lot -o -iname \*.dvi -o -iname \*-eps-converted-to -o -iname \*.goutputstream -o -iname \*.fuse_hidden* -o -iname \*-eps-converted-to.pdf -o -iname \*.run.xml -o -iname \*-blx.bib \) -print -delete'
 alias rCopier='lp -q 1 -d rightCopier'
 alias rwifi='nmcli r wifi off; read -p "Press enter"; nmcli r wifi on && ls -F --group-directories-first && pwd'
