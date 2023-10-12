@@ -52,7 +52,7 @@ conky.config = {
 
 	-- Text settings,
 	use_xft = true,
-	font = 'Liberation Mono:size=15',
+	font = 'Liberation Mono:size=18',
 	xftalpha = 0.5,
 
 	uppercase = false,
@@ -76,10 +76,10 @@ ${goto 1400}${time %Y}  ${font}
 
 ${alignr}${voffset 200}${font Liberation Mono:size=24}  ${execi 2 ~/.scripts/getWeather.sh | head -n 1}
 ${alignr}${addr enp2s0}${font}
-${voffset 50}${execi 600 gcal |tail -n 8| sed s/"< "/" <"/}${voffset 45}
+${voffset 20}${execi 600 gcal |tail -n 8| sed s/"< "/" <"/}${voffset 45}
 ${if_running spotify}
 ${image $HOME/.scripts/conky/spotify/current_artwork.jpg -p 15,665 -s 125x125}
-${voffset 0}  ${execpi 2 $HOME/.scripts/conky/spotify/spotify_getinfo.pl}
+${voffset -90}    ${execpi 2 $HOME/.scripts/conky/spotify/spotify_getinfo.pl 75}
 ${else}${voffset 141}${endif}
 ${font}
 ${alignc}${execi 30 ~/.scripts/randomPhrases.py}

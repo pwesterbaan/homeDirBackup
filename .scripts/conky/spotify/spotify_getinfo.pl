@@ -14,6 +14,8 @@ use Net::DBus;
 use LWP::Simple;
 
 # Global Variables
+
+my $font_size=$ARGV[0] ? "$ARGV[0]" : "50";
 my ($current_track_status, $current_track_arturl, $current_track_artist, $current_track_title, $stored_current_track);
 my $home_directory = "/home/peter";
 my $conky_directory = $home_directory."/.scripts/conky/spotify/";
@@ -56,9 +58,9 @@ foreach my $artist (@current_track_artist) {
 }
 
 if ($current_track_status eq "Playing") {
-    print "\${voffset -30}\${offset 129}\${color0}\${font LL_Record:size=50}d\n";
+    print "\${voffset -30}\${offset 129}\${color0}\${font LL_Record:size=".$font_size."}d\n";
 } else {
-    print "\${voffset -30}\${offset 129}\${color0}\${font LL_Record:size=50}k\n";
+    print "\${voffset -30}\${offset 129}\${color0}\${font LL_Record:size=".$font_size."}k\n";
 }
 print "\${voffset -50}\${offset 5 }\${font}\${color1} ".$current_track_artist."\n";
 print "\${offset 5} ".$current_track_title."\n";
