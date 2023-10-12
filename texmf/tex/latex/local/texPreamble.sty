@@ -2,7 +2,7 @@
 \ProvidesPackage{texPreamble}[09/18/2019]
 %% Original copy in Dropbox (kpsewhich --expand-path='$TEXMFHOME') and
 %%     ln -s $TEX_FOLDER/texPreamble.sty ~/texmf/tex/latex/local/texPreamble.sty
-%% Update texhash
+%% Update with "texhash" (may require root)
 %% Call me with \usepackage{texPreamble}
 %% If you place this in dropbox, change the path below
 %% Remove \sig if you are not using the signature macro
@@ -27,7 +27,6 @@
 \RequirePackage{pdfpages}
 \RequirePackage{pdflscape}
 \RequirePackage{nameref}
-%\RequirePackage{scrextend}                     %TODO Broken 2020-01-21
 \RequirePackage{lipsum}
 \RequirePackage[shortlabels, inline]{enumitem}  %customize enumerate at initialization
 \RequirePackage[makeroom]{cancel}               %cross out math
@@ -45,8 +44,6 @@
 \RequirePackage{xparse}
 \RequirePackage{xspace}
 \RequirePackage{bigstrut}                       %used with xparse for topstrut/botstrut
-  \newcommand\topstrut[1][1.2ex]{\setlength\bigstrutjot{#1}{\bigstrut[t]}}
-  \newcommand\botstrut[1][0.9ex]{\setlength\bigstrutjot{#1}{\bigstrut[b]}}
 \RequirePackage{blkarray}                       %label rows/cols of matrices
 \RequirePackage{xifthen}
 \RequirePackage{moreverb}
@@ -68,7 +65,7 @@
   %,line width=0.2pt, mark size=1.125pt}}
 \pgfplotsset{holdot/.style={color=blue,fill=white,only marks,mark=*}}
   %, line width=0.25pt, mark size=1.125pt}}
-%% Draw a line representing a VA. Place inside axis options e.g. vasymtote=2,
+%% Draw a line representing a VA. Place inside pgfplots axis options e.g. vasymtote=2,
 \pgfplotsset{vasymptote/.style={
     before end axis/.append code={
         \draw[densely dashed] ({rel axis cs:0,0} -| {axis cs:#1,0})
@@ -131,7 +128,6 @@
     \fi}
 \makeatother
 
-
 %% The following 4 lines are so standalone and nocite play nice together
 \RequirePackage{etoolbox}
 \makeatletter
@@ -150,11 +146,6 @@
   \let\@ifnextchar\new@ifnextchar
   \array{*\c@MaxMatrixCols c}}
 \makeatother
-
-% Custom color for table rows
-%% place the following before a table for alternating row colors
-% \rowcolors{1}{}{lightgray}
-\definecolor{lightgray}{gray}{0.8}
 
 %% Custom list number format
 \setenumerate[1]{label=\arabic*.}
@@ -177,8 +168,9 @@
     thick,
     draw=black]
 
+%load stored colors
 \RequirePackage{colorPalette}
-
+%load custom macros
 \input{texShortcutsWesterbaan}
 
 %% Custom title for solution box in exam package

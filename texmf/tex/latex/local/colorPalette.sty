@@ -1,10 +1,10 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{colorPalette}[12/06/2019]
-%% Original copy in Dropbox (kpsewhich --expand-path='$TEXMFHOME') and 
+%% Original copy in Dropbox (kpsewhich --expand-path='$TEXMFHOME') and
 %%     ln -s $TEX_FOLDER/colorPalette.sty ~/texmf/tex/latex/local/colorPalette.sty
 %% Update texhash
 %% Call me with \usepackage{colorPalette}
-% Clemson color palatte 
+% Clemson color palatte
 \definecolor{ClemsonOrange}{RGB}{245,102,0}
 \definecolor{ClemsonPurple}{RGB}{82,45,128}
 \definecolor{Regalia}{RGB}{82,45,128}
@@ -21,3 +21,9 @@
 \definecolor{CalhounFields}{RGB}{181, 195, 39}
 \definecolor{GamedaySky}{RGB}{16, 157, 192}
 \definecolor{BengalStripe}{RGB}{16, 16, 16}
+
+
+% Custom color for table rows
+%% place the following before a table for alternating row colors
+% \rowcolors{1}{}{lightgray}
+\definecolor{lightgray}{gray}{0.8}
