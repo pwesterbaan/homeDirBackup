@@ -190,6 +190,9 @@ phrases=[
     "My dear, here we must run as fast as we can, just to stay in place. And if you wish to go anywhere you must run twice as fast as that.",
     "Speak only if it improves upon the silence.",
     "Put your oxygen mask on before helping others.",
+    "Academic politics is the most vicious and bitter form of politics, because the stakes are so low.",
+    "Competition in academia is so vicious because the stakes are so small.",
+    "An exhaustive inspection of the attic for vermin can provide evidence of absence, but any sign of mice will always suffice to the contrary.",
 ]
 
 print(random.choice(phrases))

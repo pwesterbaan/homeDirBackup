@@ -78,7 +78,7 @@ ${alignr}${voffset 200}${font Liberation Mono:size=24}  ${execi 2 ~/.scripts/get
 ${alignr}${addr enp2s0}${font}
 ${voffset 20}${execi 600 gcal |tail -n 8| sed s/"< "/" <"/}${voffset 45}
 ${if_running spotify}
-${image $HOME/.scripts/conky/spotify/current_artwork.jpg -p 15,665 -s 125x125}
+${image $HOME/.scripts/conky/spotify/current_artwork.jpg -p 15,675 -s 125x125}
 ${voffset -90}    ${execpi 2 $HOME/.scripts/conky/spotify/spotify_getinfo.pl 75}
 ${else}${voffset 141}${endif}
 ${font}
