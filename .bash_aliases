@@ -38,7 +38,7 @@ alias l='ls -CF'
 #https://www.reddit.com/r/linux/comments/lj4v0w/some_nifty_stuff_ffmpeg_can_do/?utm_source=share&utm_medium=web2x&context=3
 alias lofiStudy='youtube-dl https://www.youtube.com/watch?v=5qap5aO4i9A -o - | ffplay - -nodisp -autoexit -loglevel quiet'
 alias lsd='ls -d */'
-alias matlab='matlab -nodesktop -r "opengl info, desktop"'
+#alias matlab='matlab -nodesktop -r "opengl info, desktop"'
 alias mera='lp -q 1 -o media=letter -d mera' #-o sides=one-sided
 alias mkdir='mkdir -pv'
 alias mkTex='latexmk -pdf -synctex=1'
@@ -58,6 +58,8 @@ alias texpreamble='emacs $TEX_HOME/texPreamble.sty'
 alias texshortcuts='emacs $TEX_HOME/texShortcutsWesterbaan.tex'
 alias tocp='xargs echo -n | xclip -selection clipboard'
 alias todo='emacs /home/peter/Dropbox/Documents/todo.txt'
+alias updateDiscord='/home/peter/.scripts/updateDiscord.sh'
+alias updateZoom='/home/peter/.scripts/updateZoom.sh'
 alias wego='/home/peter/.scripts/go/bin/wego'
 
 durp(){ # This silly function is for testing purposes
