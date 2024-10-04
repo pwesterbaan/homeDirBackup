@@ -1,0 +1,155 @@
+#!/bin/bash
+#
+# Move the current window to the next monitor.
+#
+# Also works only on one X screen (which is the most common case).
+#
+# Props to
+# http://icyrock.com/blog/2012/05/xubuntu-moving-windows-between-monitors/
+#
+# Unfortunately, both "xdotool getwindowgeometry --shell $window_id" and
+# checking "-geometry" of "xwininfo -id $window_id" are not sufficient, as
+# the first command does not respect panel/decoration offsets and the second
+# will sometimes give a "-0-0" geometry. This is why we resort to "xwininfo".
+
+DIRECTION=${1:--1}; #Assign arg $1 to DIRECTION with default value "-1"
+
+XDPYINFO_DIMS=$(xdpyinfo | awk '/dimensions:/ { print $2; exit }')
+SCREEN_WIDTH=$(echo $XDPYINFO_DIMS | cut -d"x" -f1)
+SCREEN_HEIGHT=$(echo $XDPYINFO_DIMS | cut -d"x" -f2)
+
+WINDOW_ID=$(xdotool getactivewindow)
+
+# Remember if it was maximized.
+WINDOW_HORZ_MAXED=$(xprop -id "$WINDOW_ID" _NET_WM_STATE | grep '_NET_WM_STATE_MAXIMIZED_HORZ')
+WINDOW_VERT_MAXED=$(xprop -id "$WINDOW_ID" _NET_WM_STATE | grep '_NET_WM_STATE_MAXIMIZED_VERT')
+
+WINDOW_WIDTH=$(xwininfo -id "$WINDOW_ID" | awk '/Width:/ { print $2}')
+WINDOW_HEIGHT=$(xwininfo -id "$WINDOW_ID" | awk '/Height:/ { print $2}')
+
+# Read window position
+X=$(xwininfo -id "$WINDOW_ID" | awk '/Absolute upper-left X:/ { print $4 }')
+Y=$(xwininfo -id "$WINDOW_ID" | awk '/Absolute upper-left Y:/ { print $4 }')
+
+# Subtract any offsets caused by panels or window decorations
+X_OFFSET=$(xwininfo -id "$WINDOW_ID" | awk '/Relative upper-left X:/ { print $4 }')
+Y_OFFSET=$(xwininfo -id "$WINDOW_ID" | awk '/Relative upper-left Y:/ { print $4 }')
+X=$((X - X_OFFSET))
+Y=$((Y - Y_OFFSET))
+
+XMID=$(echo $X+$WINDOW_WIDTH/2 | bc -l);
+YMID=$(echo $Y+$WINDOW_HEIGHT/2 | bc -l);
+
+# Create array with connected display info
+# each line is "w h x y" with delimiters
+mapfile -t DISP < <(xrandr | grep \ connected)
+
+# store screen dims in array w/o any text or the delimiters "x" or "+"
+for KEY in "${!DISP[@]}"; do
+    CUR_DIMS=$(echo ${DISP[$KEY]} | awk '/connected/ { print $3; exit }')
+    if [[ "$CUR_DIMS" == "primary" ]]; then
+	CUR_DIMS=$(echo ${DISP[$KEY]} | awk '/connected/ { print $4; exit }')
+    fi
+    DISP[$KEY]=$(echo $CUR_DIMS | sed -e s/+/' '/g -e s/x/' '/g)
+done
+
+#TODO: sort by height and width (need to also update how CURR_SCREEN_IDX is found)
+# echo sorted DISP: $(printf '%s\n' "${DISP[@]}" | sort -k 3,3 -k 2,2)
+
+# sort array using 3rd field (left edge of each disp)
+readarray -t DISP < <(printf '%s\n' "${DISP[@]}" | sort -k 2)
+# printf '%s\n' "${DISP[@]}"
+
+
+# use xfconf-query -c xfce4-panel -l to list properties (or settings editor)
+# get height and left edge of xfce4 panel
+XFCE_PANEL_HEIGHT=$(xfconf-query -c xfce4-panel -p /panels/panel-0/size);
+SCREEN_NAME=$(xfconf-query -c xfce4-panel -p /panels/panel-0/output-name);
+XFCE4_PANEL_SCREEN_DIMS=$(xrandr | grep $SCREEN_NAME | awk '$/connected/ { print $3; exit }')
+if [[ "$XFCE4_PANEL_SCREEN_DIMS" == "primary" ]]; then
+    XFCE4_PANEL_SCREEN_DIMS=$(xrandr | grep $SCREEN_NAME | awk '/connected/ { print $4; exit }')
+
+fi
+XFCE4_PANEL_SCREEN_LEFT_EDGE=$(echo $XFCE4_PANEL_SCREEN_DIMS | sed -e s/+/' '/g -e s/x/' '/g | awk '{ print $3 }')
+
+# store right edge of each screen, XFCE4 panel screen index, and current screen index
+XFCE4_PANEL_SCREEN_IDX=0
+CURR_SCREEN_IDX=0
+for KEY in "${!DISP[@]}"; do
+    WIDTH=$(echo ${DISP[$KEY]} | awk '{ print $1 }');
+    LEFT_EDGE=$(echo ${DISP[$KEY]} | awk '{ print $3 }');
+    RIGHT_EDGE[$KEY]=$(($WIDTH+$LEFT_EDGE));
+    TOP_EDGE[$KEY]=$(echo ${DISP[$KEY]} | awk '{ print $4 }');
+    if (( $(echo "$XMID >= $LEFT_EDGE" | bc -l) )); then CURR_SCREEN_IDX=$KEY; fi #XMID is a float expr
+    if [ $XFCE4_PANEL_SCREEN_LEFT_EDGE -ge $LEFT_EDGE ]; then XFCE4_PANEL_SCREEN_IDX=$KEY; fi
+done
+TOP_EDGE[$XFCE4_PANEL_SCREEN_IDX]=$((${TOP_EDGE[$XFCE4_PANEL_SCREEN_IDX]}+$XFCE_PANEL_HEIGHT))
+
+# compute target screen index based on $DIRECTION
+NUM_SCREENS=${#DISP[@]}
+TARG_SCREEN_IDX=$((CURR_SCREEN_IDX+DIRECTION+NUM_SCREENS)) #move and avoid neg index
+TARG_SCREEN_IDX=$((TARG_SCREEN_IDX%NUM_SCREENS))           #wrap around
+
+# get current and target screen widths and heights
+CURR_SCREEN_DIMS=($(echo ${DISP[$CURR_SCREEN_IDX]} | awk '{ print $1" "$2 }'))
+TARG_SCREEN_DIMS=($(echo ${DISP[$TARG_SCREEN_IDX]} | awk '{ print $1" "$2 }'))
+
+# adjust X to be the same size relative to the target screen
+WIDTH_SCALING=$(echo ${TARG_SCREEN_DIMS[0]}/${CURR_SCREEN_DIMS[0]} | bc -l);
+NEW_X=$(echo $X-${RIGHT_EDGE[$CURR_SCREEN_IDX]} | bc -l);
+NEW_X=$(echo $NEW_X\*$WIDTH_SCALING+${RIGHT_EDGE[$TARG_SCREEN_IDX]} | bc -l);
+NEW_X=${NEW_X%%.*}; #round to int
+
+# adjust y to be the same height relative to the target screen
+HEIGHT_SCALING=$(echo ${TARG_SCREEN_DIMS[1]}/${CURR_SCREEN_DIMS[1]} | bc -l);
+NEW_Y=$(echo $Y-${TOP_EDGE[$CURR_SCREEN_IDX]} | bc -l);
+NEW_Y=$(echo $NEW_Y\*$HEIGHT_SCALING+${TOP_EDGE[$TARG_SCREEN_IDX]} | bc -l);
+NEW_Y=${NEW_Y%%.*}; #round to int
+
+#compute new relative window size
+NEW_WINDOW_WIDTH=$(echo $WINDOW_WIDTH\*$WIDTH_SCALING | bc -l);
+NEW_WINDOW_WIDTH=${NEW_WINDOW_WIDTH%%.*}; #round to int
+
+NEW_WINDOW_HEIGHT=$(echo $WINDOW_HEIGHT\*$HEIGHT_SCALING | bc -l);
+NEW_WINDOW_HEIGHT=${NEW_WINDOW_HEIGHT%%.*}; #round to int
+
+# If we would move off the left-most monitor, we set it to the right one.
+# We also respect the window's width here: moving a window off more than half its width won't happen.
+WINDOW_DIMS=$(xdotool getwindowgeometry "$WINDOW_ID" | awk '/Geometry:/ { print $2 }')
+
+WIDTH=$(echo $WINDOW_DIMS|cut -d"x" -f1)
+if (( $(echo "$NEW_X+$WIDTH/2<0" | bc -l) )); then  NEW_X=$(echo $NEW_X + $SCREEN_WIDTH | bc -l); fi
+
+HEIGHT=$(echo $WINDOW_DIMS|cut -d"x" -f2)
+if (( $(echo "$NEW_Y+$HEIGHT/2<0" | bc -l) )); then NEW_Y=$(echo $NEW_Y + $SCREEN_HEIGHT | bc -l); fi
+
+## Un-maximize current window so that we can move it
+wmctrl -ir "$WINDOW_ID" -b remove,maximized_vert,maximized_horz
+
+## Move and resize the window (window may shrink over time due to round off error)
+xdotool windowmove "$WINDOW_ID" "$NEW_X" "$NEW_Y"
+xdotool windowsize "$WINDOW_ID" "$NEW_WINDOW_WIDTH" "$NEW_WINDOW_HEIGHT"
+
+## Maximize window again, if it was before
+if [ -n "${WINDOW_HORZ_MAXED}" ] && [ -n "${WINDOW_VERT_MAXED}" ]; then
+    wmctrl -ir "$WINDOW_ID" -b add,maximized_vert,maximized_horz
+elif [ -n  "${WINDOW_HORZ_MAXED}" ]; then
+    wmctrl -ir "$WINDOW_ID" -b add,maximized_horz
+elif [ -n  "${WINDOW_VERT_MAXED}" ]; then
+    wmctrl -ir "$WINDOW_ID" -b add,maximized_vert
+fi
+
+# Debugging
+# echo ""
+# echo DIRECTION: $DIRECTION
+# echo PANEL_SCREEN_IDX: $XFCE4_PANEL_SCREEN_IDX
+# echo CURR_SCREEN_IDX: \ $CURR_SCREEN_IDX, DIMS: ${CURR_SCREEN_DIMS[*]}
+# echo TARG_SCREEN_IDX: \ $TARG_SCREEN_IDX, DIMS: ${TARG_SCREEN_DIMS[*]}
+# echo RIGHT_EDGE:  ${RIGHT_EDGE[*]}
+# echo TOP_EDGE: ${TOP_EDGE[*]}
+# echo X: $X NEW_X: $NEW_X
+# echo Y: $Y NEW_Y: $NEW_Y
+# echo "height_scaling: " $height_scaling
+# echo "width_scaling: " $width_scaling
+# echo width: \ \ \  $WINDOW_WIDTH height: \ \ \  $WINDOW_HEIGHT
+# echo new_width:  $new_WINDOW_WIDTH new_height: $new_WINDOW_HEIGHT

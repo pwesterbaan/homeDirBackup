@@ -1,0 +1,19 @@
+\documentclass{article}
+\usepackage{tabularx,hyperref,booktabs}
+\usepackage[margin=1in]{geometry}
+
+\begin{document}
+{\renewcommand{\arraystretch}{1.25}
+  \begin{tabularx}{\linewidth}{@{}
+    >{\hsize=0.55\hsize \bfseries}X
+    >{\hsize=1.325\hsize}X
+    >{\hsize=0.62\hsize \bfseries}X
+    >{\hsize=1.495\hsize}X@{}}
+    Instructor: & Dr. Peter Westerbaan (he/him)&
+    Office: & Laura Lander 318 \\
+    Phone: & (864) 388-8763  & %\\[1.5pt]
+    Office Hours: & M 10:00 -- 10:50a, W 8:00 -- 8:50a,\\ %TODO
+    Email: & \href{mailto:pwesterbaan@lander.edu}{pwesterbaan@lander.edu}&& TR 11:00 -- 12:15p, \& by appointment\\
+    \multicolumn{4}{@{}l}{When contacting via email, please include the course and section number.}\\\bottomrule
+  \end{tabularx}}
+\end{document}

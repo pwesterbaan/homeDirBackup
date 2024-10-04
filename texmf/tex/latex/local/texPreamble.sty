@@ -1,0 +1,187 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{texPreamble}[09/18/2019]
+%% Original copy in Dropbox (kpsewhich --expand-path='$TEXMFHOME') and
+%%     ln -s $TEX_FOLDER/texPreamble.sty ~/texmf/tex/latex/local/texPreamble.sty
+%% Update texhash
+%% Call me with \usepackage{texPreamble}
+%% If you place this in dropbox, change the path below
+%% Remove \sig if you are not using the signature macro
+\def\texFolder{/home/peter/Dropbox/Coding/LaTex/}
+\RequirePackage[all]{xy}
+\RequirePackage{array}
+\RequirePackage{advdate}
+\RequirePackage{graphicx}
+\RequirePackage[lmargin=1.0in, rmargin=1.0in, tmargin=1.0in, bmargin=1.0in]{geometry}
+\RequirePackage{amsmath, amssymb, xfrac, amsthm}
+\RequirePackage{verbatim}                       %verbatiminput
+\RequirePackage{multirow, pbox, hhline}
+\RequirePackage{multicol}
+\RequirePackage[table]{xcolor}
+\RequirePackage{bm}
+\RequirePackage{fp}                             %arithmetic with variables
+\RequirePackage{nicefrac}
+\RequirePackage{mathtools}
+\RequirePackage{standalone}
+\RequirePackage{hyperref}
+\RequirePackage{textcomp}
+\RequirePackage{pdfpages}
+\RequirePackage{pdflscape}
+\RequirePackage{nameref}
+\RequirePackage{lipsum}
+\RequirePackage[shortlabels, inline]{enumitem}  %customize enumerate at initialization
+\RequirePackage[makeroom]{cancel}               %cross out math
+\RequirePackage[normalem]{ulem}
+\RequirePackage{tabularray}
+\UseTblrLibrary{booktabs}
+%\RequirePackage{booktabs}
+\RequirePackage{tasks}                          %horizontal lists
+  \NewTasksEnvironment[label=~]{extasks}[\task] %blank labels for tasks
+\RequirePackage{blindtext}                      %lorem ipsum...
+\RequirePackage{pgf, tikz}
+\RequirePackage{tabu}
+%\RequirePackage{nth}                           %1st, 2nd, 3rd, interferes with exam
+\RequirePackage[nointegrals]{wasysym}           %emoticons
+\RequirePackage{xparse}
+\RequirePackage{xspace}
+\RequirePackage{bigstrut}                       %used with xparse for topstrut/botstrut
+  \newcommand\topstrut[1][1.2ex]{\setlength\bigstrutjot{#1}{\bigstrut[t]}}
+  \newcommand\botstrut[1][0.9ex]{\setlength\bigstrutjot{#1}{\bigstrut[b]}}
+\RequirePackage{blkarray}                       %label rows/cols of matrices
+\RequirePackage{xifthen}
+\RequirePackage{moreverb}
+%load fancybox before fancyvrb or VerbatimInput breaks? :(
+\RequirePackage{fancybox, framed}
+\RequirePackage{fancyvrb}                       %VerbatimInput
+  \let\verbatiminput=\verbatimtabinput          %respects tabbing
+\RequirePackage[linesnumbered,lined,ruled,commentsnumbered]{algorithm2e}
+\RequirePackage{scalerel}
+\RequirePackage{pgfplotstable}
+\RequirePackage{pgfplots}
+  \pgfplotsset{compat=newest}
+  \usepgfplotslibrary{polar,fillbetween}
+  \usetikzlibrary{patterns}
+  \usetikzlibrary{arrows}
+  \usetikzlibrary{calc, positioning, shapes}
+  \usetikzlibrary{pgfplots.groupplots}
+%% solid and open circles
+\pgfplotsset{soldot/.style={color=lander_blue,only marks,mark=*}}
+  %,line width=0.2pt, mark size=1.125pt}}
+\pgfplotsset{holdot/.style={color=lander_blue,fill=white,only marks,mark=*}}
+  %, line width=0.25pt, mark size=1.125pt}}
+%% Draw a line representing a VA. Place inside axis options e.g. vasymtote=2,
+\pgfplotsset{vasymptote/.style={
+    before end axis/.append code={
+        \draw[densely dashed] ({rel axis cs:0,0} -| {axis cs:#1,0})
+        -- ({rel axis cs:0,1} -| {axis cs:#1,0});
+  }}}
+\RequirePackage{subcaption, cleveref}           %Figures with subplots and captions
+  \captionsetup[subfigure]{subrefformat=simple,labelformat=simple}
+  \renewcommand\thesubfigure{(\alph{subfigure})}
+\RequirePackage{listings}
+\RequirePackage{tabularx}
+% change width of tabularx columns
+%\begin{tabularx}{\linewidth}{|>{\hsize=0.5\hsize}X| >{\hsize=1.5\hsize}X|} \end{tabularx}
+\RequirePackage{tabto}                          %provides \tab command
+\RequirePackage{harpoon}
+\RequirePackage[super]{nth}                     %\nth{1}
+\RequirePackage{wrapfig}                        %\begin{wrapfigure}
+\RequirePackage{diagbox}                        %diagonal line in table cell
+\RequirePackage{arydshln}                       %must load after array,longtable,colortab,colortbl -- array dash lines
+\RequirePackage{polynom}                        %\polylongdiv{x^3+x^2-1}{x-1}
+%% The following allows terms like 0x^2 in the polynom package
+\makeatletter
+\def\pld@CF@loop#1+{%
+    \ifx\relax#1\else
+        \begingroup
+          \pld@AccuSetX11%
+          \def\pld@frac{{}{}}\let\pld@symbols\@empty\let\pld@vars\@empty
+          \pld@false
+          #1%
+          \let\pld@temp\@empty
+          \pld@AccuIfOne{}{\pld@AccuGet\pld@temp
+                            \edef\pld@temp{\noexpand\pld@R\pld@temp}}%
+           \pld@if \pld@Extend\pld@temp{\expandafter\pld@F\pld@frac}\fi
+           \expandafter\pld@CF@loop@\pld@symbols\relax\@empty
+           \expandafter\pld@CF@loop@\pld@vars\relax\@empty
+           \ifx\@empty\pld@temp
+               \def\pld@temp{\pld@R11}%
+           \fi
+          \global\let\@gtempa\pld@temp
+        \endgroup
+        \ifx\@empty\@gtempa\else
+            \pld@ExtendPoly\pld@tempoly\@gtempa
+        \fi
+        \expandafter\pld@CF@loop
+    \fi}
+\def\pld@CMAddToTempoly{%
+    \pld@AccuGet\pld@temp\edef\pld@temp{\noexpand\pld@R\pld@temp}%
+    \pld@CondenseMonomials\pld@false\pld@symbols
+    \ifx\pld@symbols\@empty \else
+        \pld@ExtendPoly\pld@temp\pld@symbols
+    \fi
+    \ifx\pld@temp\@empty \else
+        \pld@if
+            \expandafter\pld@IfSum\expandafter{\pld@temp}%
+                {\expandafter\def\expandafter\pld@temp\expandafter
+                    {\expandafter\pld@F\expandafter{\pld@temp}{}}}%
+                {}%
+        \fi
+        \pld@ExtendPoly\pld@tempoly\pld@temp
+        \pld@Extend\pld@tempoly{\pld@monom}%
+    \fi}
+\makeatother
+
+%% The following 4 lines are so standalone and nocite play nice together
+\RequirePackage{etoolbox}
+\makeatletter
+\patchcmd{\nocite}{\ifx\@onlypreamble\document}{\iftrue}{}{}
+\makeatother
+
+% Allows multi-line eqns to split pages
+\allowdisplaybreaks
+
+% Redefinition of matrix macro for customizing line spacing
+% usage: '\begin{bmatrix}[2]...'
+\makeatletter
+\renewcommand*\env@matrix[1][\arraystretch]{%
+  \edef\arraystretch{#1}%
+  \hskip -\arraycolsep
+  \let\@ifnextchar\new@ifnextchar
+  \array{*\c@MaxMatrixCols c}}
+\makeatother
+
+% Custom color for table rows
+%% place the following before a table for alternating row colors
+% \rowcolors{1}{}{lightgray}
+\definecolor{lightgray}{gray}{0.8}
+
+%% Custom list number format
+\setenumerate[1]{label=\arabic*.}
+\setenumerate[2]{label=\alph*)}
+\setenumerate[3]{label=\roman*)}
+
+%% Increase max size of a matrix
+\setcounter{MaxMatrixCols}{25}
+
+% Tikz settings
+\tikzset{>=stealth}
+\makeatletter
+\tikzset{reuse path/.code={\pgfsyssoftpath@setcurrentpath{#1}}}
+\makeatother
+\tikzstyle{myNode} = [circle,
+    fill=black!10,
+    rounded corners,
+    minimum width=20pt,
+    text centered,
+    thick,
+    draw=black]
+
+\RequirePackage{colorPalette}
+
+\input{texShortcutsWesterbaan}
+
+%% Custom title for solution box in exam package
+\makeatletter
+\@ifclassloaded{exam}{\renewcommand{\solutiontitle}{\noindent\textbf{Answer:}\par\noindent\setcounter{case}{0}}}{}
+\makeatother
+\endinput

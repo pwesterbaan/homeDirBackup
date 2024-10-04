@@ -1,0 +1,21 @@
+# Create array with connected display info
+mapfile -t DISP < <(xrandr | grep connected)
+
+# store screen dims in array w/o "x" or "+"
+for key in "${!DISP[@]}"; do
+    cur_line=${DISP[$key]}
+    cur_dims=$(echo $cur_line | awk '/connected/ { print $3; exit }')
+    if [[ "$cur_dims" == "primary" ]]; then
+	cur_dims=$(echo $cur_line | awk '/connected/ { print $4; exit }')
+    fi
+    # DISP[$key]="$cur_dims"
+    DISP[$key]=$(echo $cur_dims | sed -e s/+/' '/g -e s/x/' '/g)
+done
+
+# sort array using 3rd field (left edge of each disp)
+readarray -t DISP < <(printf '%s\n' "${DISP[@]}" | sort -k 2)
+
+echo ${DISP[@]}
+
+echo ${DISP[0]} | awk '{ print $1 }'
+echo ${DISP[0]} | awk '{ print $2 }'

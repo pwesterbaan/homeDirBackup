@@ -1,0 +1,209 @@
+#!/bin/bash
+#
+# Move the current window to the next monitor.
+#
+# Also works only on one X screen (which is the most common case).
+#
+# Props to
+# http://icyrock.com/blog/2012/05/xubuntu-moving-windows-between-monitors/
+#
+# Unfortunately, both "xdotool getwindowgeometry --shell $window_id" and
+# checking "-geometry" of "xwininfo -id $window_id" are not sufficient, as
+# the first command does not respect panel/decoration offsets and the second
+# will sometimes give a "-0-0" geometry. This is why we resort to "xwininfo".
+
+# TODO optional "L" and "R" flags, defaulting to one
+# TODO use shift+super+<left> or <right> keyboard shortcut in "keyboard" (not window manager)
+DIR=1;
+#TODO: Detect index of "primary" screen
+XFCE4_PANEL_SCREEN_IND=1; #index of screen with xfce4-panel
+
+screen_width=$(xdpyinfo | awk '/dimensions:/ { print $2; exit }' | cut -d"x" -f1)
+screen_height=$(xdpyinfo | awk '/dimensions:/ { print $2; exit }' | cut -d"x" -f2)
+display_width=$(xdotool getdisplaygeometry | cut -d" " -f1)
+display_height=$(xdotool getdisplaygeometry | cut -d" " -f2)
+window_id=$(xdotool getactivewindow)
+
+# Remember if it was maximized.
+window_horz_maxed=$(xprop -id "$window_id" _NET_WM_STATE | grep '_NET_WM_STATE_MAXIMIZED_HORZ')
+window_vert_maxed=$(xprop -id "$window_id" _NET_WM_STATE | grep '_NET_WM_STATE_MAXIMIZED_VERT')
+
+window_width=$(xwininfo -id "$window_id" | awk '/Width:/ { print $2}')
+window_height=$(xwininfo -id "$window_id" | awk '/Height:/ { print $2}')
+
+# Read window position
+x=$(xwininfo -id "$window_id" | awk '/Absolute upper-left X:/ { print $4 }')
+y=$(xwininfo -id "$window_id" | awk '/Absolute upper-left Y:/ { print $4 }')
+
+# Subtract any offsets caused by panels or window decorations
+x_offset=$(xwininfo -id "$window_id" | awk '/Relative upper-left X:/ { print $4 }')
+y_offset=$(xwininfo -id "$window_id" | awk '/Relative upper-left Y:/ { print $4 }')
+x=$(( x - x_offset))
+y=$(( y - y_offset))
+
+xmid=$(echo $x+$window_width/2 | bc -l);
+ymid=$(echo $y+$window_height/2 | bc -l);
+# Compute new position based on current monitor
+#TODO Find a way to get these variables
+xfce_panel_height=29;
+
+# Create array with connected display info
+mapfile -t DISP < <(xrandr | grep connected)
+
+# store screen dims in array w/o "x" or "+"
+for key in "${!DISP[@]}"; do
+    cur_line=${DISP[$key]}
+    cur_dims=$(echo $cur_line | awk '/connected/ { print $3; exit }')
+    if [[ "$cur_dims" == "primary" ]]; then
+	cur_dims=$(echo $cur_line | awk '/connected/ { print $4; exit }')
+    fi
+    # DISP[$key]="$cur_dims"
+    DISP[$key]=$(echo $cur_dims | sed -e s/+/' '/g -e s/x/' '/g)
+done
+
+# sort array using 3rd field (left edge of each disp)
+readarray -t DISP < <(printf '%s\n' "${DISP[@]}" | sort -k 2)
+
+# first_screen_width=$(echo ${DISP[0]} | awk '{ print $1 }');#
+# second_screen_width=$(echo ${DISP[1]} | awk '{ print $1 }');
+# third_screen_width=$(echo ${DISP[2]} | awk '{ print $1 }');
+
+# first_screen_height=$(echo ${DISP[0]} | awk '{ print $2 }');#
+# second_screen_height=$(echo ${DISP[1]} | awk '{ print $2 }');
+# third_screen_height=$(echo ${DISP[2]} | awk '{ print $2 }');
+
+# store left edge of each screen
+# store current screen index
+THIS_LEFT_EDGE=0
+for key in "${!DISP[@]}"; do
+    echo $key
+    THIS_WIDTH=$(echo ${DISP[$key]} | awk '{ print $1 }');
+    THIS_LEFT_EDGE=$(echo ${DISP[$key]} | awk '{ print $3 }');
+    LEFT_EDGES[$key]=$THIS_LEFT_EDGE;
+    RIGHT_EDGES[$key]=$(($THIS_LEFT_EDGE+$THIS_WIDTH));
+    if (( $(echo "$xmid > $THIS_LEFT_EDGE" | bc -l) )); then #xmid is a float expr
+	CURR_SCREEN_IND=$key;
+    fi
+done
+LEFT_EDGES[0]=$screen_width # treat left-most edge as end of screen
+echo ${LEFT_EDGES[*]}
+echo ${RIGHT_EDGES[*]}
+
+echo "before TARGET_SCREEN_IND"
+# compute target screen index based on $DIR, avoiding negative index
+TARGET_SCREEN_IND=$((CURR_SCREEN_IND+DIR))
+TARGET_SCREEN_IND=$((TARGET_SCREEN_IND%${#DISP[@]}))
+echo TARGET_SCREEN_IND: $TARGET_SCREEN_IND
+if [ $TARGET_SCREEN_IND -lt 0 ]; then
+   TARGET_SCREEN_IND=$((TARGET_SCREEN_IND+${#DISP[@]}));
+fi
+
+CURR_SCREEN_WIDTH=$(echo ${DISP[$CURR_SCREEN_IND]} | awk '{ print $1 }');
+CURR_SCREEN_HEIGHT=$(echo ${DISP[$CURR_SCREEN_IND]} | awk '{ print $2 }');
+echo CURR_SCREEN_IND: \ \ $CURR_SCREEN_IND, WIDTH: $CURR_SCREEN_WIDTH, HEIGHT: $CURR_SCREEN_HEIGHT
+
+TARGET_SCREEN_WIDTH=$(echo ${DISP[$TARGET_SCREEN_IND]} | awk '{ print $1 }');
+TARGET_SCREEN_HEIGHT=$(echo ${DISP[$TARGET_SCREEN_IND]} | awk '{ print $2 }');
+echo TARGET_SCREEN_IND: $TARGET_SCREEN_IND, WIDTH: $TARGET_SCREEN_WIDTH, HEIGHT: $TARGET_SCREEN_HEIGHT
+
+# adjust x to be the same relative to the new screen
+width_scaling=$(echo $TARGET_SCREEN_WIDTH/$CURR_SCREEN_WIDTH | bc -l);
+new_x=$(echo $x-${RIGHT_EDGES[$TARGET_SCREEN_IND]} | bc -l);
+new_x=$(echo ${LEFT_EDGES[$TARGET_SCREEN_IND]}+$new_x\*$width_scaling | bc -l);
+echo x: $x, new_x: $new_x
+
+# adjust y to be the same relative to the new screen
+height_scaling=$(echo $TARGET_SCREEN_HEIGHT/$CURR_SCREEN_HEIGHT | bc -l);
+if [ $TARGET_SCREEN_IND -ne $XFCE4_PANEL_SCREEN_IND ]; then
+    new_y=$(echo $y\*$height_scaling | bc -l);
+else
+    new_y=$(echo $y-$xfce_panel_height | bc -l);  # primary screen has the xfce panel
+    new_y=$(echo $new_y\*$height_scaling+$xfce_panel_height | bc -l);
+fi
+
+# first_screen_right_edge=$first_screen_width;
+# second_screen_right_edge=$((first_screen_right_edge+second_screen_width));
+# third_screen_right_edge=$((second_screen_right_edge+third_screen_width));
+
+# # TODO rewrite following if-elif-else block for any number of screens
+# # if [ "$xmid" -lt "$first_screen_right_edge" ]; then
+# if (( $(echo "$xmid < $first_screen_right_edge" | bc -l) )); then
+#     # move from 1 to 3
+#     # adjust x to be the same relative to the new screen
+#     width_scaling=$(echo $third_screen_width/$first_screen_width | bc -l);
+#     new_x=$(echo $x\*$width_scaling | bc -l);
+#     new_x=$(echo $second_screen_right_edge+$new_x | bc -l);
+
+
+#     # adjust y to be the same relative to the new screen
+#     height_scaling=$(echo $third_screen_height/$first_screen_height | bc -l);
+#     new_y=$(echo $new_y\*$height_scaling | bc -l);
+
+# # elif [ "$xmid" -lt "$second_screen_right_edge" ]; then
+# elif (( $(echo "$xmid < $second_screen_right_edge" | bc -l) )); then
+#     # move from 2 to 1
+#     # adjust x to be the same relative to the new screen
+#     width_scaling=$(echo $first_screen_width/$second_screen_width | bc -l);
+#     new_x=$(echo $x-$first_screen_right_edge | bc -l);
+#     new_x=$(echo $new_x\*$width_scaling | bc -l);
+
+#     # adjust y to be the same relative to the new screen
+#     height_scaling=$(echo \($first_screen_height\)/$second_screen_height | bc -l);
+
+#     new_y=$(echo $y-$xfce_panel_height | bc -l);  # primary screen has the xfce panel
+#     new_y=$(echo $y\*$height_scaling+$xfce_panel_height | bc -l);
+
+# else
+#     # move from 3 to 2
+#     # adjust x to be the same relative to the new screen
+#     width_scaling=$(echo $second_screen_width/$third_screen_width | bc -l);
+#     new_x=$(echo $x-$second_screen_right_edge | bc -l);
+#     new_x=$(echo $first_screen_right_edge+$new_x\*$width_scaling | bc -l);
+
+#     # adjust y to be the same relative to the new screen
+#     height_scaling=$(echo $second_screen_height/$third_screen_height | bc -l);
+#     new_y=$(echo $y\*$height_scaling | bc -l);
+
+# fi
+
+
+#compute new relative window size
+new_window_width=$(echo $window_width\*$width_scaling | bc -l);
+new_window_height=$(echo $window_height\*$height_scaling | bc -l);
+
+
+# If we would move off the left-most monitor, we set it to the right one.
+# We also respect the window's width here: moving a window off more than half its width won't happen.
+width=$(xdotool getwindowgeometry "$window_id" | awk '/Geometry:/ { print $2 }'|cut -d"x" -f1)
+if (( $(echo "$new_x+$width/2<0" | bc -l) )); then
+    new_x=$(echo $new_x + $screen_width | bc -l)
+fi
+
+height=$(xdotool getwindowgeometry "$window_id" | awk '/Geometry:/ { print $2 }'|cut -d"x" -f2)
+if (( $(echo "$new_y+$height/2<0" | bc -l) )); then
+    new_y=$(echo $new_y + $screen_height | bc -l)
+fi
+
+# Un-maximize current window so that we can move it
+wmctrl -ir "$window_id" -b remove,maximized_vert,maximized_horz
+
+# Move the window
+################ xdotool windowmove "$window_id" "$new_x" "$new_y"
+# # Resize the window (window shrinks over time due to round off error)
+# # xdotool windowsize "$window_id" "$new_window_width" "$new_window_height"
+
+# Maximize window again, if it was before
+if [ -n "${window_horz_maxed}" ] && [ -n "${window_vert_maxed}" ]; then
+    wmctrl -ir "$window_id" -b add,maximized_vert,maximized_horz
+elif [ -n  "${window_horz_maxed}" ]; then
+    wmctrl -ir "$window_id" -b add,maximized_horz
+elif [ -n  "${window_vert_maxed}" ]; then
+    wmctrl -ir "$window_id" -b add,maximized_vert
+fi
+
+# Debugging
+# echo "height_scaling: " $height_scaling
+# echo "width_scaling: " $width_scaling
+echo x: $x new_x: $new_x
+echo y: $y new_y: $new_y
+# echo "\nwidth: " $window_width "\nheight: " $window_height "\nnew_width: " $new_window_width "\nnew_height: " $new_window_height

@@ -1,0 +1,93 @@
+-- nano ~/.xscreensaver
+-- "Conky"  conky -q \n\
+-- Must use default name. -c <conkyrc_name> doesn't seem to work?
+
+conky.config = {
+	background = false,
+	update_interval = 1,
+
+	cpu_avg_samples = 2,
+	net_avg_samples = 2,
+
+	override_utf8_locale = true,
+
+	double_buffer = true,
+	no_buffers = true,
+
+	text_buffer_size = 2048,
+	--imlib_cache_size = '0',
+
+	temperature_unit = 'fahrenheit',
+
+	-- Only display eth0 if connected,
+	if_up_strictness = 'address',
+
+	-- Window specifications,
+	own_window_class = 'Conky',
+	own_window = true,
+	own_window_type = 'dock',
+	-- set transparent to yes to eliminate box,
+	own_window_transparent = no,
+	own_window_hints = 'undecorated,below,sticky,skip_taskbar,skip_pager',
+	own_window_argb_visual = yes,
+	-- set darkness of box around conky,
+	own_window_argb_value = 255,
+
+
+	border_inner_margin = 0,
+	border_outer_margin = 0,
+
+	minimum_width = 1900,
+	minimum_height = 1080,
+
+	maximum_width = 1900,
+
+	alignment = 'middle_middle',
+	--alignment = 'middle_right',
+        gap_x = 0.0*1680, ---0.125*1920,
+        gap_y = -15, ---1080/(35),
+
+	-- Graphics settings,
+	draw_shades  = true,
+	draw_outline = false,
+	draw_borders = false,
+	draw_graph_borders = false,
+
+	-- Text settings,
+	use_xft = true,
+	font = 'Liberation Mono:size=25',
+	xftalpha = 0.5,
+
+	uppercase = false,
+
+        default_color = 'FFFFFF',
+
+	times_in_seconds = true,
+
+	-- Lua Load,
+	lua_load = '~/.scripts/conky/clock_rings_screensaver.lua',
+	lua_draw_hook_pre = 'clock_rings_screensaver',
+};
+--${font Liberation Mono:size=36}${execpi 30 ~/.scripts/getWeather.sh | ansito -}
+-- ${if_running pianobar}\
+-- ${goto 0} Station: ${execi 6 /home/peter/.scripts/formatNowPlaying.sh 1}
+-- ${goto 0} Artist:  ${execi 6 /home/peter/.scripts/formatNowPlaying.sh 2}
+-- ${goto 0} Title:   ${execi 6 /home/peter/.scripts/formatNowPlaying.sh 3}
+-- ${voffset -135}${endif}${voffset 0}
+
+--${alignr}${voffset 200}${execi 2 $HOME/.scripts/getWeather.sh | ansito -} |
+
+conky.text = [[
+${voffset -20}
+${font caviar dreams:size=44}  ${time %A}${alignr}${time %b} ${time %e}
+${alignr}${time %Y}  ${font}
+${alignr}${voffset 200}${execi 2 $HOME/.scripts/getWeather.sh | ansito -}
+${alignr}${if_up enp6s0}${addr enp6s0}${else}${addr wlp5s0f0}${endif}
+${voffset -60}
+${if_running spotify}
+${image $HOME/.scripts/conky/spotify/current_artwork.jpg -p 30,390 -s 125x125}
+${voffset 0}  ${execpi 2 $HOME/.scripts/conky/spotify/spotify_getinfo.pl}
+${else}${voffset 145}${endif}
+${execi 600 gcal |tail -n 9| sed s/"< "/" <"/}
+${font}
+]];
