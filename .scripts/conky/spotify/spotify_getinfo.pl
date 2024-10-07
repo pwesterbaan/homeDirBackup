@@ -10,6 +10,7 @@
 
 use strict;
 use warnings;
+use File::Touch;
 use Net::DBus;
 use LWP::Simple;
 
@@ -41,7 +42,9 @@ while( my( $key, $value ) = each %metadata ){
 }
 
 # Store the current track
-open(FILE,'<'.$conky_directory."stored_track.txt") or die "open: ".$!;
+my $file=$conky_directory."stored_track.txt";
+touch($file) unless(-e $file);
+open(FILE,'<'.$file) or die "open: ".$!;
 $row = <FILE>;
 if (defined($row)) {
     chomp $row;
