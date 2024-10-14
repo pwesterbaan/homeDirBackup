@@ -18,7 +18,23 @@
 ;; installed packages.  Don't delete this line.  If you don't want it,
 ;; just comment it out by adding a semicolon to the start of the line.
 ;; You may delete these explanatory comments.
+;; (require 'package)
 (package-initialize)
+
+;; company-python (COMplete ANYthing)
+(defun my/python-mode-hook ()
+  (add-to-list 'company-backends 'company-jedi))
+
+(add-hook 'python-mode-hook 'my/python-mode-hook)
+
+;; elpy
+;; (use-package elpy
+  ;; :ensure t
+  ;; :init
+  ;; (elpy-enable))
+
+;; display line numbers on the left
+(global-display-line-numbers-mode)
 
 ;; default to better frame titles
 (setq frame-title-format
@@ -179,7 +195,8 @@ the character typed."
  '(indicate-buffer-boundaries '((t . right) (top . left)))
  '(indicate-empty-lines t)
  '(inhibit-startup-screen t)
- '(package-selected-packages '(matlab-mode auctex))
+ '(ispell-dictionary nil)
+ '(package-selected-packages '(company-jedi company ## matlab-mode auctex))
  '(scroll-bar-mode 'right)
  '(show-paren-mode t)
  '(size-indication-mode t)
