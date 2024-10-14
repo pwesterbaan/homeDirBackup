@@ -18,8 +18,14 @@
 ;; installed packages.  Don't delete this line.  If you don't want it,
 ;; just comment it out by adding a semicolon to the start of the line.
 ;; You may delete these explanatory comments.
-;; (require 'package)
+(require 'package)
+(add-to-list 'package-archives
+             '("melpa" . "http://melpa.org/packages/") t)
+(add-to-list 'package-archives
+             '("melpa-stable" . "http://melpa.org/packages/") t)
+
 (package-initialize)
+(elpy-enable)
 
 ;; company-python (COMplete ANYthing)
 (defun my/python-mode-hook ()
@@ -196,7 +202,7 @@ the character typed."
  '(indicate-empty-lines t)
  '(inhibit-startup-screen t)
  '(ispell-dictionary nil)
- '(package-selected-packages '(company-jedi company ## matlab-mode auctex))
+ '(package-selected-packages '(elpygen elpy company-jedi company ## matlab-mode auctex))
  '(scroll-bar-mode 'right)
  '(show-paren-mode t)
  '(size-indication-mode t)
@@ -210,5 +216,3 @@ the character typed."
 
 (add-hook 'prog-mode-hook 'display-line-numbers-mode)
 (with-eval-after-load 'package (add-to-list 'package-archives '("nongnu" . "https://elpa.nongnu.org/nongnu/")))
-(add-to-list 'package-archives
-             '("melpa" . "http://melpa.org/packages/") t)
