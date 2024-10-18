@@ -1,0 +1,31 @@
+# Directories
+Desktop/
+Documents/
+Downloads/
+Dropbox/
+Music
+perl5/
+Pictures/
+Steam/
+R/
+snap/
+texmf/tlpkg/
+texmf/web2c/
+Videos/
+
+
+# Misc
+*.jar
+keepassxc-snap-helper.sh
+matlab*
+.scripts/conky/spotify/current_artwork.jpg
+.scripts/conky/spotify/stored_track.txt
+.scripts/go
+.scripts/wegorc
+*.txt
+.*
+*~
+
+# exceptions to wildcards above
+!.scripts/
+!.gitignore*

@@ -18,7 +18,7 @@
 
 ## based on wttr.in
 # OUTPUT=$(curl --connect-timeout 5 -s wttr.in/29631?format="%t+%f+%h")
-OUTPUT=$(curl --connect-timeout 5 -s wttr.in/greenwood_sc?format="%t+%f+%h")
+OUTPUT=$(curl --connect-timeout 5 -s "wttr.in/greenwood_sc?format="%t+%f+%h"&u")
 ACTUALTEMP=$(echo $OUTPUT | awk -v FS=' ' '{print $1}' | cut -c 2-)
 REALFEEL=$(echo $OUTPUT| awk -v FS=' ' '{print $2}' | cut -c 2-)
 HUMIDITY=$(echo $OUTPUT | awk -v FS=' ' '{print $3}')
