@@ -13,7 +13,7 @@ alias workhorse_ip="cat $DROPBOX_PATH/Documents/workhorseIP.txt"
 
 alias arbf="find . -type f \( -iname \*.aux -o -iname \*.bbl -o -iname \*.blg -o -iname \*.fdb_latexmk -o -iname \*.fls -o -iname \*.log -o -iname \*.nav -o -iname \*.out -o -iname \*.snm -o -iname \*.synctex.gz -o -iname \*.lof -o -iname \*.lot -o -iname \*.dvi -o -iname \*-eps-converted-to -o -iname \*.goutputstream -o -iname \*.fuse_hidden* -o -iname \*-eps-converted-to.pdf -o -iname \*.bcf -o -iname \*.run.xml -o -iname \*-blx.bib \) -print -delete"
 alias batcave="lp -q 1 -o sides=one-sided -d batcave"
-alias clemson="cdls $DROPBOX_PATH/Grad_School/Clemson/"
+alias clemson="cdls $DROPBOX_PATH/Clemson/"
 alias cls="clear && ls -F --group-directories-first && pwd"
 alias commandCenter="ssh peter@192.168.0.21"
 alias cpTikz="emacs $TEX_FOLDER/tikz/tikzTemplate.tex &"
