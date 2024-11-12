@@ -1,5 +1,15 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{texPreamble}[09/18/2019]
+
+% TODO:
+\makeatletter
+\@ifclassloaded{beamer}{
+    % yes code
+  }{
+    % no code
+  }
+\makeatother
+
 %% Original copy in Dropbox (kpsewhich --expand-path='$TEXMFHOME') and
 %%     ln -s $TEX_FOLDER/texPreamble.sty ~/texmf/tex/latex/local/texPreamble.sty
 %% Update texhash
@@ -60,6 +70,7 @@
 \RequirePackage[linesnumbered,lined,ruled,commentsnumbered]{algorithm2e}
 \RequirePackage{scalerel}
 \RequirePackage{lcg}
+\RequirePackage{actuarialsymbol}
 \RequirePackage{pgfplotstable}
 \RequirePackage{pgfplots}
   \pgfplotsset{compat=newest}
