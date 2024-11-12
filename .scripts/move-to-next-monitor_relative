@@ -57,7 +57,7 @@ done
 # echo sorted DISP: $(printf '%s\n' "${DISP[@]}" | sort -k 3,3 -k 2,2)
 
 # sort array using 3rd field (left edge of each disp)
-readarray -t DISP < <(printf '%s\n' "${DISP[@]}" | sort -k 2)
+readarray -t DISP < <(printf '%s\n' "${DISP[@]}" | sort -k 3)
 # printf '%s\n' "${DISP[@]}"
 
 
