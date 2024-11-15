@@ -126,7 +126,7 @@ if (( $(echo "$NEW_Y+$HEIGHT/2<0" | bc -l) )); then NEW_Y=$(echo $NEW_Y + $SCREE
 ## Un-maximize current window so that we can move it
 wmctrl -ir "$WINDOW_ID" -b remove,maximized_vert,maximized_horz
 
-## Move and resize the window (window may shrink over time due to round off error)
+##Move and resize the window (window may shrink over time due to round off error)
 xdotool windowmove "$WINDOW_ID" "$NEW_X" "$NEW_Y"
 xdotool windowsize "$WINDOW_ID" "$NEW_WINDOW_WIDTH" "$NEW_WINDOW_HEIGHT"
 
