@@ -113,15 +113,17 @@ NEW_WINDOW_WIDTH=${NEW_WINDOW_WIDTH%%.*}; #round to int
 NEW_WINDOW_HEIGHT=$(echo $WINDOW_HEIGHT\*$HEIGHT_SCALING | bc -l);
 NEW_WINDOW_HEIGHT=${NEW_WINDOW_HEIGHT%%.*}; #round to int
 
-# If we would move off the left-most monitor, we set it to the right one.
+# If at least half of the window is off the screen, we shift it back toward the center by a screen width
 # We also respect the window's width here: moving a window off more than half its width won't happen.
 WINDOW_DIMS=$(xdotool getwindowgeometry "$WINDOW_ID" | awk '/Geometry:/ { print $2 }')
 
 WIDTH=$(echo $WINDOW_DIMS|cut -d"x" -f1)
 if (( $(echo "$NEW_X+$WIDTH/2<0" | bc -l) )); then  NEW_X=$(echo $NEW_X + $SCREEN_WIDTH | bc -l); fi
+NEW_X=$(( ($NEW_X +$WIDTH/2) % $SCREEN_WIDTH -$WIDTH/2 ))
 
 HEIGHT=$(echo $WINDOW_DIMS|cut -d"x" -f2)
 if (( $(echo "$NEW_Y+$HEIGHT/2<0" | bc -l) )); then NEW_Y=$(echo $NEW_Y + $SCREEN_HEIGHT | bc -l); fi
+NEW_Y=$(( ($NEW_Y +$HEIGHT/2) % $SCREEN_HEIGHT -$HEIGHT/2 ))
 
 ## Un-maximize current window so that we can move it
 wmctrl -ir "$WINDOW_ID" -b remove,maximized_vert,maximized_horz

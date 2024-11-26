@@ -192,9 +192,18 @@ cpKey(){
   if [ $# -eq 0 ]
     then
       pattern=*_KEY*.tex;
-    else
-      pattern="$(basename -- $1)"
-      cd "$(dirname -- $1)"
+  else
+      #check if file exists
+      if [ -f $1 ]
+      then
+	# echo "file exists!"
+	pattern="$(basename -- $1)"
+	cd "$(dirname -- $1)"
+      else
+	# echo "file doesn't exist"
+	return -1
+      fi
+
   fi
   if ls $pattern 1> /dev/null 2>&1; then
     for f in $pattern;
