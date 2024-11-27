@@ -118,12 +118,15 @@ NEW_WINDOW_HEIGHT=${NEW_WINDOW_HEIGHT%%.*}; #round to int
 WINDOW_DIMS=$(xdotool getwindowgeometry "$WINDOW_ID" | awk '/Geometry:/ { print $2 }')
 
 WIDTH=$(echo $WINDOW_DIMS|cut -d"x" -f1)
-if (( $(echo "$NEW_X+$WIDTH/2<0" | bc -l) )); then  NEW_X=$(echo $NEW_X + $SCREEN_WIDTH | bc -l); fi
-NEW_X=$(( ($NEW_X +$WIDTH/2) % $SCREEN_WIDTH -$WIDTH/2 ))
+# if (( $(echo "$NEW_X+$WIDTH/2<0" | bc -l) )); then  NEW_X=$(echo $NEW_X + $SCREEN_WIDTH | bc -l); fi
+NEW_X=$(( ($NEW_X +$WIDTH/2+$SCREEN_WIDTH) % $SCREEN_WIDTH -$WIDTH/2 ))
 
 HEIGHT=$(echo $WINDOW_DIMS|cut -d"x" -f2)
-if (( $(echo "$NEW_Y+$HEIGHT/2<0" | bc -l) )); then NEW_Y=$(echo $NEW_Y + $SCREEN_HEIGHT | bc -l); fi
-NEW_Y=$(( ($NEW_Y +$HEIGHT/2) % $SCREEN_HEIGHT -$HEIGHT/2 ))
+# if (( $(echo "$NEW_Y+$HEIGHT/2<0" | bc -l) )); then NEW_Y=$(echo $NEW_Y + $SCREEN_HEIGHT | bc -l); fi
+NEW_Y=$(( ($NEW_Y +$HEIGHT/2+$SCREEN_HEIGHT) % $SCREEN_HEIGHT -$HEIGHT/2 ))
+
+# echo "old coords: " $X $Y
+# echo "new coords: " $NEW_X $NEW_Y
 
 ## Un-maximize current window so that we can move it
 wmctrl -ir "$WINDOW_ID" -b remove,maximized_vert,maximized_horz
@@ -132,7 +135,7 @@ wmctrl -ir "$WINDOW_ID" -b remove,maximized_vert,maximized_horz
 xdotool windowmove "$WINDOW_ID" "$NEW_X" "$NEW_Y"
 xdotool windowsize "$WINDOW_ID" "$NEW_WINDOW_WIDTH" "$NEW_WINDOW_HEIGHT"
 
-## Maximize window again, if it was before
+Maximize window again, if it was before
 if [ -n "${WINDOW_HORZ_MAXED}" ] && [ -n "${WINDOW_VERT_MAXED}" ]; then
     wmctrl -ir "$WINDOW_ID" -b add,maximized_vert,maximized_horz
 elif [ -n  "${WINDOW_HORZ_MAXED}" ]; then
