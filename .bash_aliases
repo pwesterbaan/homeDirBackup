@@ -197,7 +197,9 @@ cpKey(){
       if [ -f $1 ]
       then
 	# echo "file exists!"
-	pattern="$(basename -- $1)"
+	# pattern="$(basename -- $1)"
+	#grab all files given. Get basename later
+	pattern=$@
 	cd "$(dirname -- $1)"
       else
 	# echo "file doesn't exist"
@@ -205,9 +207,10 @@ cpKey(){
       fi
 
   fi
-  if ls $pattern 1> /dev/null 2>&1; then
+  if ls $(basename -- $(echo $pattern | cut --delimiter " " --fields 1)) 1> /dev/null 2>&1; then
     for f in $pattern;
     do
+	f=$(basename -- $f);
         arbf > /dev/null;
         echo "*************";
         echo Compile blank;
@@ -222,6 +225,7 @@ cpKey(){
     done;
     for f in $pattern;
     do
+	f=$(basename -- $f);
         echo "***********";
         echo Compile key;
         echo "***********";
@@ -232,11 +236,15 @@ cpKey(){
         latexmk -pdf -silent -g -pdflatex="$JOBOPTS" $f > /dev/null;
     done;
     confirm "rbf? (def Y)" -y && arbf;
-    exo-open ${f//"_KEY.tex"/""}*.pdf & # *.pdf
-    cdls $CURRENT_DIR
-    else
-      echo "No files match *_KEY*.tex pattern";
-    fi
+    for f in $pattern;
+    do
+      f=$(basename -- $f)
+      exo-open ${f//"_KEY.tex"/""}*.pdf & # *.pdf
+    done;
+  else
+    echo "No files match *_KEY*.tex pattern";
+  fi
+  cdls $CURRENT_DIR
 
 }
 
