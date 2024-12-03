@@ -212,8 +212,9 @@ cpKey(){
     do
 	f=$(basename -- $f);
         arbf > /dev/null;
+
         echo "*************";
-        echo Compile blank;
+        echo Compile blank: $f
         echo "*************";
         JOBNAME=$(basename -s .tex ${f//"_KEY"/""})
         JOBOPTS="pdflatex %O \
@@ -222,13 +223,10 @@ cpKey(){
           -jobname='$JOBNAME' \
           '\PassOptionsToClass{noanswers}{exam}\input{%S}'"
         latexmk -pdf -silent -jobname="$JOBNAME" -g -pdflatex="$JOBOPTS" $f > /dev/null;
-    done;
-    for f in $pattern;
-    do
-	f=$(basename -- $f);
-        echo "***********";
-        echo Compile key;
-        echo "***********";
+
+	echo "*************";
+        echo Compile key:   $f
+	echo "*************";
         JOBOPTS="pdflatex %O \
           -interaction=nonstopmode \
           -synctex=1 \
@@ -239,7 +237,7 @@ cpKey(){
     for f in $pattern;
     do
       f=$(basename -- $f)
-      exo-open ${f//"_KEY.tex"/""}*.pdf & # *.pdf
+      exo-open ${f//"_KEY.tex"/""}*.pdf # *.pdf
     done;
   else
     echo "No files match *_KEY*.tex pattern";
