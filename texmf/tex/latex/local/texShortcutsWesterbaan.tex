@@ -31,6 +31,18 @@
 \newcommand*\cecol{\cellcolor{hiLiYel}}
 \newcolumntype{h}{>{\columncolor{hiLiYel}}{c}}
 
+\newcommand{\ansBoxHeight}{\ifprintanswers5mm\else11mm\fi}
+\NewDocumentCommand{\ansBox}{ O{\ansBoxHeight} O{35mm} m }{%
+% creates answer box of (opt) height, (opt) width, with mandatory contents
+  \begin{flushright}
+    \fbox{
+      \begin{minipage}[t][#1][c]{#2}
+        #3
+      \end{minipage}}
+  \end{flushright}
+  \mbox{}
+}
+
 % command to create diagonal line in top left cell of table
 \newcommand\mydiagbox[4]{%
   \multicolumn{1}{p{#2}}{\hskip-\tabcolsep
