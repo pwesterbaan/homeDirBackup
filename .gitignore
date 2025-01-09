@@ -16,6 +16,7 @@ Videos/
 
 
 # Misc
+*.pdf
 *.jar
 keepassxc-snap-helper.sh
 matlab*

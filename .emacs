@@ -175,6 +175,8 @@ the character typed."
 (add-hook 'before-save-hook
           'delete-trailing-whitespace)
 
+(add-hook 'after-init-hook 'global-company-mode)
+
 ;; tex options
 (setq TeX-auto-save t)
 (setq TeX-parse-self t)
