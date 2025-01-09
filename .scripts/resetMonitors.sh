@@ -22,6 +22,10 @@ if (xrandr | grep -q "HDMI-1 connected"); then
 	    xrandr --output $VGA_DISP --mode 1920x1080 --left-of $HDMI_DISP
 	    pacmd set-default-sink alsa_output.pci-0000_00_03.0.hdmi-surround-extra1
 	    ;;
+	[oO] #office
+	    xrandr --output $VGA_DISP --mode 1920x1080 --left-of $LAPTOP
+	    xrandr --output $HDMI_DISP --mode 1920x1080 --left-of $VGA_DISP
+	    ;;
 	*)
 	    xrandr --output $HDMI_DISP --mode 1920x1080 --right-of $LAPTOP
 	    xrandr --output $VGA_DISP --mode 1680x1050 --right-of $HDMI_DISP
