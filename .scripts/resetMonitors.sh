@@ -12,21 +12,21 @@ LAPTOP=$(xrandr | awk '/eDP/ { print $1}')
 HDMI_DISP=$(xrandr | awk '/HDMI/ { print $1}')
 VGA_DISP=$(xrandr | awk '/VGA/ { print $1}')
 
-UPSTAIRS=${1:-'u'}
+UPSTAIRS=${1:-'o'}
 
 xrandr --output $LAPTOP --mode 1920x1080
 if (xrandr | grep -q "HDMI-1 connected"); then
     case $UPSTAIRS in
-	[yY][eE][sS]|[yY]|[uU])
+	[yY][eE][sS]|[yY]|[uU]) #upstairs (VGA - HDMI - LAPTOP)
 	    xrandr --output $HDMI_DISP --mode 1920x1080 --left-of $LAPTOP
 	    xrandr --output $VGA_DISP --mode 1920x1080 --left-of $HDMI_DISP
 	    pacmd set-default-sink alsa_output.pci-0000_00_03.0.hdmi-surround-extra1
 	    ;;
-	[oO] #office
+	[oO]) #office (HDMI - VGA - LAPTOP)
 	    xrandr --output $VGA_DISP --mode 1920x1080 --left-of $LAPTOP
 	    xrandr --output $HDMI_DISP --mode 1920x1080 --left-of $VGA_DISP
 	    ;;
-	*)
+	*) #downstairs (LAPTOP - HDMI - VGA)
 	    xrandr --output $HDMI_DISP --mode 1920x1080 --right-of $LAPTOP
 	    xrandr --output $VGA_DISP --mode 1680x1050 --right-of $HDMI_DISP
 	    ;;
