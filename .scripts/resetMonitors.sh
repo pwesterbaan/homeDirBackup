@@ -1,36 +1,60 @@
 #!/bin/bash
+#
+# Orders screens from left to right using "h" for HDMI, "v" for VGA, and "l" for Laptop
+
 ### Copy backup of displays file
 ###cp .config/xfce4/xfconf/xfce-perchannel-xml/displays.xml.bak .config/xfce4/xfconf/xfce-perchannel-xml/displays.xml
-
-### xrandr to find info
-
-# xrandr --output eDP-1 --mode 1920x1080
-# xrandr --output HDMI-1 --mode 1920x1080 --left-of eDP-1
-# xrandr --output VGA-1 --mode 1680x1050 --left-of HDMI-1
 
 LAPTOP=$(xrandr | awk '/eDP/ { print $1}')
 HDMI_DISP=$(xrandr | awk '/HDMI/ { print $1}')
 VGA_DISP=$(xrandr | awk '/VGA/ { print $1}')
 
-UPSTAIRS=${1:-'o'}
-
-xrandr --output $LAPTOP --mode 1920x1080
-if (xrandr | grep -q "HDMI-1 connected"); then
-    case $UPSTAIRS in
-	[yY][eE][sS]|[yY]|[uU]) #upstairs (VGA - HDMI - LAPTOP)
-	    xrandr --output $HDMI_DISP --mode 1920x1080 --left-of $LAPTOP
-	    xrandr --output $VGA_DISP --mode 1920x1080 --left-of $HDMI_DISP
-	    pacmd set-default-sink alsa_output.pci-0000_00_03.0.hdmi-surround-extra1
-	    ;;
-	[oO]) #office (HDMI - VGA - LAPTOP)
-	    xrandr --output $VGA_DISP --mode 1920x1080 --left-of $LAPTOP
-	    xrandr --output $HDMI_DISP --mode 1920x1080 --left-of $VGA_DISP
-	    ;;
-	*) #downstairs (LAPTOP - HDMI - VGA)
-	    xrandr --output $HDMI_DISP --mode 1920x1080 --right-of $LAPTOP
-	    xrandr --output $VGA_DISP --mode 1680x1050 --right-of $HDMI_DISP
-	    ;;
+function get_screen_name(){
+    case $1 in
+	h)
+	    echo $(xrandr | awk '/HDMI/ { print $1}');
+	    return 0;
+	;;
+	v)
+	    echo $(xrandr | awk '/VGA/ { print $1}');
+	    return 0;
+	;;
+	l)
+	    echo $(xrandr | awk '/eDP/ { print $1}');
+	    return 0;
+	;;
+	*)
+	    exit 1;
+	;;
     esac
+    }
+
+#default with 'hvl'
+ARG_STR=${1:-'hvl'}
+
+#clunky error checking
+CMD_STR=""
+
+LEFT_SCREEN=$(get_screen_name "${ARG_STR:0:1}" )
+if [[ $? -ne 0 ]]; then
+    echo "Invalid argument: ${ARG_STR:0:1}"
+    exit 1;
+fi
+
+for ((i=1; i<${#ARG_STR}; i++)); do
+    RIGHT_SCREEN=$(get_screen_name "${ARG_STR:i:1}" )
+    if [[ $? -ne 0 ]]; then
+	echo "Invalid argument: ${ARG_STR:i:1}"
+	exit 1;
+    fi
+    CMD_STR="$CMD_STR xrandr --output $RIGHT_SCREEN --mode 1920x1080 --right-of $LEFT_SCREEN;"
+    LEFT_SCREEN=$RIGHT_SCREEN
+done
+
+# since all inputs valid, execute now
+eval "$CMD_STR"
+
+if (xrandr | grep -q "HDMI-1 connected"); then
     #move panel to HDMI
     xfconf-query -c xfce4-panel -p /panels/panel-0/output-name -s $HDMI_DISP
 else
