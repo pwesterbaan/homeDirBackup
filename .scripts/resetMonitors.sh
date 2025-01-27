@@ -11,22 +11,14 @@ VGA_DISP=$(xrandr | awk '/VGA/ { print $1}')
 
 function get_screen_name(){
     case $1 in
-	h)
-	    echo $(xrandr | awk '/HDMI/ { print $1}');
-	    return 0;
-	;;
-	v)
-	    echo $(xrandr | awk '/VGA/ { print $1}');
-	    return 0;
-	;;
-	l)
-	    echo $(xrandr | awk '/eDP/ { print $1}');
-	    return 0;
-	;;
-	*)
-	    exit 1;
-	;;
+	h) SCREEN=HDMI ;;
+	v) SCREEN=VGA  ;;
+	l) SCREEN=eDP  ;;
+	*) exit 1;     ;;
     esac
+
+    echo $(xrandr | awk '/'$SCREEN'/ { print $1}');
+    return 0;
     }
 
 #default with 'hvl'
