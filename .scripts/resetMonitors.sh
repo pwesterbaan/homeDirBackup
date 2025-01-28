@@ -5,10 +5,6 @@
 ### Copy backup of displays file
 ###cp .config/xfce4/xfconf/xfce-perchannel-xml/displays.xml.bak .config/xfce4/xfconf/xfce-perchannel-xml/displays.xml
 
-LAPTOP=$(xrandr | awk '/eDP/ { print $1}')
-HDMI_DISP=$(xrandr | awk '/HDMI/ { print $1}')
-VGA_DISP=$(xrandr | awk '/VGA/ { print $1}')
-
 function get_screen_name(){
     case $1 in
 	h) SCREEN=HDMI ;;
@@ -20,6 +16,10 @@ function get_screen_name(){
     echo $(xrandr | awk '/'$SCREEN'/ { print $1}');
     return 0;
     }
+
+LAPTOP=$(get_screen_name l)
+HDMI_DISP=$(get_screen_name h)
+# VGA_DISP=$(get_screen_name v)
 
 #default with 'hvl'
 ARG_STR=${1:-'hvl'}
