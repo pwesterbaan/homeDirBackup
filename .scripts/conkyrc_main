@@ -59,23 +59,9 @@ conky.config = {
 	times_in_seconds = true,
 
 	-- Lua Load,
-	lua_load = '/home/peter/.scripts/conky/clock_rings.lua',
-	lua_draw_hook_pre = 'clock_rings',
--- Weather location is a 4 character code: ''KCEU'' is Clemson found from searching & using url
--- http://weather.noaa.gov/
-
--- ${voffset -1.5}${if_running pianobar}\
---  Station: ${execi 10 ~/.scripts/formatNowPlaying.sh 1}
--- ${if_match ${execi 3 echo $(echo -n $(tail -2 ~/.config/pianobar/nowplaying | wc -L))} > 26}\
---  Artist:  ${scroll 24 6 ${execi 3 ~/.scripts/formatNowPlaying.sh 2}}
---  Title:   ${scroll 24 6 ${execi 3 ~/.scripts/formatNowPlaying.sh 3}}\
--- ${else}\
---  Artist:  ${exec ~/.scripts/formatNowPlaying.sh 2}
---  Title:   ${exec ~/.scripts/formatNowPlaying.sh 3}\
---  ${endif}
---  ${voffset -5}${hr}${endif}${voffset 5}
-
-
+	lua_load = '$HOME/.scripts/conky/clock_rings.lua', '$HOME/.scripts/conky/transparent-image.lua',
+	lua_draw_hook_pre  = 'conky_main',
+	lua_draw_hook_post = 'clock_rings',
 };
 
 conky.text = [[
@@ -91,7 +77,6 @@ ${goto 9}Swap: ${swapperc}%
 ${voffset 24}\
 ${alignr}${goto 39.5}home: ${fs_used_perc /}%
 ${alignr}${goto 46}data: ${fs_used_perc /mnt/Data/}%
-# ${alignr}${goto 53}  os: ${fs_used_perc /media/peter/OS/}%
 ${voffset 24}\
 ${goto 93}${battery_short}
 ${goto 93}Battery
@@ -110,7 +95,8 @@ ${execi 600 gcal .+|cut -c  1-22|tail -n 8| sed s/"< "/" <"/}
 ${execi 600 gcal .+|cut -c 27-50|tail -n 8| head -n 5}
 ${hr}${font Liberation Mono:size=7.5}
 ${voffset -3.5}${if_running spotify}
-${image $HOME/.scripts/conky/spotify/current_artwork.jpg -p 5,773 -s 87x87 -n}
+#${image $HOME/.scripts/conky/spotify/current_artwork.jpg -p 5,773 -s 87x87 -n}
+${lua conky_image $HOME/.scripts/conky/spotify/current_artwork.jpg 5 773 87 87}
 ${voffset 10}${execpi 2 $HOME/.scripts/conky/spotify/spotify_getinfo.pl}
 ${voffset -5}${hr}${else}${voffset -15}${endif}${voffset 5}${font Liberation Mono:size=9}
  Uptime: ${format_time $uptime_short "\dd \hh \mm"}
