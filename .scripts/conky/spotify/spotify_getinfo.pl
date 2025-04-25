@@ -13,13 +13,16 @@ use warnings;
 use File::Touch;
 use Net::DBus;
 use LWP::Simple;
+use Image::Magick;
 
 # Global Variables
 my ($current_track_status, $current_track_arturl, $current_track_artist, $current_track_title, $stored_current_track);
 my $home_directory = "/home/peter";
 my $conky_directory = $home_directory."/.scripts/conky/spotify/";
 my $current_artwork = $conky_directory."current_artwork.jpg";
+my $current_artwork_png = $conky_directory."current_artwork.png";
 my $row;
+my $image = Image::Magick->new;
 
 # Dbus construction
 my $bus = Net::DBus->session;
@@ -73,4 +76,8 @@ if ($stored_current_track ne $current_track_title ) {
     close (FILE);
 
     getstore($current_track_arturl , $current_artwork);
+    my  $x = $image->Read($current_artwork);  # an .jpg file
+
+    $x = $image->Set(Quality=>'100%');
+    $x = $image->Write($current_artwork_png);
 }

@@ -38,8 +38,8 @@ conky.config = {
 	maximum_width = 200,
 
 	alignment = 'middle_right',
-	gap_x = 0*1960+1*35,
-	gap_y = 15,
+	gap_x = 0*1960+1*25,
+	gap_y = 0,
 
 	-- Graphics settings,
 	draw_shades = true,
@@ -59,9 +59,8 @@ conky.config = {
 	times_in_seconds = true,
 
 	-- Lua Load,
-	lua_load = '$HOME/.scripts/conky/clock_rings.lua', '$HOME/.scripts/conky/transparent-image.lua',
-	lua_draw_hook_pre  = 'conky_main',
-	lua_draw_hook_post = 'clock_rings',
+	lua_load = '~/.scripts/conky/clock_rings.lua ~/.scripts/conky/transparent-image.lua',
+	lua_draw_hook_post  = 'clock_rings',
 };
 
 conky.text = [[
@@ -95,8 +94,7 @@ ${execi 600 gcal .+|cut -c  1-22|tail -n 8| sed s/"< "/" <"/}
 ${execi 600 gcal .+|cut -c 27-50|tail -n 8| head -n 5}
 ${hr}${font Liberation Mono:size=7.5}
 ${voffset -3.5}${if_running spotify}
-#${image $HOME/.scripts/conky/spotify/current_artwork.jpg -p 5,773 -s 87x87 -n}
-${lua conky_image $HOME/.scripts/conky/spotify/current_artwork.jpg 5 773 87 87}
+${lua conky_image ~/.scripts/conky/spotify/current_artwork.png 6 780 87 87}
 ${voffset 10}${execpi 2 $HOME/.scripts/conky/spotify/spotify_getinfo.pl}
 ${voffset -5}${hr}${else}${voffset -15}${endif}${voffset 5}${font Liberation Mono:size=9}
  Uptime: ${format_time $uptime_short "\dd \hh \mm"}
