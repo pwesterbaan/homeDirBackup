@@ -20,7 +20,8 @@ Videos/
 *.jar
 keepassxc-snap-helper.sh
 matlab*
-.scripts/conky/spotify/current_artwork.jpg
+.scripts/*.png
+.scripts/conky/spotify/current_artwork.*
 .scripts/conky/spotify/stored_track.txt
 .scripts/go
 .scripts/wegorc
