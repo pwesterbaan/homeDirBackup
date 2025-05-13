@@ -78,6 +78,6 @@ if ($stored_current_track ne $current_track_title ) {
     getstore($current_track_arturl , $current_artwork);
     my  $x = $image->Read($current_artwork);  # an .jpg file
 
-    $x = $image->Set(Quality=>'100%');
+    $x = $image->Set(Quality=>'100');
     $x = $image->Write($current_artwork_png);
 }

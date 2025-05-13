@@ -39,7 +39,7 @@ conky.config = {
 
 	alignment = 'middle_right',
 	gap_x = 0*1960+1*25,
-	gap_y = 0,
+	gap_y = -10,
 
 	-- Graphics settings,
 	draw_shades = true,
@@ -64,23 +64,23 @@ conky.config = {
 };
 
 conky.text = [[
-${voffset 8}${font caviar dreams:size=16}${time %A}${font}${voffset -8}${alignr}${font caviar dreams:size=38}${time %e}${font}
+${voffset 0}${font caviar dreams:size=16}${time %A}${font}${voffset -16}${alignr}${font caviar dreams:size=38}${time %e}${font}
 ${voffset -30}${font caviar dreams:size=18}${time %b}${font}${voffset -3}${font caviar dreams:size=20}${time %Y}${font}${hr}
-${voffset 135}${font caviar dreams:size=8}
-
+${voffset 140}${font caviar dreams:size=8}
 
 ${goto 9}${voffset 10}${cpu cpu0}%
 ${goto 9}CPU
-${goto 9}${voffset 23}RAM: ${memperc}%
+${goto 9}${voffset 18}RAM: ${memperc}%
 ${goto 9}Swap: ${swapperc}%
-${voffset 24}\
+${voffset 18}\
 ${alignr}${goto 39.5}home: ${fs_used_perc /}%
 ${alignr}${goto 46}data: ${fs_used_perc /mnt/Data/}%
-${voffset 24}\
+${voffset 18}\
 ${goto 93}${battery_short}
 ${goto 93}Battery
 ## The following error message occurs when the battery is full
 # conky: $format_time didn't receive a time in seconds as first argument
+${voffset -5}\
 ${if_match $battery_percent<99}${goto 93}${format_time $battery_time "\hh \mm"}${endif}
 ${alignr}${goto 165}${if_up enp6s0}${else}${wireless_link_qual wlp5s0f0}${endif}
 ${goto 125}${voffset -2}${if_up enp6s0}${downspeed enp6s0}${else}${downspeed wlp5s0f0}${endif}
@@ -94,7 +94,7 @@ ${execi 600 gcal .+|cut -c  1-22|tail -n 8| sed s/"< "/" <"/}
 ${execi 600 gcal .+|cut -c 27-50|tail -n 8| head -n 5}
 ${hr}${font Liberation Mono:size=7.5}
 ${voffset -3.5}${if_running spotify}
-${lua conky_image ~/.scripts/conky/spotify/current_artwork.png 6 780 87 87}
+${lua conky_image ~/.scripts/conky/spotify/current_artwork.png 6 803 87 87}
 ${voffset 10}${execpi 2 $HOME/.scripts/conky/spotify/spotify_getinfo.pl}
 ${voffset -5}${hr}${else}${voffset -15}${endif}${voffset 5}${font Liberation Mono:size=9}
  Uptime: ${format_time $uptime_short "\dd \hh \mm"}
@@ -103,4 +103,4 @@ ${voffset -5}${hr}${else}${voffset -15}${endif}${voffset 5}${font Liberation Mon
 ${alignr}${nodename}
 ${alignr}${exec cat /etc/issue.net} $machine
 ${alignr}${if_up enp6s0}${addr enp6s0}${else}${addr wlp5s0f0}${endif}
-${voffset -85}${if_running spotify}${voffset -15}${endif}]];
+${voffset -100}${if_running spotify}${voffset -15}${endif}]];
