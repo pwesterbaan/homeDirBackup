@@ -1,3 +1,4 @@
+shopt -s cdable_vars
 export COM_CENT_MAC=18:03:73:37:29:de
 export DATA_PATH=/mnt/Data
 # export DEAL_II_DIR=/home/peter/dealii
