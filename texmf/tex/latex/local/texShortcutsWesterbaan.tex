@@ -1,4 +1,4 @@
-% Custom variables for header and footer of quizzes/exams
+ % Custom variables for header and footer of quizzes/exams
 \makeatletter
 \newcommand*{\class}[1]{\newcommand*{\@class}{#1}}
 \newcommand*{\theclass}[0]{\@class}
@@ -86,7 +86,7 @@
 %\newtheorem*{defn*}{Definition} %% Definition without numbering
 %% Defn w/o numbering defined above via mdframed
 \theoremstyle{definition}
-\newtheorem{defn}{Definition}
+\newtheorem{defn}{Definition}[section]
 \newtheorem*{ex*}{Example}
 \newtheorem{ex}{Example}
 \newtheorem*{Thm*}{Theorem}
@@ -220,6 +220,7 @@
 \newcommand*{\chat}{\hat{c}}
 %% replace "to" with en-dash in cref{,,}
 \newcommand{\crefrangeconjunction}{--\,}
+\newcommand*{\ctranspose}[1][]{^{#1\mathsf{H}}}%{^T}%{\!\top\!}}
 \newcommand*{\ddt}[1][]{{\frac{d^{#1}}{dt^{#1}}}}
 \newcommand*{\ddx}[1][]{{\frac{d^{#1}}{dx^{#1}}}}
 \newcommand*{\ddy}[1][]{{\frac{d^{#1}}{dy^{#1}}}}
@@ -293,7 +294,8 @@
 \newcommand*{\tcol}[2][red]{\textcolor{#1}{#2}}
 \newcommand*{\TikZ}{Ti\textit{k}Z\xspace}
 \newcommand*{\To}{\longrightarrow}
-\newcommand*{\transpose}[1][]{^{#1\intercal}}%{^T}%{\!\top\!}}
+% \newcommand*{\transpose}[1][]{^{#1\intercal}}%{^T}%{\!\top\!}}
+\newcommand*{\transpose}[1][]{^{#1\mathsf{T}}}%{^T}%{\!\top\!}}
 \newcommand*{\vecArrow}[1]{\overrightharp{\ensuremath{#1}}}
 \newcommand*{\veca}{\myVec{a}}
 \newcommand*{\vecB}{\myVec{B}}

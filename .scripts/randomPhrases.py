@@ -193,6 +193,7 @@ phrases=[
     "Academic politics is the most vicious and bitter form of politics, because the stakes are so low.",
     "Competition in academia is so vicious because the stakes are so small.",
     "An exhaustive inspection of the attic for vermin can provide evidence of absence, but any sign of mice will always suffice to the contrary.",
+    "All models are flawed. Some are useful.",
 ]
 
 print(random.choice(phrases))

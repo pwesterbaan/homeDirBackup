@@ -26,7 +26,7 @@ if [ "$OUTPUT" != '' ]; then
     echo -e "$ACTUALTEMP ($REALFEEL)\n$HUMIDITY";
 else
     # echo -e "";
-    echo -e "\n\n"
+    echo -e "\n"
 fi
 
 # WEGO=/home/peter/.scripts/go/bin/wego
