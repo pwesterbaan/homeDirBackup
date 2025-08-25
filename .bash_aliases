@@ -1,5 +1,7 @@
 shopt -s cdable_vars
 export COM_CENT_MAC=18:03:73:37:29:de
+# export COM_CENT_IP=192.168.0.21 #old (local) static ip
+export COM_CENT_IP=$(tailscale ip -4 command-center)
 export DATA_PATH=/mnt/Data
 # export DEAL_II_DIR=/home/peter/dealii
 export DROPBOX_PATH=~/Dropbox
@@ -17,7 +19,7 @@ alias arbf="find -L . -type f \( -iname \*.aux -o -iname \*.bbl -o -iname \*.blg
 #alias batcave="lp -q 1 -o sides=one-sided -d batcave"
 alias clemson="cdls $DROPBOX_PATH/Clemson/"
 alias cls="clear && ls -F --group-directories-first && pwd"
-alias commandCenter="ssh peter@192.168.0.21"
+alias commandCenter="ssh peter@$COM_CENT_IP"
 alias cpTikz="emacs $TEX_FOLDER/tikz/tikzTemplate.tex &"
 alias cpwd="pwd | tocp"
 #alias connect_jbl='if ! (hcitool dev | grep -q $RALINK_MAC); then restartBluetooth; sleep 5; fi; bluetoothctl connect $JBL_MAC'
@@ -51,7 +53,7 @@ alias qtcreator="~/qtcreator-4.13.2/bin/qtcreator"
 alias rbf="arbf; read -p 'Enter to continue'; ls -F --group-directories-first && pwd;"
 alias restartBluetooth="/home/peter/.scripts/restartBluetooth.sh"
 alias rwifi="nmcli r wifi off; read -p 'Press enter'; nmcli r wifi on"
-alias scannet="sudo nmap -sP 192.168.0.*/24"
+alias scannet="sudo nmap -sP 192.168.1.*/24"
 alias sleepWorkhorse="ssh -t peter@$(workhorse_ip) 'sudo /home/peter/.scripts/sleepWorkhorse.sh'"
 alias snmr="sudo systemctl restart NetworkManager.service"
 alias solarSailer="youtube-dl https://www.youtube.com/watch?v=0gFyoH-JFFA -o - | ffplay - -nodisp -autoexit -loglevel quiet"
