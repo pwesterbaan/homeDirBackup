@@ -27,6 +27,8 @@
 (package-initialize)
 (elpy-enable)
 
+(require 'multiple-cursors)
+
 ;; company-python (COMplete ANYthing)
 (defun my/python-mode-hook ()
   (add-to-list 'company-backends 'company-jedi))
@@ -205,10 +207,11 @@ the character typed."
  '(inhibit-startup-screen t)
  '(ispell-dictionary nil)
  '(package-selected-packages
-   '(undo-tree elpygen elpy company-jedi company ## matlab-mode auctex))
+   '(multiple-cursors undo-tree elpygen elpy company-jedi company ## matlab-mode auctex))
  '(scroll-bar-mode 'right)
  '(show-paren-mode t)
  '(size-indication-mode t)
+ '(tex-start-options "--shell-escape")
  '(tool-bar-mode nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
