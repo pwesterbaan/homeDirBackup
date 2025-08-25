@@ -8,7 +8,7 @@ IMPORTANT: if you are using the 'cpu' function, it will cause a segmentation fau
 To call this script in Conky, use the following (assuming that you save this script to ~/scripts/rings.lua):
     lua_load ~/scripts/clock_rings.lua
     lua_draw_hook_pre clock_rings
-    
+
 Changelog:
 + v1.0 -- Original release (30.09.2009)
    v1.1p -- Jpope edit londonali1010 (05.10.2009)
@@ -16,7 +16,8 @@ Changelog:
 ]]
 
 -- "clock_x" and "clock_y" are the coordinates of the centre of the clock, in pixels, from the top left of the Conky window.
-clock_x=100
+-- clock_x is half of width+2*border_inner_margin
+clock_x=105
 clock_y=160
 
 x_sep=34.5
@@ -252,7 +253,7 @@ end
 
 function draw_ring(cr,t,pt)
     local w,h=conky_window.width,conky_window.height
-    
+
     local xc,yc,ring_r,ring_w,sa,ea=pt['x'],pt['y'],pt['radius'],pt['thickness'],pt['start_angle'],pt['end_angle']
     local bgc, bga, fgc, fga=pt['bg_colour'], pt['bg_alpha'], pt['fg_colour'], pt['fg_alpha']
 
@@ -267,7 +268,7 @@ function draw_ring(cr,t,pt)
     cairo_set_source_rgba(cr,rgb_to_r_g_b(bgc,bga))
     cairo_set_line_width(cr,ring_w)
     cairo_stroke(cr)
-    
+
     -- Draw indicator ring
     cairo_arc(cr,xc,yc,ring_r,angle_0,angle_0+t_arc)
     cairo_set_source_rgba(cr,rgb_to_r_g_b(fgc,fga))
@@ -277,11 +278,11 @@ end
 function draw_clock_hands(cr,xc,yc)
     local secs,mins,hours,secs_arc,mins_arc,hours_arc
     local xh,yh,xm,ym,xs,ys
-    
-    secs=os.date("%S")    
+
+    secs=os.date("%S")
     mins=os.date("%M")
     hours=os.date("%I")
-        
+
     secs_arc=(2*math.pi/60)*secs
     mins_arc=(2*math.pi/60)*mins+secs_arc/60
     hours_arc=(2*math.pi/12)*hours+mins_arc/12
@@ -292,30 +293,30 @@ function draw_clock_hands(cr,xc,yc)
     yh=yc-hour_r*clock_r*math.cos(hours_arc)
     cairo_move_to(cr,xc,yc)
     cairo_line_to(cr,xh,yh)
-    
+
     cairo_set_line_cap(cr,CAIRO_LINE_CAP_ROUND)
     cairo_set_line_width(cr,5)
     cairo_set_source_rgba(cr,1.0,1.0,1.0,1.0)
     cairo_stroke(cr)
-    
+
     -- Draw minute hand
-    
+
     xm=xc+min_r*clock_r*math.sin(mins_arc)
     ym=yc-min_r*clock_r*math.cos(mins_arc)
     cairo_move_to(cr,xc,yc)
     cairo_line_to(cr,xm,ym)
-    
+
     cairo_set_line_width(cr,3)
     cairo_stroke(cr)
-    
+
     -- Draw seconds hand
-    
+
     if show_seconds then
         xs=xc+clock_r*math.sin(secs_arc)
         ys=yc-clock_r*math.cos(secs_arc)
         cairo_move_to(cr,xc,yc)
         cairo_line_to(cr,xs,ys)
-    
+
         cairo_set_line_width(cr,1)
         cairo_stroke(cr)
     end
@@ -347,7 +348,7 @@ function conky_clock_rings()
         local str=''
         local value=0
         local tmp
-        
+
         str=string.format('${%s %s}',pt['name'],pt['arg'])
         if str=='${time %I.%M}' or str=='${time %M.%S}' then
           -- Use hours=0 so that 12:xx doesn't fill the hour ring
@@ -361,20 +362,20 @@ function conky_clock_rings()
         end
         value=tonumber(str)
         pct=value/pt['max']
-        
+
         draw_ring(cr,pct,pt)
     end
-    
+
     -- Check that Conky has been running for at least 5s
 
     if conky_window==nil then return end
     local cs=cairo_xlib_surface_create(conky_window.display,conky_window.drawable,conky_window.visual, conky_window.width,conky_window.height)
-    
-    local cr=cairo_create(cs)    
-    
+
+    local cr=cairo_create(cs)
+
     local updates=conky_parse('${updates}')
     update_num=tonumber(updates)
-    
+
     if update_num>5 then
         for i in pairs(settings_table) do
             setup_rings(cr,settings_table[i])
@@ -383,6 +384,6 @@ function conky_clock_rings()
         -- https://www.noobslab.com/2013/03/install-distro-clock-conky-in.html
         draw_graduations(cr)
     end
-    
+
     draw_clock_hands(cr,clock_x,clock_y)
 end
