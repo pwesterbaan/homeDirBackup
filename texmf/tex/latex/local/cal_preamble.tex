@@ -6,13 +6,14 @@
 \usepackage{xifthen, xspace}
 
 %% Calendar customizations
-\renewcommand{\calprintdate}{}
+\renewcommand{\calprintdate}{\ifclassday\else
+  \mbox{}\hspace{\stretch{1}}\textbf{\ifnewmonth\monthname\ \arabic{date}\else \arabic{date}\fi}\vspace*{7.5pt}\hspace{\stretch{-1}}\fi}
 \renewcommand{\calprintclass}{\textbf{\ifnewmonth\monthname\ \arabic{date}\else \arabic{date}\fi}\vspace*{7.5pt}}
 
 %% text formatting
 \newcommand{\acadDate}[1]{\textcolor{lander_blue!85}{\textsc{#1}}\\[\baselineskip]}
 \newcommand{\myStatLab}[2][MyLab ]{\textcolor{lander_blue}{\textbf{#1#2}}}
-\newcommand{\webAssign}[2][WebAssign]{\textcolor{lander_blue}{\textbf{#1#2}}}
+\newcommand{\webAssign}[2][WebAssign]{\textcolor{lander_blue}{\textbf{#1 #2}}}
 \newcommand{\noClass}{\weeklytext{\vspace*{2\baselineskip}\hspace*{\stretch{1}}\textbf{\textit{\textcolor{BowmanField}{No Class}}}\hspace*{\stretch{1}}}}
 \newcommand{\testFont}[1]{\textbf{\textcolor{red}{#1}}}
 \newcommand{\tReview}[2]{\testFont{Test #1 Review\\ Sunday #2}}
