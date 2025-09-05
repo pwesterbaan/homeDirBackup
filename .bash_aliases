@@ -9,7 +9,6 @@ export RALINK_MAC=54:35:30:D9:B8:84
 export TEX_FOLDER=$DROPBOX_PATH/Coding/LaTex
 export TEX_HOME=$(kpsewhich -var-value TEXMFHOME)/tex/latex/local/
 export WEGORC=/home/peter/.scripts/wegorc
-export WORKHORSE_MAC=50:e5:49:da:c5:84
 
 
 alias arbf="find -L . -type f \( -iname \*.aux -o -iname \*.bbl -o -iname \*.blg -o -iname \*.fdb_latexmk -o -iname \*.fls -o -iname \*.log -o -iname \*.nav -o -iname \*.out -o -iname \*.snm -o -iname \*.synctex.gz -o -iname \*.lof -o -iname \*.lot -o -iname \*.dvi -o -iname \*-eps-converted-to -o -iname \*.goutputstream -o -iname \*.fuse_hidden* -o -iname \*-eps-converted-to.pdf -o -iname \*.bcf -o -iname \*.run.xml -o -iname \*-blx.bib \) -print -delete"
@@ -43,7 +42,6 @@ alias rbf="arbf; read -p 'Enter to continue'; ls -F --group-directories-first &&
 alias restartBluetooth="/home/peter/.scripts/restartBluetooth.sh"
 alias rwifi="nmcli r wifi off; read -p 'Press enter'; nmcli r wifi on"
 alias scannet="sudo nmap -sP 192.168.1.*/24"
-alias sleepWorkhorse="ssh -t peter@$(workhorse_ip) 'sudo /home/peter/.scripts/sleepWorkhorse.sh'"
 alias snmr="sudo systemctl restart NetworkManager.service"
 alias solarSailer="youtube-dl https://www.youtube.com/watch?v=0gFyoH-JFFA -o - | ffplay - -nodisp -autoexit -loglevel quiet"
 alias texpreamble="emacs $TEX_HOME/texPreamble.sty"
@@ -52,9 +50,7 @@ alias tocp="xargs -0 echo -n | xclip -selection clipboard"
 alias todo="emacs $DROPBOX_PATH/Documents/todo.txt"
 alias updateZoom="/home/peter/.scripts/updateZoom.sh"
 alias wakeCommandCenter="wakeonlan $COM_CENT_MAC"
-alias wakeWorkhorse="wakeonlan $WORKHORSE_MAC"
 alias wego="/home/peter/.scripts/go/bin/wego"
-alias workhorse="ssh peter@$(workhorse_ip)"
 
 durp(){ # This silly function is for testing purposes
     if [[ -n "${1+x}" && ${1:-4} != *.tex ]]; then
@@ -135,6 +131,10 @@ LaTeXtemplate(){
     confirm "Open $filename? (def Y)" -y && xdg-open "$filename";
     chmod -x *.{tex,pdf};
     ls -F --group-directories-first && pwd;
+}
+
+randNums(){
+    python3 -c "import random; print(random.sample(range($1,$2),$3))";
 }
 
 retitle(){
