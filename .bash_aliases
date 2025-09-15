@@ -10,7 +10,6 @@ export TEX_FOLDER=$DROPBOX_PATH/Coding/LaTex
 export TEX_HOME=$(kpsewhich -var-value TEXMFHOME)/tex/latex/local/
 export WEGORC=/home/peter/.scripts/wegorc
 
-
 alias arbf="find -L . -type f \( -iname \*.aux -o -iname \*.bbl -o -iname \*.blg -o -iname \*.fdb_latexmk -o -iname \*.fls -o -iname \*.log -o -iname \*.nav -o -iname \*.out -o -iname \*.snm -o -iname \*.synctex.gz -o -iname \*.lof -o -iname \*.lot -o -iname \*.dvi -o -iname \*-eps-converted-to -o -iname \*.goutputstream -o -iname \*.fuse_hidden* -o -iname \*-eps-converted-to.pdf -o -iname \*.bcf -o -iname \*.run.xml -o -iname \*-blx.bib \) -print -delete"
 alias clemson="cdls $DROPBOX_PATH/Clemson/"
 alias cls="clear && ls -F --group-directories-first && pwd"
@@ -64,7 +63,7 @@ durp(){ # This silly function is for testing purposes
 
 calc(){
     # printf "%f\n" `echo $@ |bc -l`;
-    python3 -c "print($1)"
+    python3 -c "import math; import numpy as np; print($1)"
 }
 
 
