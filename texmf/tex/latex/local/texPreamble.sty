@@ -1,7 +1,7 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{texPreamble}[09/18/2019]
 
-% TODO:
+% TODO: Use this make compat with beamer (e.g. enable only certain packages)
 \makeatletter
 \@ifclassloaded{beamer}{
     % yes code
@@ -10,29 +10,29 @@
   }
 \makeatother
 
-%% Original copy in Dropbox (kpsewhich --expand-path='$TEXMFHOME') and
-%%     ln -s $TEX_FOLDER/texPreamble.sty ~/texmf/tex/latex/local/texPreamble.sty
-%% Update texhash
 %% Call me with \usepackage{texPreamble}
-%% If you place this in dropbox, change the path below
 %% Remove \sig if you are not using the signature macro
 
 % \font\nullfont=cmr10 %uncomment to see offending characters
 % which produce 'Missing character: There is no . in font nullfont!'
 
-\def\texFolder{/home/peter/Dropbox/Coding/LaTex/}
 \RequirePackage[all]{xy}
 \RequirePackage{array}
 \RequirePackage{advdate}
 \RequirePackage{graphicx}
 \RequirePackage[lmargin=1.0in, rmargin=1.0in, tmargin=1.0in, bmargin=1.0in]{geometry}
-\RequirePackage{amsmath, amssymb, xfrac, amsthm}
+\RequirePackage{amsmath}
+\RequirePackage{amssymb}
+\RequirePackage{xfrac}
+\RequirePackage{amsthm}
 \RequirePackage{verbatim}                       %verbatiminput
-\RequirePackage{multirow, pbox, hhline}
+\RequirePackage{multirow}
+\RequirePackage{pbox}
+\RequirePackage{hhline}
 \RequirePackage{multicol}
 \RequirePackage[table]{xcolor}
 \RequirePackage{bm}
-\RequirePackage{fp}                             %arithmetic with variables
+%\RequirePackage{fp}                             %arithmetic with variables
 \RequirePackage{nicefrac}
 \RequirePackage{mathtools}
 \RequirePackage{standalone}
@@ -51,7 +51,8 @@
 \RequirePackage{tasks}                          %horizontal lists
   \NewTasksEnvironment[label=~]{extasks}[\task] %blank labels for tasks
 \RequirePackage{blindtext}                      %lorem ipsum...
-\RequirePackage{pgf, tikz}
+\RequirePackage{pgf
+\RequirePackage{tikz}
 \RequirePackage{tabu}
 %\RequirePackage{nth}                           %1st, 2nd, 3rd, interferes with exam
 \RequirePackage[nointegrals]{wasysym}           %emoticons
@@ -64,7 +65,8 @@
 \RequirePackage{xifthen}
 \RequirePackage{moreverb}
 %load fancybox before fancyvrb or VerbatimInput breaks? :(
-\RequirePackage{fancybox, framed}
+\RequirePackage{fancybox}
+\RequirePackage{framed}
 \RequirePackage{fancyvrb}                       %VerbatimInput
   \let\verbatiminput=\verbatimtabinput          %respects tabbing
 \RequirePackage[linesnumbered,lined,ruled,commentsnumbered]{algorithm2e}
@@ -168,8 +170,8 @@
 
 % Custom color for table rows
 %% place the following before a table for alternating row colors
+%% lightgray defined in colorPalette.sty
 % \rowcolors{1}{}{lightgray}
-\definecolor{lightgray}{gray}{0.8}
 
 %% Custom list number format
 \setenumerate[1]{label=\arabic*.}
@@ -191,6 +193,16 @@
     text centered,
     thick,
     draw=black]
+
+% Used to draw normal dist
+\pgfmathdeclarefunction{gauss}{3}{%
+  \pgfmathparse{1/(#3*sqrt(2*pi))*exp(-((#1-#2)^2)/(2*#3^2))}%
+  }
+
+% used for t-distribution
+\newcommand{\students}{
+    gamma((\n+1)/2.)/(sqrt(\n*pi)*gamma(\n/2.))*((1+x^2/\n)^(-(\n+1)/2.))
+}
 
 \RequirePackage{colorPalette}
 
