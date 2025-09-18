@@ -265,6 +265,10 @@ function customExtract {
 fi
 }
 
+function sarcasmString() {
+    python3 -c "import sys; myStr=(' ').join(sys.argv[1:]); print(''.join(myStr[i].upper() if 0==i%2 else myStr[i].lower() for i in range(len(myStr))))" $@
+}
+
 ls -F --group-directories-first && pwd
 
 export PETSC_DIR=~/petsc
