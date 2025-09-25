@@ -69,18 +69,17 @@ calc(){
 cleanTex(){
     # locates *.tex files in current dir and sub dirs,
     # then removes temp files with the following EXTS
-    # There's probably a quicker (yet safe) way to do this, but meh
 
-    EXTS="-blx.bib -eps-converted-to -eps-converted-to.pdf \
-    .aux .bbl .bcf .blg .dvi .fdb_latexmk .fls .fuse_hidden* \
-    .goutputstream .lof .log .lot .nav .out .run.xml .snm .synctex.gz"
+    EXTS=("-blx.bib" "-eps-converted-to" "-eps-converted-to.pdf"
+          ".aux" ".bbl" ".bcf" ".blg" ".dvi" ".fdb_latexmk" ".fls"
+	  ".fuse_hidden*" ".goutputstream" ".lof" ".log" ".lot"
+	  ".nav" ".out" ".run.xml" ".snm" ".synctex.gz")
 
     find . -name \*.tex | while read fname; do
-      # Quicker to manipulate the string once
-      STRIPPED_FILENAME="$(basename "${fname%.tex}")";
-      for ext in $EXTS; do
-        # find . -name "$(basename "${fname%.tex}")$ext" -print -delete
-        find . -maxdepth 1 -name "$STRIPPED_FILENAME$ext" -print -delete
+      STRIPPED_FILENAME="${fname%.tex}";
+      for ext in ${EXTS[@]}; do
+        TMPFILE="$STRIPPED_FILENAME$ext"
+	if [ -f $TMPFILE ]; then ls $TMPFILE; rm $TMPFILE; fi
       done;
     done;
 }
