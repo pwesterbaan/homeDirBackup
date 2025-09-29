@@ -34,12 +34,13 @@
 \newcommand{\ansBoxHeight}{\ifprintanswers8mm\else11mm\fi}
 \NewDocumentCommand{\ansBox}{ O{\ansBoxHeight} O{35mm} m }{%
 % creates answer box of (opt) height, (opt) width, with mandatory contents
-  \begin{flushright}
+  % \begin{flushright}
+  \hspace*{\stretch{1}}
     \fbox{
       \begin{minipage}[t][#1][c]{#2}
         #3
       \end{minipage}}
-  \end{flushright}
+  % \end{flushright}
   \mbox{}
 }
 
