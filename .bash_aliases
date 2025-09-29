@@ -70,16 +70,19 @@ cleanTex(){
     # locates *.tex files in current dir and sub dirs,
     # then removes temp files with the following EXTS
 
-    EXTS=("-blx.bib" "-eps-converted-to" "-eps-converted-to.pdf"
+    exts=("-blx.bib" "-eps-converted-to" "-eps-converted-to.pdf"
           ".aux" ".bbl" ".bcf" ".blg" ".dvi" ".fdb_latexmk" ".fls"
 	  ".fuse_hidden*" ".goutputstream" ".lof" ".log" ".lot"
 	  ".nav" ".out" ".run.xml" ".snm" ".synctex.gz")
 
     find . -name \*.tex | while read fname; do
-      STRIPPED_FILENAME="${fname%.tex}";
-      for ext in ${EXTS[@]}; do
-        TMPFILE="$STRIPPED_FILENAME$ext"
-	if [ -f $TMPFILE ]; then ls $TMPFILE; rm $TMPFILE; fi
+      stripped_filename="${fname%.tex}";
+      stripped_key_filename="${fname%_KEY.tex}";
+      for ext in ${exts[@]}; do
+        tmpfile="$stripped_filename$ext"
+	if [ -f $tmpfile ]; then rm -v $tmpfile; fi
+	tmpfile="$stripped_filename$ext"
+	if [ -f $tmpfile ]; then rm -v $tmpfile; fi
       done;
     done;
 }
