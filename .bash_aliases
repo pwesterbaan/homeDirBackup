@@ -80,9 +80,9 @@ cleanTex(){
       stripped_key_filename="${fname%_KEY.tex}";
       for ext in ${exts[@]}; do
         tmpfile="$stripped_filename$ext"
-	if [ -f $tmpfile ]; then rm -v $tmpfile; fi
+	if [ -f "$tmpfile" ]; then rm -v $tmpfile; fi
 	tmpfile="$stripped_filename$ext"
-	if [ -f $tmpfile ]; then rm -v $tmpfile; fi
+	if [ -f "$tmpfile" ]; then rm -v $tmpfile; fi
       done;
     done;
 }
