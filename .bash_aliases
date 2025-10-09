@@ -75,13 +75,13 @@ cleanTex(){
 	  ".fuse_hidden*" ".goutputstream" ".lof" ".log" ".lot"
 	  ".nav" ".out" ".run.xml" ".snm" ".synctex.gz")
 
-    find . -name \*.tex | while read fname; do
+    find -L . -name \*.tex | while read fname; do
       stripped_filename="${fname%.tex}";
       stripped_key_filename="${fname%_KEY.tex}";
       for ext in ${exts[@]}; do
         tmpfile="$stripped_filename$ext"
 	if [ -f "$tmpfile" ]; then rm -v $tmpfile; fi
-	tmpfile="$stripped_filename$ext"
+	tmpfile="$stripped_key_filename$ext"
 	if [ -f "$tmpfile" ]; then rm -v $tmpfile; fi
       done;
     done;
@@ -212,9 +212,9 @@ cpKey(){
 	f=$(basename -- $f);
         cleanTex > /dev/null;
 
-        echo "*************";
-        echo Compile blank: $f
-        echo "*************";
+        echo "***************";
+        echo "Compile blank: "$f
+        echo "***************";
         JOBNAME=$(basename -s .tex ${f//"_KEY"/""})
         JOBOPTS="pdflatex %O \
           -interaction=nonstopmode \
@@ -223,9 +223,9 @@ cpKey(){
           '\PassOptionsToClass{noanswers}{exam}\input{%S}'"
         latexmk -pdf -silent -jobname="$JOBNAME" -g -pdflatex="$JOBOPTS" $f > /dev/null;
 
-	echo "*************";
-        echo Compile key:   $f
-	echo "*************";
+	echo "***************";
+        echo "Compile key:   "$f
+	echo "***************";
         JOBOPTS="pdflatex %O \
           -interaction=nonstopmode \
           -synctex=1 \
