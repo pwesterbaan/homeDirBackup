@@ -32,16 +32,11 @@
 \newcolumntype{h}{>{\columncolor{hiLiYel}}{c}}
 
 \newcommand{\ansBoxHeight}{\ifprintanswers8mm\else11mm\fi}
-\NewDocumentCommand{\ansBox}{ O{\ansBoxHeight} O{35mm} m }{%
+\newcommand{\ansBoxWidth}{35mm}
 % creates answer box of (opt) height, (opt) width, with mandatory contents
-  % \begin{flushright}
-  \hspace*{\stretch{1}}
-    \fbox{
-      \begin{minipage}[t][#1][c]{#2}
-        #3
-      \end{minipage}}
-  % \end{flushright}
-  \mbox{}
+% use `renewcommand' to manually change height and width
+\NewDocumentCommand{\ansBox}{ O{\ansBoxHeight} O{\ansBoxWidth} m }{%
+  \hspace*{\stretch{1}}\fbox{\begin{minipage}[t][#1][c]{#2}#3\end{minipage}}\mbox{}%
 }
 
 % command to create diagonal line in top left cell of table
