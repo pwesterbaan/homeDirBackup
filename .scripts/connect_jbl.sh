@@ -1,9 +1,9 @@
 #! /bin/bash
 
-export JBL_MAC=74:2A:8A:A6:2F:C3
-export RALINK_MAC=54:35:30:D9:B8:84
+export jbl_mac=74:2A:8A:A6:2F:C3
+export ralink_mac=54:35:30:D9:B8:84
 
-if ! (hcitool dev | grep -q $RALINK_MAC)
+if ! (hcitool dev | grep -q $ralink_mac)
 then
     /home/peter/.scripts/restartBluetooth.sh;
     if [[ $? -ne 0 ]]
@@ -16,7 +16,7 @@ fi;
 
 blueman-manager &
 
-# OUTPUT=$(bluetoothctl connect $JBL_MAC)
+# OUTPUT=$(bluetoothctl connect $jbl_mac)
 # echo "$OUTPUT"
 # if (echo $OUTPUT | grep br-connection-unknown)
 # then
