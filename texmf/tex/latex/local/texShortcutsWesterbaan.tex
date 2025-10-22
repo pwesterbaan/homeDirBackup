@@ -36,7 +36,7 @@
 % creates answer box of (opt) height, (opt) width, with mandatory contents
 % use `renewcommand' to manually change height and width
 \NewDocumentCommand{\ansBox}{ O{\ansBoxHeight} O{\ansBoxWidth} m }{%
-  \hspace*{\stretch{1}}\fbox{\begin{minipage}[t][#1][c]{#2}#3\end{minipage}}\mbox{}%
+  \hspace*{\stretch{1}}\fbox{\begin{minipage}[t][#1][c]{#2}#3\end{minipage}}\newline%
 }
 
 % command to create diagonal line in top left cell of table
