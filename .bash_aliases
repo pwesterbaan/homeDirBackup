@@ -68,105 +68,36 @@ calc(){
 
 cleanTex(){
     # locates *.tex files in current dir and sub dirs,
-    # then removes temp files with the following EXTS
+    # either based on filenames passed, or wildcard (default)
+    # then removes temp files with the following exts
+
+    if [ $# -eq 0 ]
+    then
+	clean_pattern=\*.tex;
+    else
+	clean_pattern=$@
+    fi
 
     exts=("-blx.bib" "-eps-converted-to" "-eps-converted-to.pdf"
           ".aux" ".bbl" ".bcf" ".blg" ".dvi" ".fdb_latexmk" ".fls"
 	  ".fuse_hidden*" ".goutputstream" ".lof" ".log" ".lot"
 	  ".nav" ".out" ".run.xml" ".snm" ".synctex.gz")
 
-    find -L . -name \*.tex | while read fname; do
-      stripped_filename="${fname%.tex}";
-      stripped_key_filename="${fname%_KEY.tex}";
-      for ext in ${exts[@]}; do
-        tmpfile="$stripped_filename$ext"
-	if [ -f "$tmpfile" ]; then rm -v $tmpfile; fi
-	tmpfile="$stripped_key_filename$ext"
-	if [ -f "$tmpfile" ]; then rm -v $tmpfile; fi
-      done;
+    find -L . -name "$clean_pattern" | while read fname; do
+	stripped_filename="${fname%.tex}";
+	stripped_key_filename="${fname%_KEY.tex}";
+	for ext in ${exts[@]}; do
+            tmpfile="$stripped_filename$ext"
+	    if [ -f "$tmpfile" ]; then rm -v -- $tmpfile; fi
+	    tmpfile="$stripped_key_filename$ext"
+	    if [ -f "$tmpfile" ]; then rm -v -- $tmpfile; fi
+	done;
     done;
 }
-
-
-# LaTeXtemplate(){
-#     ########################################################
-#     ## Function to copy tex templates into pwd            ##
-#     ## mkLaTeX <name> <opt>                               ##
-#     ##   opt: -t: test, -k: tikz, -p: presentation        ##
-#     ##   default opt is homework                          ##
-#     ########################################################
-#     #
-#     #
-#     if [ $# -eq 0 ]; then
-#       base="${PWD##*/}"; dir="${PWD%/*}"; dir="${dir##*/}";
-#       filename=$dir"_"$base".tex"
-#       title=$dir" "$base
-#       if ! confirm "Use $filename? (def Y)" -y $1; then
-#         return 1;
-#       fi
-#     else title=${1%%.*}
-#     fi
-#     #
-#     #
-#     confirm "Include copy of custom .sty file?" && customSty;
-#     # if filename blank, base filename on current directory and sublevel
-#     # if filename given, give the filename the .tex extension
-#     if [[ -n "${1+x}" && ${1:-4} != *.tex ]]; then
-#       filename="$1"".tex"
-#     elif [[ ${1:-4} == *.tex ]]; then
-#       filename=$1
-#     fi
-#   #####################################
-#     # Include 4 cases here: homework, test, presentation
-#     # These cases should be triggered by flags with the default behavior being homework
-#   #####################################
-#     if [[ $* == *-t* ]]; then
-#       echo "Copying test template..."
-#       if [ -z ${filename+x} ]; then
-#         cp -i $TEX_FOLDER/examTemplate.tex .
-#         filename=examTemplate.tex
-#       else
-#         cp --backup -i $TEX_FOLDER/examTemplate.tex "$filename"
-#       fi
-#     elif [[ $* == *-p* ]]; then
-#       echo "Copying presentation template..."
-#       ln -s $TEX_FOLDER/PresentationTemplate/*{.eps,.jpg} .
-#       if [ -z ${filename+x} ]; then
-#           cp -i $TEX_FOLDER/PresentationTemplate/PresentationTemplate.tex .
-#           filename=PresentationTemplate.tex
-#       else
-#           cp --backup -i $TEX_FOLDER/PresentationTemplate/PresentationTemplate.tex "$filename"
-#       fi
-#     else
-#       echo "Copying homework template..."
-#       if [ -z ${filename+x} ]; then
-#         cp -i $TEX_FOLDER/HW_Template.tex .
-#         filename=HW_Template.tex
-#       else
-#         cp --backup -i $TEX_FOLDER/HW_Template.tex "$filename"
-#       fi
-#     fi
-#   #####################################
-#     confirm 'Custom title ('"$title"')? (def Y)' -y && retitle "$filename" "$title"
-#     confirm "Open $filename? (def Y)" -y && xdg-open "$filename";
-#     chmod -x *.{tex,pdf};
-#     ls -F --group-directories-first && pwd;
-# }
 
 randNums(){
     python3 -c "import random; print(random.sample(range($1,$2),$3))";
 }
-
-# retitle(){
-#   filename=$1
-#   title=$2
-#   #echo $filename;
-#   if [ -a ${filename} ]; then
-#     #echo $filename;
-#     sed -i "s/Durp/${title}/" $filename
-#   fi
-#   cat $filename | grep '\\title'
-# }
 
 confirm(){
     # call with a prompt string or use a default
@@ -185,6 +116,8 @@ confirm(){
     esac
 }
 
+#auto complete filenames for cpKey
+complete -f -o plusdirs -X '!*.tex' cpKey
 cpKey(){
   #Function to compile the blank version of *_KEY.tex
   CURRENT_DIR=$(pwd)
@@ -204,17 +137,16 @@ cpKey(){
 	# echo "file doesn't exist"
 	return -1
       fi
-
   fi
   if ls $(basename -- $(echo $pattern | cut --delimiter " " --fields 1)) 1> /dev/null 2>&1; then
     for f in $pattern;
     do
 	f=$(basename -- $f);
-        cleanTex > /dev/null;
+        cleanTex $f > /dev/null;
 
-        echo "***************";
+        echo "**************";
         echo "Compile blank: "$f
-        echo "***************";
+        echo "**************";
         JOBNAME=$(basename -s .tex ${f//"_KEY"/""})
         JOBOPTS="pdflatex %O \
           -interaction=nonstopmode \
@@ -223,9 +155,9 @@ cpKey(){
           '\PassOptionsToClass{noanswers}{exam}\input{%S}'"
         latexmk -pdf -silent -jobname="$JOBNAME" -g -pdflatex="$JOBOPTS" $f > /dev/null;
 
-	echo "***************";
+	echo "**************";
         echo "Compile key:   "$f
-	echo "***************";
+	echo "**************";
         JOBOPTS="pdflatex %O \
           -interaction=nonstopmode \
           -synctex=1 \
@@ -233,9 +165,11 @@ cpKey(){
         latexmk -pdf -silent -g -pdflatex="$JOBOPTS" $f > /dev/null;
     done;
     confirm "clean LaTeX temp files? (def Y)" -y && cleanTex;
+    # echo $pattern
     for f in $pattern;
     do
       f=$(basename -- $f)
+      #TODO: Check if file exists before opening
       exo-open ${f//"_KEY.tex"/""}*.pdf # *.pdf
     done;
   else
@@ -254,45 +188,11 @@ cdls(){
     fi
 }
 
-# function customExtract {
-#  if [ -z "$1" ]; then
-#     # display usage if no parameters given
-#     echo "Usage: extract <path/file_name>.<zip|rar|bz2|gz|tar|tbz2|tgz|Z|7z|xz|ex|tar.bz2|tar.gz|tar.xz>"
-#  else
-#     if [ -f $1 ] ; then
-#         # NAME=${1%.*}
-#         # mkdir $NAME && cd $NAME
-#         case $1 in
-#           *.tar.bz2)   tar xvjf ../$1    ;;
-#           *.tar.gz)    tar xvzf ../$1    ;;
-#           *.tar.xz)    tar xvJf ../$1    ;;
-#           *.lzma)      unlzma ../$1      ;;
-#           *.bz2)       bunzip2 ../$1     ;;
-#           *.rar)       unrar x -ad ../$1 ;;
-#           *.gz)        gunzip ../$1      ;;
-#           *.tar)       tar xvf ../$1     ;;
-#           *.tbz2)      tar xvjf ../$1    ;;
-#           *.tgz)       tar xvzf ../$1    ;;
-#           *.zip)       unzip ../$1       ;;
-#           *.Z)         uncompress ../$1  ;;
-#           *.7z)        7z x ../$1        ;;
-#           *.xz)        unxz ../$1        ;;
-#           *.exe)       cabextract ../$1  ;;
-#           *)           echo "extract: '$1' - unknown archive method" ;;
-#         esac
-#     else
-#         echo "$1 - file does not exist"
-#     fi
-# fi
-# }
-
 function sarcasmString() {
     python3 -c "import sys; myStr=(' ').join(sys.argv[1:]); print(''.join(myStr[i].upper() if 0==i%2 else myStr[i].lower() for i in range(len(myStr))))" $@
 }
 
 ls -F --group-directories-first && pwd
 
-# export PETSC_DIR=~/petsc
-# export PETSC_ARCH=linux-gnu
 export PATH=$PATH:/usr/local/go/bin
 shopt -s direxpand
