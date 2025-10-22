@@ -17,40 +17,40 @@ function get_screen_name(){
     return 0;
     }
 
-LAPTOP=$(get_screen_name l)
-HDMI_DISP=$(get_screen_name h)
-# VGA_DISP=$(get_screen_name v)
+laptop=$(get_screen_name l)
+hdmi_disp=$(get_screen_name h)
+# vga_disp=$(get_screen_name v)
 
 #default with 'hvl'
-ARG_STR=${1:-'hvl'}
+arg_str=${1:-'hvl'}
 
 #clunky error checking
-CMD_STR=""
+cmd_str=""
 
-LEFT_SCREEN=$(get_screen_name "${ARG_STR:0:1}" )
+left_screen=$(get_screen_name "${arg_str:0:1}" )
 if [[ $? -ne 0 ]]; then
-    echo "Invalid argument: ${ARG_STR:0:1}"
+    echo "Invalid argument: ${arg_str:0:1}"
     exit 1;
 fi
 
-for ((i=1; i<${#ARG_STR}; i++)); do
-    RIGHT_SCREEN=$(get_screen_name "${ARG_STR:i:1}" )
+for ((i=1; i<${#arg_str}; i++)); do
+    right_screen=$(get_screen_name "${arg_str:i:1}" )
     if [[ $? -ne 0 ]]; then
-	echo "Invalid argument: ${ARG_STR:i:1}"
+	echo "Invalid argument: ${arg_str:i:1}"
 	exit 1;
     fi
-    CMD_STR="$CMD_STR xrandr --output $RIGHT_SCREEN --mode 1920x1080 --right-of $LEFT_SCREEN;"
-    LEFT_SCREEN=$RIGHT_SCREEN
+    cmd_str="$cmd_str xrandr --output $right_screen --mode 1920x1080 --right-of $left_screen;"
+    left_screen=$right_screen
 done
 
 # since all inputs valid, execute now
-eval "$CMD_STR"
+eval "$cmd_str"
 
 if (xrandr | grep -q "HDMI-1 connected"); then
-    #move panel to HDMI
-    xfconf-query -c xfce4-panel -p /panels/panel-0/output-name -s $HDMI_DISP
+    #move panel to hdmi
+    xfconf-query -c xfce4-panel -p /panels/panel-0/output-name -s $hdmi_disp
 else
-    xfconf-query -c xfce4-panel -p /panels/panel-0/output-name -s $LAPTOP
+    xfconf-query -c xfce4-panel -p /panels/panel-0/output-name -s $laptop
 fi
 
 xfce4-panel -r
