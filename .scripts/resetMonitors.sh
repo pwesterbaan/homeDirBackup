@@ -7,13 +7,13 @@
 
 function get_screen_name(){
     case $1 in
-	h) SCREEN=HDMI ;;
-	v) SCREEN=VGA  ;;
-	l) SCREEN=eDP  ;;
+	h) screen=HDMI ;;
+	v) screen=VGA  ;;
+	l) screen=eDP  ;;
 	*) exit 1;     ;;
     esac
 
-    echo $(xrandr | awk '/'$SCREEN'/ { print $1}');
+    echo $(xrandr | awk '/'$screen'/ { print $1}');
     return 0;
     }
 
