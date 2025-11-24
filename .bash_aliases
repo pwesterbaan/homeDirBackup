@@ -81,7 +81,7 @@ cleanTex(){
     exts=("-blx.bib" "-eps-converted-to" "-eps-converted-to.pdf"
           ".aux" ".bbl" ".bcf" ".blg" ".dvi" ".fdb_latexmk" ".fls"
 	  ".fuse_hidden*" ".goutputstream" ".lof" ".log" ".lot"
-	  ".nav" ".out" ".run.xml" ".snm" ".synctex.gz")
+	  ".nav" ".out" ".run.xml" ".snm" ".synctex.gz" ".synctex(busy)")
 
     find -L . -name "$clean_pattern" | while read fname; do
 	stripped_filename="${fname%.tex}";
@@ -120,7 +120,7 @@ confirm(){
 complete -f -o plusdirs -X '!*.tex' cpKey
 cpKey(){
   #Function to compile the blank version of *_KEY.tex
-  CURRENT_DIR=$(pwd)
+  current_dir=$(pwd)
   if [ $# -eq 0 ]
     then
       pattern=*_KEY*.tex;
@@ -134,19 +134,21 @@ cpKey(){
 	pattern=$@
 	cd "$(dirname -- $1)"
       else
-	# echo "file doesn't exist"
+	echo "file doesn't exist"
 	return -1
       fi
   fi
   if ls $(basename -- $(echo $pattern | cut --delimiter " " --fields 1)) 1> /dev/null 2>&1; then
+    cd $current_dir
     for f in $pattern;
     do
+	cd "$(dirname -- $f)";
 	f=$(basename -- $f);
+	ls $f
         cleanTex $f > /dev/null;
 
         echo "**************";
         echo "Compile blank: "$f
-        echo "**************";
         JOBNAME=$(basename -s .tex ${f//"_KEY"/""})
         JOBOPTS="pdflatex %O \
           -interaction=nonstopmode \
@@ -155,7 +157,6 @@ cpKey(){
           '\PassOptionsToClass{noanswers}{exam}\input{%S}'"
         latexmk -pdf -silent -jobname="$JOBNAME" -g -pdflatex="$JOBOPTS" $f > /dev/null;
 
-	echo "**************";
         echo "Compile key:   "$f
 	echo "**************";
         JOBOPTS="pdflatex %O \
@@ -163,20 +164,23 @@ cpKey(){
           -synctex=1 \
           '\PassOptionsToClass{answers}{exam}\input{%S}'"
         latexmk -pdf -silent -g -pdflatex="$JOBOPTS" $f > /dev/null;
+	echo "";
+	cd $current_dir
     done;
+    # return to prev dir before in case early exit
+    cd $current_dir
+
     confirm "clean LaTeX temp files? (def Y)" -y && cleanTex;
-    # echo $pattern
     for f in $pattern;
     do
-      f=$(basename -- $f)
+      # f=$(basename -- $f)
       #TODO: Check if file exists before opening
       exo-open ${f//"_KEY.tex"/""}*.pdf # *.pdf
     done;
   else
     echo "No files match *_KEY*.tex pattern";
   fi
-  cdls $CURRENT_DIR
-
+  cdls $current_dir
 }
 
 cdls(){
@@ -192,7 +196,9 @@ function sarcasmString() {
     python3 -c "import sys; myStr=(' ').join(sys.argv[1:]); print(''.join(myStr[i].upper() if 0==i%2 else myStr[i].lower() for i in range(len(myStr))))" $@
 }
 
-ls -F --group-directories-first && pwd
+#auto complete filenames for getPdfPages (lander_lecture_notes)
+complete -f -o plusdirs -X '!*.pdf' getPdfPages.sh
 
+ls -F --group-directories-first && pwd
 export PATH=$PATH:/usr/local/go/bin
 shopt -s direxpand
