@@ -178,6 +178,7 @@
 
 \makeatletter
 %% swapping \abs and \abs*, etc.
+%% \abs*[\Big] manually sizes delimiters
 \let\oldabs\abs
 \def\abs{\@ifstar{\oldabs}{\oldabs*}}
 %
@@ -298,7 +299,8 @@
 \newcommand*{\ntn}{{n\times n}}
 %%
 \newcommand*{\nto}[1][1]{_{n=#1}}
-\newcommand*{\parens}[1]{{\left(#1\right)}}
+%% Auto-size LR parens with optional manual sizing (\big,\bigg,etc)
+\newcommand*{\parens}[2][]{{\left(\vphantom{#1[}#2\right)}}
 \newcommand*{\OO}[1]{\mathcal{O}_{#1}}
 \newcommand*{\rref}[1][r]{\xrightarrow{#1ref}}  %\ref is already taken. Use \rref[]
 \newcommand*{\seteq}{\overset{\textnormal{set}}{=}}
