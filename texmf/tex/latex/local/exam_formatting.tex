@@ -1,0 +1,43 @@
+\usepackage{texPreamble}
+\usepackage{tkz-euclide}
+\usepgfplotslibrary{statistics}
+\usepackage{subfiles}
+\hypersetup{hidelinks}
+%%%% Solution customization
+% See documentation for exam class for other options
+\renewcommand{\solutiontitle}{\noindent\par\noindent\setcounter{case}{0}}
+\SolutionEmphasis{\color{blue}}
+\CorrectChoiceEmphasis{\color{blue}}
+\unframedsolutions
+% Square checkboxes
+\checkboxchar{$\Box$}
+\checkedchar{$\blacksquare$}
+\newcommand{\tf}[1][{}]{\fillin[#1][0.25in]}
+%%%%
+\usepackage{tabularx}
+\extraheadheight{0.25in}
+\extrafootheight{0.25in}
+%\selectcolormodel{Gray}
+% ----------------------------------------------------------------
+\makeatletter
+\newcount\examUnit
+\newcount\classNum
+
+\pagestyle{headandfoot}
+\firstpageheader{\@date\\Westerbaan}{\@title}{Name \fillin[KEY][45mm]\\[-0.85\baselineskip]}
+\firstpageheadrule
+
+\runningheader{}{}{\oddeven{Name \fillin[KEY][45mm]}{}}
+
+\runningfootrule
+\runningfooter{}{\thepage\ / \numpages}{\@title}
+\makeatother
+
+\pointformat{(\thepoints)}
+\pointname{\ pts.}
+\bonuspointformat{(Bonus: \thepoints)}
+\bonuspointname{\ pts.}
+
+%% For reference:
+% \ifprintanswers\else\renewcommand{\questionshook}{\setlength{\itemsep}{\stretch{1}}}\fi
+% \ifprintanswers\else\renewcommand{\partshook}{\setlength{\itemsep}{\stretch{1}}}\fi
