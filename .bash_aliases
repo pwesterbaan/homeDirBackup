@@ -120,6 +120,7 @@ confirm(){
 complete -f -o plusdirs -X '!*.tex' cpKey
 cpKey(){
   #Function to compile the blank version of *_KEY.tex
+  old_dir=$OLDPWD
   current_dir=$(pwd)
   if [ $# -eq 0 ]
     then
@@ -169,6 +170,7 @@ cpKey(){
     done;
     # return to prev dir before in case early exit
     cd $current_dir
+    OLDPWD=$old_dir
 
     confirm "clean LaTeX temp files? (def Y)" -y && cleanTex;
     for f in $pattern;
@@ -181,6 +183,7 @@ cpKey(){
     echo "No files match *_KEY*.tex pattern";
   fi
   cdls $current_dir
+  OLDPWD=$old_dir
 }
 
 cdls(){
