@@ -81,7 +81,8 @@ cleanTex(){
     exts=("-blx.bib" "-eps-converted-to" "-eps-converted-to.pdf"
           ".aux" ".bbl" ".bcf" ".blg" ".dvi" ".fdb_latexmk" ".fls"
 	  ".fuse_hidden*" ".goutputstream" ".lof" ".log" ".lot"
-	  ".nav" ".out" ".run.xml" ".snm" ".synctex.gz" ".synctex(busy)")
+	  ".nav" ".out" ".run.xml" ".snm" ".synctex.gz" ".synctex(busy)"
+	  ".ps")
 
     find -L . -name "$clean_pattern" | while read fname; do
 	stripped_filename="${fname%.tex}";
@@ -159,13 +160,13 @@ cpKey(){
         latexmk -pdf -silent -jobname="$JOBNAME" -g -pdflatex="$JOBOPTS" $f > /dev/null;
 
         echo "Compile key:   "$f
-	echo "**************";
-        JOBOPTS="pdflatex %O \
+	JOBOPTS="pdflatex %O \
           -interaction=nonstopmode \
           -synctex=1 \
           '\PassOptionsToClass{answers}{exam}\input{%S}'"
         latexmk -pdf -silent -g -pdflatex="$JOBOPTS" $f > /dev/null;
-	echo "";
+	echo "**************";
+        echo "";
 	cd $current_dir
     done;
     # return to prev dir before in case early exit
