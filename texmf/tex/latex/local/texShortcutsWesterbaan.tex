@@ -31,6 +31,17 @@
 \newcommand*\cecol{\cellcolor{hiLiYel}}
 \newcolumntype{h}{>{\columncolor{hiLiYel}}{c}}
 
+% Pick a random integer
+% Defaults to ints in [-\randIntUpper,-\randIntLower]U[\randIntLower,\randIntUpper] (skips 0)
+% \renewcommand{\randInt...}{10} to change range
+% Examples in RandIntTest.tex
+\newcommand{\randIntLower}{1}
+\newcommand{\randIntUpper}{5}
+\newcommand{\nonZeroRandIntRange}[1]{
+  \pgfmathsetmacro{#1}{int(ifthenelse(rand > 0, 1, -1)*random(\randIntLower,\randIntUpper))}
+}
+
+%Boxes for answers
 \newcommand{\ansBoxHeight}{\ifprintanswers8mm\else11mm\fi}
 \newcommand{\ansBoxWidth}{35mm}
 % creates answer box of (opt) height, (opt) width, with mandatory contents

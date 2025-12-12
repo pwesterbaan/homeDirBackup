@@ -1,0 +1,57 @@
+\documentclass{exam}
+\usepackage{tikz}
+\usetikzlibrary{math}
+
+% Swap \pdfrandomseed with a number for consistency between compiles
+\pgfmathsetseed{\number\pdfrandomseed} %\pdfrandomseed
+
+
+\newcommand{\randIntLower}{1}
+\newcommand{\randIntUpper}{5}
+\newcommand{\nonZeroRandIntRange}[1]{
+  \pgfmathsetmacro{#1}{int(ifthenelse(rand > 0, 1, -1)*random(\randIntLower,\randIntUpper))}
+}
+
+\begin{document}
+  \begin{questions}
+    \question
+      \pgfmathrandominteger{\secondnum}{1}{100}
+      Random int between 1--100: \secondnum
+
+    \question
+      Random int 1--15:
+      \pgfmathrandominteger{\holeInDomain}{1}{15}
+      \pgfmathparse{\holeInDomain^2}
+      \pgfmathsetmacro{\holeSquared}{\pgfmathresult}
+
+      % Evaluate the following limit:
+        \[\lim_{x\to \holeInDomain^+} \frac{x+\holeInDomain}{x^2-\pgfmathprintnumber{\holeSquared}}\]
+%================================================================================
+
+    \question
+      Nonzero ints from a fixed list
+      % List of items to pick from
+      \pgfmathdeclarerandomlist{nonZeroInts}{{-5}{-4}{-3}{-2}{-1}{1}{2}{3}{4}{5}}
+      \pgfmathrandomitem{\holeInDomain}{nonZeroInts}
+      \pgfmathparse{abs(\holeInDomain)^2}
+      \pgfmathsetmacro{\holeSquared}{\pgfmathresult}
+
+        \[\lim_{x\to \holeInDomain^+} \frac{x\pgfmathprintnumber[print sign]{\holeInDomain}}{x^2-\pgfmathprintnumber{\holeSquared}}\]
+%================================================================================
+
+      \question
+        Nonzero ints from a range \{-8,\dots,8\}\textbackslash\{0\}
+      {% Renew commands instead of positional arguments
+        %\renewcommand{\randIntLower}{8}
+        \renewcommand{\randIntUpper}{8}
+        \nonZeroRandIntRange{\holeInDomain}
+
+        \pgfmathparse{abs(\holeInDomain)^2}
+        \pgfmathsetmacro{\holeSquared}{\pgfmathresult}
+        \pgfmathparse{-1*\holeInDomain}
+        \pgfmathsetmacro{\negHoleInDomain}{\pgfmathresult}
+        % Evaluate the following limit:
+          \[\lim_{x\to \pgfmathprintnumber{\holeInDomain}} \frac{x\pgfmathprintnumber[print sign]{\negHoleInDomain}}{x^2-\pgfmathprintnumber{\holeSquared}}\]
+      }
+  \end{questions}
+\end{document}
