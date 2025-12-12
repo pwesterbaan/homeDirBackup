@@ -2,6 +2,7 @@
 \usepackage{tkz-euclide}
 \usepgfplotslibrary{statistics}
 \usepackage{subfiles}
+\usepackage{xstring} %For \tf macro
 \hypersetup{hidelinks}
 %%%% Solution customization
 % See documentation for exam class for other options
@@ -12,7 +13,17 @@
 % Square checkboxes
 \checkboxchar{$\Box$}
 \checkedchar{$\blacksquare$}
-\newcommand{\tf}[1][{}]{\fillin[#1][0.25in]}
+%\newcommand{\tf}[1]{\fillin[{#1}][0.25in]}
+\newcommand{\tf}[1]{
+  \TabPositions{15mm}
+  \begin{oneparcheckboxes}
+   \IfStrEqCase{#1}{
+     {T}{\CorrectChoice \!\!T\!\!\!\choice \!\!F}
+     {F}{\choice \!\!T\!\!\!\CorrectChoice \!\!F}
+    }[other]\par
+  \end{oneparcheckboxes}
+  \tab
+}
 %%%%
 \usepackage{tabularx}
 \extraheadheight{0.25in}
