@@ -27,7 +27,7 @@ conky.config = {
 	own_window_hints = 'undecorated,below,sticky,skip_taskbar,skip_pager',
 	own_window_argb_visual = true,
 	-- set darkness of box around conky,
-	own_window_argb_value = 125,
+	own_window_argb_value = 165,
 
 
 	border_inner_margin = 5,
