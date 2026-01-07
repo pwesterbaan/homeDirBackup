@@ -196,6 +196,19 @@
     thick,
     draw=black]
 
+% Saving for later: Draws line around contents (similar to \angln for annuities)
+% https://tex.stackexchange.com/questions/117497/typesetting-old-fashioned-factorials
+\newcommand{\oldfactorial}[1]{%
+  \tikz[baseline]{
+    % node containing #1
+    \node[anchor=base,inner sep=0.3ex](mynode){\ensuremath{#1}};
+    % Draw box around left side and bottom
+    \draw(mynode.north west)|-(mynode.south east);
+    % bounding box to add spacing
+    \path[use as bounding box]($(mynode.south west)+(-0.3ex,-0.3ex)$)rectangle($(mynode.north east)+(0.3ex,0.3ex)$);
+  }
+}
+
 % Used to draw normal dist
 \pgfmathdeclarefunction{gauss}{3}{%
   \pgfmathparse{1/(#3*sqrt(2*pi))*exp(-((#1-#2)^2)/(2*#3^2))}%
