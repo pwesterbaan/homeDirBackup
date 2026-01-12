@@ -76,23 +76,26 @@
 \RequirePackage{actuarialsymbol}
 \RequirePackage{pgfplotstable}
 \RequirePackage{pgfplots}
-  \pgfplotsset{compat=newest}
   \usepgfplotslibrary{polar,fillbetween}
   \usetikzlibrary{patterns}
   \usetikzlibrary{arrows}
   \usetikzlibrary{calc, positioning, shapes}
   \usetikzlibrary{pgfplots.groupplots}
-%% solid and open circles
-\pgfplotsset{soldot/.style={color=lander_blue,only marks,mark=*}}
-  %,line width=0.2pt, mark size=1.125pt}}
-\pgfplotsset{holdot/.style={color=lander_blue,fill=white,only marks,mark=*}}
-  %, line width=0.25pt, mark size=1.125pt}}
-%% Draw a line representing a VA. Place inside axis options e.g. vasymtote=2,
-\pgfplotsset{vasymptote/.style={
-    before end axis/.append code={
+  %%pgfplot settings
+  \pgfplotsset{
+    compat=newest,
+    %% solid and open circles
+    soldot/.style={color=lander_blue,only marks,mark=*}, %,line width=0.2pt, mark size=1.125pt}}
+    holdot/.style={color=lander_blue,fill=white,only marks,mark=*}, %,line width=0.25pt, mark size=1.125pt}}
+    %% Draw a line representing a VA. Place inside axis options e.g. vasymtote=2,
+    vasymptote/.style={
+      before end axis/.append code={
         \draw[densely dashed] ({rel axis cs:0,0} -| {axis cs:#1,0})
         -- ({rel axis cs:0,1} -| {axis cs:#1,0});
-  }}}
+      }
+    },
+  }
+
 \RequirePackage{siunitx}
 \RequirePackage{subcaption, cleveref}           %Figures with subplots and captions
   \captionsetup[subfigure]{subrefformat=simple,labelformat=simple}
