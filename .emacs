@@ -190,6 +190,9 @@ the character typed."
        '("\\.m$" . octave-mode)
        auto-mode-alist))
 
+;; jinja2-mode for jinja2 templates
+(add-to-list 'auto-mode-alist '("\\.jinja2" . jinja2-mode))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (custom-set-variables
@@ -208,7 +211,7 @@ the character typed."
  '(inhibit-startup-screen t)
  '(ispell-dictionary nil)
  '(package-selected-packages
-   '(multiple-cursors undo-tree elpygen elpy company-jedi company ## matlab-mode auctex))
+   '(jinja2-mode multiple-cursors undo-tree elpygen elpy company-jedi company ## matlab-mode auctex))
  '(scroll-bar-mode 'right)
  '(show-paren-mode t)
  '(size-indication-mode t)
