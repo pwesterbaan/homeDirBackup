@@ -14,13 +14,13 @@ alias clemson="cdls $DROPBOX_PATH/Clemson/"
 alias cls="clear && ls -F --group-directories-first && pwd"
 alias commandCenter="ssh commandCenter"
 alias cpTikz="emacs $TEX_FOLDER/tikz/tikzTemplate.tex &"
-alias cpwd="echo -n $(pwd) | tocp"
+alias cpwd="pwd | tocp"
 alias connect_jbl="/home/peter/.scripts/connect_jbl.sh"
 alias customSty="ln -s /home/peter/texmf/tex/latex/local/texPreamble.sty ."
 alias db="cdls $DROPBOX_PATH"
 alias dbstat="dropbox status"
 alias disconnect_jbl='bluetoothctl disconnect 74:2A:8A:A6:2F:C3'
-alias flaskCommands="export FLASK_APP=app.py; export FLASK_ENV=development; flask run"
+# alias flaskCommands="export FLASK_APP=app.py; export FLASK_ENV=development; flask run"
 alias IUP="cdls $DROPBOX_PATH/Grad_School/IUP/"
 alias iup=IUP
 alias jn="jupyter-notebook"
@@ -98,7 +98,14 @@ cleanTex(){
 }
 
 randNums(){
-    python3 -c "import random; print(random.sample(range($1,$2),$3))";
+    # Use python to generate $3 psuedo random numbers between
+    # $1 and $2 with default values defined below.
+    python3 -c "
+import numpy as np
+a=int('$1' or -5)
+b=int('$2' or 5)
+c=int('$3' or 5)
+print(np.random.randint(a,b+1,size=c).tolist())";
 }
 
 confirm(){
@@ -174,6 +181,7 @@ cpKey(){
     cd $current_dir
     OLDPWD=$old_dir
 
+    #TODO: Add options: [n]o clean, [y]es clean and open, [c]lean only
     confirm "clean LaTeX temp files? (def Y)" -y && cleanTex;
     for f in $pattern;
     do

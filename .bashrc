@@ -120,3 +120,11 @@ fi
 ## https://stackoverflow.com/questions/791765/unable-to-forward-search-bash-history-similarly-as-with-ctrl-r/791800#791800
 ## disable XOFF/ enable forward search: C-s
  [[ $- == *i* ]] && stty -ixon
+
+# For github pages locally:
+# Install Ruby Gems to ~/gems
+export GEM_HOME="$HOME/gems"
+export PATH="$HOME/gems/bin:$PATH"
+
+# Texlive
+export PATH="/usr/local/texlive/2025/bin/x86_64-linux/:$PATH"
