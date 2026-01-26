@@ -1,0 +1,151 @@
+%% Exam randomization
+% Examples in RandIntTest.tex
+\usepackage{tikz}
+\usepackage{etoolbox}
+\usetikzlibrary{math}
+\usepackage{xintfrac}
+
+\newcommand{\randIntLower}{1}   %Lower bound on rand ints
+\newcommand{\randIntUpper}{5}   %Upper bound on rand ints
+
+\newcommand{\defVar}[2]{%
+  \pgfmathparse{#2}%
+  \pgfmathsetmacro{#1}{\pgfmathresult}%
+}
+
+\newcommand{\printWithParens}[1]{%
+  \pgfmathparse{#1}%
+  \ifdim\pgfmathresult pt<0pt%
+    (\pgfmathprintnumber{#1})%
+  \else%
+    \pgfmathprintnumber{#1}%
+  \fi%
+}
+
+\newcommand{\randIntTemp}{}     %Used for defining values in randInts
+\newcommand{\randInts}[2][]{%
+  % #1 = option (default: []; Use nz for nonzero)
+  % #2 = list of variables
+  % Uses \randIntLower and \randIntUpper as bounds (change with renewcommand if needed)
+  \foreach \var in {#2}{%
+    \ifstrequal{#1}{nz}{%
+      % nonzero method: produces +/- nonzero random integers
+      \pgfmathparse{int(ifthenelse(rand > 0, 1, -1)*random(\randIntLower,\randIntUpper))}%
+      \expandafter\xdef\var{\pgfmathresult}%
+    }{%
+      \pgfmathrandominteger{\randIntTemp}{\randIntLower}{\randIntUpper}%
+      \expandafter\xdef\var{\randIntTemp}%
+    }%
+  }%
+}
+
+\newcommand{\computeGcd}[3]{%
+  % #1 = result macro
+  % #2 = first number
+  % #3 = second number
+  % Uses Euclidean algorithm
+  \pgfmathparse{int(abs(#2))}%
+  \pgfmathsetmacro{\gcdA}{int(\pgfmathresult)}%
+  \pgfmathparse{int(abs(#3))}%
+  \pgfmathsetmacro{\gcdB}{int(\pgfmathresult)}%
+  \loop\ifnum\gcdB>0\relax%
+    \pgfmathparse{int(mod(\gcdA, \gcdB))}%
+    \pgfmathsetmacro{\gcdTemp}{int(\pgfmathresult)}%
+    \pgfmathsetmacro{\gcdA}{\gcdB}%
+    \pgfmathsetmacro{\gcdB}{\gcdTemp}%
+  \repeat%
+  \pgfmathsetmacro{#1}{\gcdA}%
+}
+
+\newcommand{\makeFrac}[2]{%
+  \randInts[nz]{#1}% numerator
+  % Pick denominator from [num+1,2*num-1] when num>0
+  % or [2*num+1,num-1] when num<0
+  {% Limit scope of \randIntLower/Upper
+    \pgfmathsetmacro{\randIntLower}{\fpeval{#1+abs(#1)/#1}}%
+    \pgfmathsetmacro{\randIntUpper}{\fpeval{2*#1-abs(#1)/#1}}%
+    \randInts[nz]{#2}% denominator
+  }
+  \computeGcd{\gcdValue}{#1}{#2}%
+  \defVar{#1}{int(#1/\gcdValue)}%
+  \defVar{#2}{int(#2/\gcdValue)}%
+}
+
+\ExplSyntaxOn
+\NewExpandableDocumentCommand{\printFrac}{O{}mm}{%
+  {%
+    %#1: Optional string to trigger display style
+    %#2: numerator
+    %#3: denominator
+    %# Pretty prints the fraction #2/#3
+    \str_if_eq:nnT{#1}{d}{\displaystyle}%
+    \xintTeXsignedFrac{%
+      \xintPIrr{\fpeval{#2}/\fpeval{#3}}%
+    }%
+  }%
+}
+\ExplSyntaxOff
+
+%%% Co-pilot suggestion for sfrac variant of printFrac
+% \ExplSyntaxOn
+% % Convert a/b into \sfrac{a}{b}
+% \cs_new:Npn \my_sfrac_from_string:n #1
+%  {
+%   \xintFrac #1\relax % expands to {<num>}{<den>}
+%   \sfrac{\xint_num}{\xint_den}
+%  }
+% % Now define a version of printFrac that uses \sfrac
+% \NewDocumentCommand{\printFracS}{O{}mm}
+%  {
+%   \str_if_eq:nnT {#1}{d} { \displaystyle }
+%   \my_sfrac_from_string:n { \xintPIrr{\fpeval{#2}/\fpeval{#3}} }
+%  }
+% \ExplSyntaxOff
+
+
+%%% Co-pilot suggestion for opt displaystyle/sfrac variant of printFrac
+% \ExplSyntaxOn
+% % Helper: turn "a/b" or "n" into either \sfrac{a}{b} or just n
+% \cs_new_protected:Npn \pf_sfrac_from_string:n #1
+%   {
+%     \str_if_in:nnTF {#1} {/}
+%       { % a/b form
+%         \xintFrac #1\relax % -> sets \xint_num, \xint_den
+%         \sfrac{\xint_num}{\xint_den}
+%       }
+%       { % integer form
+%         #1
+%       }
+%   }
+
+% \bool_new:N \l__pf_disp_bool
+% \bool_new:N \l__pf_sfrac_bool
+% \tl_new:N   \l__pf_rational_tl
+
+% \printFrac[<flags>]{<num>}{<den>}
+% flags: contains 'd' (displaystyle) and/or 's' (use \sfrac)
+% \NewDocumentCommand{\printFrac}{O{}mm}
+%   {
+%     % Parse flags (order-insensitive, duplicates OK)
+%     \bool_set_false:N \l__pf_disp_bool
+%     \bool_set_false:N \l__pf_sfrac_bool
+%     \tl_if_in:nnT {#1}{d} { \bool_set_true:N \l__pf_disp_bool }
+%     \tl_if_in:nnT {#1}{s} { \bool_set_true:N \l__pf_sfrac_bool }
+%     % Optional displaystyle
+%     \bool_if:NT \l__pf_disp_bool { \displaystyle }
+%     % Compute irreducible rational as string "p/q" or "n"
+%     \tl_set:Nx \l__pf_rational_tl { \xintPIrr{\fpeval{#2}/\fpeval{#3}} }
+%     % Select rendering
+%     \bool_if:NTF \l__pf_sfrac_bool
+%       { \pf_sfrac_from_string:n { \l__pf_rational_tl } }
+%       { \xintTeXsignedFrac     { \l__pf_rational_tl } }
+%   }
+% \ExplSyntaxOff
+
+
+% Swap \pdfrandomseed with a number for consistency between compiles
+\pgfmathsetseed{\number\pdfrandomseed} %\pdfrandomseed
+
+% Set random seed based on year and semester (eg sp26 is 1026)
+\defVar{\examRandSeed}{mod(\the\year,100)+int(ifthenelse(\month<6,1,2)*1000)}
+\pgfmathsetseed{\number\examRandSeed}

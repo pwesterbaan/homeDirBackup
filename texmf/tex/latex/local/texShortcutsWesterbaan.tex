@@ -31,16 +31,6 @@
 \newcommand*\cecol{\cellcolor{hiLiYel}}
 \newcolumntype{h}{>{\columncolor{hiLiYel}}{c}}
 
-% Pick a random integer
-% Defaults to ints in [-\randIntUpper,-\randIntLower]U[\randIntLower,\randIntUpper] (skips 0)
-% \renewcommand{\randInt...}{10} to change range
-% Examples in RandIntTest.tex
-\newcommand{\randIntLower}{1}
-\newcommand{\randIntUpper}{5}
-\newcommand{\nonZeroRandIntRange}[1]{
-  \pgfmathsetmacro{#1}{int(ifthenelse(rand > 0, 1, -1)*random(\randIntLower,\randIntUpper))}
-}
-
 %Boxes for answers
 \newcommand{\ansBoxHeight}{\ifprintanswers8mm\else11mm\fi}
 \newcommand{\ansBoxWidth}{35mm}
@@ -211,6 +201,25 @@
 \let\oldset\set
 \def\set{\@ifstar{\oldset}{\oldset*}}
 \makeatother
+
+% Template for daily class exit slips
+\newcommand{\className}{Default Class Name}
+\newcommand{\exitSlipQuestionTemplate}[1]{
+  \vspace*{0.5in}
+  \noindent Exit slip
+  \hspace*{\stretch{1}} \className
+  \hspace*{\stretch{1}} Name: \fillin[\hfill\textbf{KEY}\hfill][40mm]\\
+  \begin{questions}
+    \question #1
+    \ifprintanswers\else\vspace*{\stretch{1}}\fi%
+  \end{questions}
+}
+\newcommand{\exitSlip}[1]{
+  \exitSlipQuestionTemplate{#1}
+  \ifprintanswers\else
+    \exitSlipQuestionTemplate{#1}
+  \fi%
+}
 
 %% General Macros -------------------------------------------------
 \newcommand*{\A}{\mathcal{A}}
