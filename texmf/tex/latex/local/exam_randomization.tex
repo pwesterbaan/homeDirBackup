@@ -1,9 +1,11 @@
 %% Exam randomization
 % Examples in RandIntTest.tex
 \usepackage{tikz}
-\usepackage{etoolbox}
+\usepackage{etoolbox,xparse}
 \usetikzlibrary{math}
 \usepackage{xintfrac}
+
+% MS Co-Pilot and Github Co-Pilot were used to help generate this code.
 
 \newcommand{\randIntLower}{1}   %Lower bound on rand ints
 \newcommand{\randIntUpper}{5}   %Upper bound on rand ints
@@ -36,6 +38,15 @@
       \pgfmathrandominteger{\randIntTemp}{\randIntLower}{\randIntUpper}%
       \expandafter\xdef\var{\randIntTemp}%
     }%
+  }%
+}
+
+% Resample random numbers #1 and #2 until distinct
+\newcommand*{\resampleUntilnzSum}[2]{%
+  \pgfmathtruncatemacro{\again}{#1+#2==0}%   test if #1+#2==0
+  \whiledo{\again=1}{%
+    \randInts[nz]{#1,#2}% re-gen #1 and #2
+    \pgfmathtruncatemacro{\again}{#1+#2==0}% test if #1+#2==0
   }%
 }
 
@@ -72,80 +83,140 @@
 }
 
 \ExplSyntaxOn
+\bool_new:N \l_exam_print_sign_bool
+\bool_new:N \l_exam_signonly_units_bool
+
+% \printCoeff * [signs] {<coeff>}
+%   star: suppress leading '+'
+%   [signs]: for ±1, print just the sign; otherwise normal numbers
+\NewDocumentCommand \printCoeff { s O{} m }{
+  \exam_print_coeff:nnn {#1} {#2} {#3}
+}
+
+\cs_new_protected:Npn \exam_print_coeff:nnn #1 #2 #3
+  {
+    % Evaluate coefficient once via pgf
+    \pgfmathparse{#3}
+    \tl_set:Nx \l_tmpa_tl { \pgfmathresult } % textual form for pgf printer
+    \fp_set:Nn \l_tmpa_fp { \l_tmpa_tl }      % numeric form for comparisons
+
+    % Star: default signed; star => suppress leading '+'
+    \bool_set_true:N \l_exam_print_sign_bool
+    \bool_if:nT {#1} { \bool_set_false:N \l_exam_print_sign_bool }
+
+    % Optional keyword: [signs] (case-insensitive; spaces ignored if present)
+    \bool_set_false:N \l_exam_signonly_units_bool
+    \str_if_eq:eeTF
+      { \tl_lower_case:n { \tl_trim_spaces:n {#2} } }
+      { signs }
+      { \bool_set_true:N \l_exam_signonly_units_bool }
+      { }
+
+    % 0 -> print nothing
+    \fp_compare:nTF { \l_tmpa_fp == 0 }
+      { \ensuremath{} }
+      {
+        % -1
+        \fp_compare:nTF { \l_tmpa_fp == -1 }
+          {
+            \bool_if:NTF \l_exam_signonly_units_bool {
+              \ensuremath{-} } { \ensuremath{-1} }
+          }
+          {
+            % +1
+            \fp_compare:nTF { \l_tmpa_fp == 1 }
+              {
+                \bool_if:NTF \l_exam_signonly_units_bool
+                  {  \bool_if:NTF \l_exam_print_sign_bool { % '+' or empty
+                    \ensuremath{+} } { \ensuremath{} }
+                  }{ \bool_if:NTF \l_exam_print_sign_bool {
+                    \ensuremath{+1} } { \ensuremath{1} } }
+              }{
+                % general numeric case
+                \group_begin:
+                  \bool_if:NTF \l_exam_print_sign_bool
+                    { \ensuremath{\pgfmathprintnumber[print~sign]{\l_tmpa_tl}} }
+                    { \ensuremath{\pgfmathprintnumber{\l_tmpa_tl}} }
+                \group_end:
+              }
+          }
+      }
+  }
+% \ExplSyntaxOff
+
+\NewDocumentCommand{\signOnly}{m}{%
+  \printCoeff[signs]{#1/abs(#1)}
+}
+
+% \ExplSyntaxOn
 \NewExpandableDocumentCommand{\printFrac}{O{}mm}{%
   {%
     %#1: Optional string to trigger display style
     %#2: numerator
     %#3: denominator
     %# Pretty prints the fraction #2/#3
-    \str_if_eq:nnT{#1}{d}{\displaystyle}%
+    \str_if_eq:nnT{#1}{d}{\displaystyle}
     \xintTeXsignedFrac{%
-      \xintPIrr{\fpeval{#2}/\fpeval{#3}}%
-    }%
-  }%
+      \xintPIrr{\fpeval{#2}/\fpeval{#3}}
+    }
+  }
 }
+% \ExplSyntaxOff
+
+% \ExplSyntaxOn
+% Error message for unsupported relations
+\msg_new:nnn {exam/signed-ineq}{unknown-relation}
+  { The~relation~'#1'~is~not~supported.~Use~<,>,\string\leq,\string\geq. }
+
+% Internal: throw the error
+\cs_new_protected:Npn \exam_signed_ineq_error:n #1
+  { \msg_error:nnn {exam/signed-ineq}{unknown-relation}{#1} }
+
+% Internal: swap the relation (flip inequality)
+\cs_new:Npn \exam_signed_ineq_swap:n #1
+  {
+    \tl_if_eq:nnTF {#1}{\leq}{\geq}{
+    \tl_if_eq:nnTF {#1}{\geq}{\leq}{
+    \tl_if_eq:nnTF {#1}{<}{>}{
+    \tl_if_eq:nnTF {#1}{>}{<}{
+      \exam_signed_ineq_error:n {#1}
+    }}}}
+  }
+
+% Core: choose swapped or original relation based on the sign of the number
+% Uses floating-point comparison so it works for integers and reals.
+\cs_new_protected:Npn \exam_signed_ineq:nn #1#2
+  {
+    \fp_compare:nTF { (#1) < 0 }
+      { \exam_signed_ineq_swap:n {#2} }
+      { #2 }
+  }
+
+% Swap #1 (\geq,\leq,<,>) based on sign of #1
+% \signedIneq{<number>}{<relation>}
+\NewDocumentCommand{\signedIneq}{ m m }
+  { \exam_signed_ineq:nn {\fpeval{#1}}{#2} }
 \ExplSyntaxOff
-
-%%% Co-pilot suggestion for sfrac variant of printFrac
-% \ExplSyntaxOn
-% % Convert a/b into \sfrac{a}{b}
-% \cs_new:Npn \my_sfrac_from_string:n #1
-%  {
-%   \xintFrac #1\relax % expands to {<num>}{<den>}
-%   \sfrac{\xint_num}{\xint_den}
-%  }
-% % Now define a version of printFrac that uses \sfrac
-% \NewDocumentCommand{\printFracS}{O{}mm}
-%  {
-%   \str_if_eq:nnT {#1}{d} { \displaystyle }
-%   \my_sfrac_from_string:n { \xintPIrr{\fpeval{#2}/\fpeval{#3}} }
-%  }
-% \ExplSyntaxOff
-
-
-%%% Co-pilot suggestion for opt displaystyle/sfrac variant of printFrac
-% \ExplSyntaxOn
-% % Helper: turn "a/b" or "n" into either \sfrac{a}{b} or just n
-% \cs_new_protected:Npn \pf_sfrac_from_string:n #1
-%   {
-%     \str_if_in:nnTF {#1} {/}
-%       { % a/b form
-%         \xintFrac #1\relax % -> sets \xint_num, \xint_den
-%         \sfrac{\xint_num}{\xint_den}
-%       }
-%       { % integer form
-%         #1
-%       }
-%   }
-
-% \bool_new:N \l__pf_disp_bool
-% \bool_new:N \l__pf_sfrac_bool
-% \tl_new:N   \l__pf_rational_tl
-
-% \printFrac[<flags>]{<num>}{<den>}
-% flags: contains 'd' (displaystyle) and/or 's' (use \sfrac)
-% \NewDocumentCommand{\printFrac}{O{}mm}
-%   {
-%     % Parse flags (order-insensitive, duplicates OK)
-%     \bool_set_false:N \l__pf_disp_bool
-%     \bool_set_false:N \l__pf_sfrac_bool
-%     \tl_if_in:nnT {#1}{d} { \bool_set_true:N \l__pf_disp_bool }
-%     \tl_if_in:nnT {#1}{s} { \bool_set_true:N \l__pf_sfrac_bool }
-%     % Optional displaystyle
-%     \bool_if:NT \l__pf_disp_bool { \displaystyle }
-%     % Compute irreducible rational as string "p/q" or "n"
-%     \tl_set:Nx \l__pf_rational_tl { \xintPIrr{\fpeval{#2}/\fpeval{#3}} }
-%     % Select rendering
-%     \bool_if:NTF \l__pf_sfrac_bool
-%       { \pf_sfrac_from_string:n { \l__pf_rational_tl } }
-%       { \xintTeXsignedFrac     { \l__pf_rational_tl } }
-%   }
-% \ExplSyntaxOff
-
 
 % Swap \pdfrandomseed with a number for consistency between compiles
 \pgfmathsetseed{\number\pdfrandomseed} %\pdfrandomseed
 
 % Set random seed based on year and semester (eg sp26 is 1026)
 \defVar{\examRandSeed}{mod(\the\year,100)+int(ifthenelse(\month<6,1,2)*1000)}
+
+\ExplSyntaxOn
+\cs_new:Npn \exam_version_to_int:n #1
+  {
+    \str_case:nnF {#1}
+      { {A}{0} {B}{100} {C}{200} {D}{300} }
+      { \msg_error:nnn { exam } { unknown-version } {#1} 0 }
+  }
+\cs_generate_variant:Nn \exam_version_to_int:n { e } % <-- creates :e
+
+\cs_if_exist:NTF {\version}{ %Modify examRandSeed if \version defined
+  % \textbackslash examRandSeed=\pgfmathprintnumber{\fpeval{\examRandSeed+\exam_version_to_int:e { \version } } }
+  \defVar{\examRandSeed}{\number\examRandSeed+\exam_version_to_int:e { \version } }
+}{}
+\ExplSyntaxOff
+
 \pgfmathsetseed{\number\examRandSeed}

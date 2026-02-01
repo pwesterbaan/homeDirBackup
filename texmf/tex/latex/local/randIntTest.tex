@@ -1,57 +1,150 @@
-\documentclass{exam}
+\documentclass[answers]{exam}
+%\usepackage{fp}
 \usepackage{tikz}
+%\usepackage{xifthen}
+\usepackage{amsmath}
+%\usepackage{etoolbox}
+\usepackage{pgfmath-xfp}
 \usetikzlibrary{math}
+\include{exam_randomization}
 
-% Swap \pdfrandomseed with a number for consistency between compiles
-\pgfmathsetseed{\number\pdfrandomseed} %\pdfrandomseed
-
-
-\newcommand{\randIntLower}{1}
-\newcommand{\randIntUpper}{5}
-\newcommand{\nonZeroRandIntRange}[1]{
-  \pgfmathsetmacro{#1}{int(ifthenelse(rand > 0, 1, -1)*random(\randIntLower,\randIntUpper))}
+%Boxes for answers
+\newcommand{\ansBoxHeight}{\ifprintanswers8mm\else11mm\fi}
+\newcommand{\ansBoxWidth}{35mm}
+% creates answer box of (opt) height, (opt) width, with mandatory contents
+% use `renewcommand' to manually change height and width
+\NewDocumentCommand{\ansBox}{ O{\ansBoxHeight} O{\ansBoxWidth} m }{%
+  \hspace*{\stretch{1}}\fbox{\begin{minipage}[t][#1][c]{#2}#3\end{minipage}}\newline%
 }
 
 \begin{document}
-  \begin{questions}
-    \question
-      \pgfmathrandominteger{\secondnum}{1}{100}
-      Random int between 1--100: \secondnum
+%\textbackslash examRandSeed=\pgfmathprintnumber{\examRandSeed}
 
-    \question
-      Random int 1--15:
-      \pgfmathrandominteger{\holeInDomain}{1}{15}
-      \pgfmathparse{\holeInDomain^2}
-      \pgfmathsetmacro{\holeSquared}{\pgfmathresult}
+%================================================================================  
+%\show\pgfversion
+%\show\pgfmathprintnumber
+\noindent
+\printCoeff{-2}\\          %-2 (signed)
+\printCoeff*{-2}\\         %-2 (unsigned)
+\printCoeff[signs]{-2}\\   %-2 (signs)
+\printCoeff*[signs]{-2}\\  %-2 (unsigned, signs, likely unused)
 
-      % Evaluate the following limit:
-        \[\lim_{x\to \holeInDomain^+} \frac{x+\holeInDomain}{x^2-\pgfmathprintnumber{\holeSquared}}\]
-%================================================================================
+\noindent
+\printCoeff{-1}\\          %-1 (signed)
+\printCoeff*{-1}\\         %-1 (unsigned)
+\printCoeff[signs]{-1}\\   %-  (signs)
+\printCoeff*[signs]{-1}\\  %-  (unsigned, signs, likely unused)
 
-    \question
-      Nonzero ints from a fixed list
-      % List of items to pick from
-      \pgfmathdeclarerandomlist{nonZeroInts}{{-5}{-4}{-3}{-2}{-1}{1}{2}{3}{4}{5}}
-      \pgfmathrandomitem{\holeInDomain}{nonZeroInts}
-      \pgfmathparse{abs(\holeInDomain)^2}
-      \pgfmathsetmacro{\holeSquared}{\pgfmathresult}
+\noindent
+\printCoeff{0}\\           %<nothing>
+\printCoeff*{0}\\          %<nothing>
+\printCoeff[signs]{0}\\    %<nothing>
+\printCoeff*[signs]{0}\\   %<nothing>
 
-        \[\lim_{x\to \holeInDomain^+} \frac{x\pgfmathprintnumber[print sign]{\holeInDomain}}{x^2-\pgfmathprintnumber{\holeSquared}}\]
-%================================================================================
+\noindent
+\printCoeff{1}\\           %+1 (signed)
+\printCoeff*{1}\\          % 1 (unsigned)
+\printCoeff[signs]{1}\\    %+  (signs)
+\printCoeff*[signs]{1}\\   %+  (unsigned, signs, likely unused)
 
-      \question
-        Nonzero ints from a range \{-8,\dots,8\}\textbackslash\{0\}
-      {% Renew commands instead of positional arguments
-        %\renewcommand{\randIntLower}{8}
-        \renewcommand{\randIntUpper}{8}
-        \nonZeroRandIntRange{\holeInDomain}
+\noindent
+\printCoeff{2}\\           %+2 (signed)
+\printCoeff*{2}\\          % 2 (unsigned)
+\printCoeff[signs]{2}\\    %+2 (signs)
+\printCoeff*[signs]{2}\\   % 2 (unsigned, signs, likely unused)
 
-        \pgfmathparse{abs(\holeInDomain)^2}
-        \pgfmathsetmacro{\holeSquared}{\pgfmathresult}
-        \pgfmathparse{-1*\holeInDomain}
-        \pgfmathsetmacro{\negHoleInDomain}{\pgfmathresult}
-        % Evaluate the following limit:
-          \[\lim_{x\to \pgfmathprintnumber{\holeInDomain}} \frac{x\pgfmathprintnumber[print sign]{\negHoleInDomain}}{x^2-\pgfmathprintnumber{\holeSquared}}\]
-      }
-  \end{questions}
+%  \begin{questions}
+%    \question
+%      \pgfmathrandominteger{\secondnum}{1}{100}
+%      Random int between 1--100: \secondnum
+%
+%    \question
+%      \pgfmathrandominteger{\holeInDomain}{1}{15}
+%      \defVar{\holeSquared}{abs(\holeInDomain)^2}
+%      Random int 1--15: \holeInDomain
+%
+%      % Evaluate the following limit:
+%        \[\lim_{x\to \holeInDomain^+} \frac{x+\holeInDomain}{x^2-\pgfmathprintnumber{\holeSquared}}\]
+%%================================================================================
+%
+%    \question
+%      % List of items to pick from
+%      \pgfmathdeclarerandomlist{nonZeroInts}{{-5}{-4}{-3}{-2}{-1}{1}{2}{3}{4}{5}}
+%      \pgfmathrandomitem{\holeInDomain}{nonZeroInts}
+%      \defVar{\holeSquared}{abs(\holeInDomain)^2}
+%      Nonzero ints from a fixed list: \holeInDomain
+%
+%        \[\lim_{x\to \holeInDomain^+} \frac{x\pgfmathprintnumber[print sign]{\holeInDomain}}{x^2-\pgfmathprintnumber{\holeSquared}}\]
+%%================================================================================
+%
+%      \question
+%      {% Renew commands instead of positional arguments
+%        %\renewcommand{\randIntLower}{8}
+%        \renewcommand{\randIntUpper}{6}
+%        \randInts[nz]{\holeInDomain}
+%        Nonzero ints from a range \{-\pgfmathprintnumber{\randIntUpper},\dots,\pgfmathprintnumber{\randIntUpper}\}\textbackslash\{0\}: \holeInDomain
+%
+%        \defVar{\holeSquared}{abs(\holeInDomain)^2}
+%        \defVar{\negHoleInDomain}{-1*\holeInDomain}
+%        % Evaluate the following limit:
+%          \[\lim_{x\to \pgfmathprintnumber{\holeInDomain}} \frac{x\pgfmathprintnumber[print sign]{\negHoleInDomain}}{x^2-\pgfmathprintnumber{\holeSquared}}\]
+%      }
+%%================================================================================
+%
+%      \question[4]
+%      {%% Begin rand num gen
+%        \randInts[nz]{\mySlope}
+%        \randInts{\xOne,\yOne}
+%        \renewcommand{\randIntUpper}{3}
+%        \randInts{\delX}
+%
+%        \defVar{\xTwo}{\xOne+\delX}
+%        \defVar{\yTwo}{\mySlope*\delX+\yOne}
+%        \defVar{\delY}{\yTwo-\yOne}
+%        %% end rand num gen
+%
+%        Find the \textbf{slope} of the line that also goes through the points
+%        $(x_1,y_1)=(\pgfmathprintnumber{\xOne},\pgfmathprintnumber{\yOne})$ and
+%        $(x_2,y_2)=(\pgfmathprintnumber{\xTwo},\pgfmathprintnumber{\yTwo})$.
+%        \begin{solution}[\stretch{1}]
+%          \begin{align*}
+%            m=\dfrac{y_2-y_1}{x_2-x_1}
+%            &=\dfrac{\pgfmathprintnumber{\yTwo}-\printWithParens{\yOne}}{\pgfmathprintnumber{\xTwo}-\printWithParens{\xOne}}
+%            =\dfrac{\pgfmathprintnumber{\delY}}{\pgfmathprintnumber{\delX}}=\boxed{\pgfmathprintnumber{\mySlope}}
+%          \end{align*}
+%        \end{solution}
+%      }
+%%================================================================================
+%
+%      \question[8]
+%      {
+%        \renewcommand{\randIntLower}{2}
+%        \renewcommand{\randIntUpper}{7}
+%        \makeFrac{\delY}{\delX}
+%        
+%        \[\pgfmathprintnumber{\delY}/\pgfmathprintnumber{\delX} \qquad
+%          m=\printFrac{\delY}{\delX} \qquad
+%          -\frac{1}{m}=\printFrac{-\delX}{\delY}\]
+%
+%        % \[-2/3: \printFrac{-2}{3}\qquad 4/3: \printFrac{4}{3}\]
+%
+%        % \[\textnormal{Incorrect: }\qquad10/41: \printFrac{10}{41}\qquad 16/9: \printFrac{16}{9}\]
+%
+%      }
+%%================================================================================
+%      {
+%      %% Begin rand num gen
+%      \renewcommand{\randIntLower}{2}
+%      \renewcommand{\randIntUpper}{5}
+%      \makeFrac{\num}{\denom}
+%      \randInts[nz]{\yOne,\b}
+%      \renewcommand{\randIntUpper}{4}
+%      \randInts[nz]{\xOneMult}
+%      %% end rand num gen
+%      }
+%      \defVar{\xOne}{\xOneMult*\num}
+%      \defVar{\newb}{\denom*\xOneMult+\yOne}
+%
+%      \ansBox{\centering\fillin[{$y=\printFrac[d]{-4}{3}x\pgfmathprintnumber[print sign]{-6}$}]}
+%  \end{questions}
 \end{document}
