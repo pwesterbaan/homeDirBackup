@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 FILE=/tmp/zoom_amd64.deb
 URL=https://zoom.us/client/latest/zoom_amd64.deb
