@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 ## config in /etc/ssmtp/ssmtp.conf
 ## send email containing IP address
@@ -9,4 +9,3 @@
 
 ## email with attachment
 # echo "message" | mail -s "subject" <recipient> -A <file>
-

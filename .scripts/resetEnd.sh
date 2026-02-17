@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 ## Script to reset regions in end dimension in Minecraft
 ## https://xisumavoid.com/pruneendchunks/

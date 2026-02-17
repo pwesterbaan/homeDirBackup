@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/usr/bin/env bash
 
 usage () { echo "script accepts flags: (i)nit, (b)lock, (u)nblock, (k)ill, or (h)elp" >&2; exit 1; }
 

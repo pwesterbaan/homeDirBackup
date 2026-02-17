@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/usr/bin/env bash
 
 export jbl_mac=74:2A:8A:A6:2F:C3
 export ralink_mac=54:35:30:D9:B8:84

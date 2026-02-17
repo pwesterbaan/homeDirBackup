@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 sleep 10
 /home/peter/.scripts/resetMonitors.sh
 

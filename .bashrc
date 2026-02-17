@@ -121,6 +121,13 @@ fi
 ## disable XOFF/ enable forward search: C-s
  [[ $- == *i* ]] && stty -ixon
 
+## source directory of files
+if [ -d "$HOME/.bashrc.d" ]; then
+    for config in "$HOME/.bashrc.d"/*.sh; do
+        [ -r "$config" ] && source "$config"
+    done
+fi
+
 # For github pages locally:
 # Install Ruby Gems to ~/gems
 export GEM_HOME="$HOME/gems"

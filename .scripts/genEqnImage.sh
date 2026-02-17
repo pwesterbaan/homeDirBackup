@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # script to generate latex equation and place *.png into clipboard
 # For some reason, "--shell-escape" prevents \formula{$1} from reading $1
 

@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# auto complete filenames for cpKey
+complete -f -o plusdirs -X '!*.tex' cpKey
+
 cpKey() {
   # sourced in .bash_aliases
   # Function to compile blank and key versions of *_KEY.tex,
@@ -46,6 +49,7 @@ Outputs (no -V):
 EOF
         return 0
         ;;
+      d) set -x ;; # ENABLE DEBUG STATEMENTS
       --) shift; break;;
       -*)
         echo "Unknown option: $1"
@@ -136,7 +140,7 @@ EOF
 
 local choice
   while :; do
-    echo -n "[y]es clean and open, [n]o clean, [c]lean only [default: y]: "
+    echo -n "[y]es clean and open, [n]o clean, [c]lean only [default: c]: "
     read -r choice
     # lower-case normalize
     choice="${choice,,}"
@@ -146,8 +150,8 @@ local choice
     echo "Please enter n, y, or c."
   done
 
-  # Default to 'y' if empty
-  if [[ -z "$choice" ]]; then choice="y"; fi
+  # Default to 'c' if empty
+  if [[ -z "$choice" ]]; then choice="c"; fi
 
   # Execute based on choice
   case "$choice" in

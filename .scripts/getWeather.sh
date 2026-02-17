@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 ## Simple script to return basic weather info
 ## Change url below to match desired city

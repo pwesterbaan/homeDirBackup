@@ -86,11 +86,8 @@ function sarcasmString() {
 
 #auto complete
 # filenames for getPdfPages (lander_lecture_notes)
+# TODO: Move to .bashrc.d? (need to cd into working dir)
 complete -f -o plusdirs -X '!*.pdf' getPdfPages.sh
-# filenames for cpKey
-complete -f -o plusdirs -X '!*.tex' cpKey
-source ~/.scripts/cpKey.sh
-source ~/.scripts/cleanTex.sh
 
 ls -F --group-directories-first && pwd
 export PATH=$PATH:/usr/local/go/bin

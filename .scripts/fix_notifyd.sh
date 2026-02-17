@@ -1,4 +1,4 @@
-#!/bin/env bash
+#!/usr/bin/env bash
 
 #Some combination of these commands seemed to fix my broken notifications
 pkill dunst

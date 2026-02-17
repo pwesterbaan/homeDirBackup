@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # screenname=$(xrandr | awk '/eDP/ { print $1}')
 screenname=$(xrandr | awk '/HDMI/ { print $1}')

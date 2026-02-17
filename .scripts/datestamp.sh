@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # Found here:
 # https://askubuntu.com/questions/1351356/timestamp-keyboard-shortcut
 

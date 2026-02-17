@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 maxLength=$(tail -2 ~/.config/pianobar/nowplaying | wc -L)
 
