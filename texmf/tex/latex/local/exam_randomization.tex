@@ -1,6 +1,6 @@
 %% Exam randomization
 % Examples in RandIntTest.tex
-\usepackage{tikz}
+\usepackage{tikz,pgf}
 \usepackage{etoolbox,xparse}
 \usetikzlibrary{math}
 \usepackage{xintfrac}
@@ -10,20 +10,77 @@
 \newcommand{\randIntLower}{1}   %Lower bound on rand ints
 \newcommand{\randIntUpper}{5}   %Upper bound on rand ints
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TODO Move into math121_sp26_exam01_ch1_KEY.tex only?
+% Resample random numbers #1 and #2 until distinct
+\newcommand*{\resampleUntilnzSum}[2]{%
+  \pgfmathtruncatemacro{\again}{#1+#2==0}%   test if #1+#2==0
+  \whiledo{\again=1}{%
+    \randInts[nz]{#1,#2}% re-gen #1 and #2
+    \pgfmathtruncatemacro{\again}{#1+#2==0}% test if #1+#2==0
+  }%
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \ExplSyntaxOn
+% \NewDocumentCommand \defVar { m m }{
+%   \fp_set:Nn #1 { \fp_eval:n #2 }
+% }
 \newcommand{\defVar}[2]{%
+%TODO switch to expl3 version after math 121 exam 2 completed
   \pgfmathparse{#2}%
   \pgfmathsetmacro{#1}{\pgfmathresult}%
 }
 
-\newcommand{\printWithParens}[1]{%
-  \pgfmathparse{#1}%
-  \ifdim\pgfmathresult pt<0pt%
-    (\pgfmathprintnumber{#1})%
-  \else%
-    \pgfmathprintnumber{#1}%
-  \fi%
+% \ExplSyntaxOn
+% \NewDocumentCommand \makeFrac{ m m }{
+%% Make a reduced fraction with denominator in [num+1,2*num-1]
+%% (vice-versa for num negative)
+%   \randInts[nz]{#1}% numerator
+%   %TODO #1 will not refer to the cs_name as before
+%   \randInts[nz]< \fp_eval:n { #1+abs(#1)/#1 } >( \fp_eval:n { 2*#1-abs(#1)/#1 ){#2}
+%   \defVar{\gcdValue}{gcd(#1,#2)}%
+%   \defVar{#1}{int(#1/\gcdValue)}%
+%   \defVar{#2}{int(#2/\gcdValue)}%
+% }
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\makeFrac}[2]{%
+  %TODO
+  \randInts[nz]{#1}% numerator
+  % Pick denominator from [num+1,2*num-1] when num>0
+  % or [2*num+1,num-1] when num<0
+  {% Limit scope of \randIntLower/Upper
+    \pgfmathsetmacro{\randIntLower}{\fpeval{#1+abs(#1)/#1}}%
+    \pgfmathsetmacro{\randIntUpper}{\fpeval{2*#1-abs(#1)/#1}}%
+    \randInts[nz]{#2}% denominator
+  }
+  \defVar{\gcdValue}{gcd(#1,#2)}%
+  \defVar{#1}{int(#1/\gcdValue)}%
+  \defVar{#2}{int(#2/\gcdValue)}%
 }
 
+
+\ExplSyntaxOn
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Print negative numbers inside parenthesis
+\NewDocumentCommand \printWithParens { m }{
+  \fp_compare:nNnTF {#1} < {0}{
+    \ensuremath{(#1)}
+  }{
+    \ensuremath{#1}
+  }
+}
+
+%%%%%%%% \newcommand{\printWithParens}[1]{%
+%%%%%%%%   \pgfmathparse{#1}%
+%%%%%%%%   \ifdim\pgfmathresult pt<0pt%
+%%%%%%%%     (\pgfmathprintnumber{#1})%
+%%%%%%%%   \else%
+%%%%%%%%     \pgfmathprintnumber{#1}%
+%%%%%%%%   \fi%
+%%%%%%%% }
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%TODO switch to expl3 version after math 121 exam 2 completed
 \newcommand{\randIntTemp}{}     %Used for defining values in randInts
 \newcommand{\randInts}[2][]{%
   % #1 = option (default: []; Use nz for nonzero)
@@ -40,52 +97,61 @@
     }%
   }%
 }
-
-% Resample random numbers #1 and #2 until distinct
-\newcommand*{\resampleUntilnzSum}[2]{%
-  \pgfmathtruncatemacro{\again}{#1+#2==0}%   test if #1+#2==0
-  \whiledo{\again=1}{%
-    \randInts[nz]{#1,#2}% re-gen #1 and #2
-    \pgfmathtruncatemacro{\again}{#1+#2==0}% test if #1+#2==0
-  }%
-}
-
-\newcommand{\computeGcd}[3]{%
-  % #1 = result macro
-  % #2 = first number
-  % #3 = second number
-  % Uses Euclidean algorithm
-  \pgfmathparse{int(abs(#2))}%
-  \pgfmathsetmacro{\gcdA}{int(\pgfmathresult)}%
-  \pgfmathparse{int(abs(#3))}%
-  \pgfmathsetmacro{\gcdB}{int(\pgfmathresult)}%
-  \loop\ifnum\gcdB>0\relax%
-    \pgfmathparse{int(mod(\gcdA, \gcdB))}%
-    \pgfmathsetmacro{\gcdTemp}{int(\pgfmathresult)}%
-    \pgfmathsetmacro{\gcdA}{\gcdB}%
-    \pgfmathsetmacro{\gcdB}{\gcdTemp}%
-  \repeat%
-  \pgfmathsetmacro{#1}{\gcdA}%
-}
-
-\newcommand{\makeFrac}[2]{%
-  \randInts[nz]{#1}% numerator
-  % Pick denominator from [num+1,2*num-1] when num>0
-  % or [2*num+1,num-1] when num<0
-  {% Limit scope of \randIntLower/Upper
-    \pgfmathsetmacro{\randIntLower}{\fpeval{#1+abs(#1)/#1}}%
-    \pgfmathsetmacro{\randIntUpper}{\fpeval{2*#1-abs(#1)/#1}}%
-    \randInts[nz]{#2}% denominator
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%TODO switch to this version after math 121 exam 2 completed
+%%%%%%%% \NewDocumentCommand \randInts { s o D<>{\randIntLower} D(){\randIntUpper} m O{1} }{
+%%%%%%%% % \randInts[nz?]<min>(max){name1,name2,...}[t]
+%%%%%%%% % - [nz]: produce pm(magnitude), where magnitude in [min,max]
+%%%%%%%% % - <min> and (max) are *separate* optional delimited args; defaults are 1 and 5
+%%%%%%%% % - clist of names; defines \name globally to the drawn integer
+%%%%%%%% % - optional randInt multiplier t (defaults to 1)
+%%%%%%%%
+%%%%%%%%   \tl_clear_new:N \l__my_number_tl
+%%%%%%%%   \seq_clear_new:N \l_numbers_seq
+%%%%%%%%   \tl_if_eq:nnT {#2} {nz}{
+%%%%%%%%     \int_step_inline:nnn {-#4}{-#3}
+%%%%%%%%       { \seq_put_right:Nn \l_numbers_seq { \fp_eval:n{ ##1 * #6 } } }
+%%%%%%%%     }
+%%%%%%%%   \int_step_inline:nnn {#3}{#4}
+%%%%%%%%     { \seq_put_right:Nn \l_numbers_seq { \fp_eval:n{ ##1 * #6 } } }
+%%%%%%%%   \seq_shuffle:N \l_numbers_seq
+%%%%%%%%
+%%%%%%%%   \clist_map_inline:nn { #5 }
+%%%%%%%%   {
+%%%%%%%%     \IfBooleanTF{#1}{
+%%%%%%%%       \seq_pop_left:NN \l_numbers_seq \l__my_number_tl
+%%%%%%%%       \cs_gset:cpx { ##1 } { \tl_use:N \l__my_number_tl }
+%%%%%%%%     }{
+%%%%%%%%       \cs_gset:cpx { ## 1 } { \seq_rand_item:N \l_numbers_seq }
+%%%%%%%%     }
+%%%%%%%%   }
+%%%%%%%% }
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\NewDocumentCommand \printIfTrue { m m }{
+  \ifnum #1 #2 \fi
   }
-  \computeGcd{\gcdValue}{#1}{#2}%
-  \defVar{#1}{int(#1/\gcdValue)}%
-  \defVar{#2}{int(#2/\gcdValue)}%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\NewDocumentCommand \printIfFalse { m m }{
+  \ifnum #1 \else #2 \fi
+  }
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\NewDocumentCommand \lcm { m m m }{
+  \defVar{#1}{ #2*#3/gcd(#2,#3)}%
 }
-
-\ExplSyntaxOn
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Translates 1,...,26 to corresponding capital letter
+\NewDocumentCommand \numToLetter { m }{
+  \pgfmathparse{int(65 + #1 - 1)}\expandafter\char\pgfmathresult
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Translates letters to numbers
+\NewDocumentCommand \letterToNum { m m }{
+  \pgfmathparse{int("`#2"-64)}
+  \pgfmathsetmacro{#1}{\pgfmathresult}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \bool_new:N \l_exam_print_sign_bool
 \bool_new:N \l_exam_signonly_units_bool
-
 % \printCoeff * [signs] {<coeff>}
 %   star: suppress leading '+'
 %   [signs]: for ±1, print just the sign; otherwise normal numbers
@@ -96,9 +162,11 @@
 \cs_new_protected:Npn \exam_print_coeff:nnn #1 #2 #3
   {
     % Evaluate coefficient once via pgf
-    \pgfmathparse{#3}
-    \tl_set:Nx \l_tmpa_tl { \pgfmathresult } % textual form for pgf printer
-    \fp_set:Nn \l_tmpa_fp { \l_tmpa_tl }      % numeric form for comparisons
+    % TODO Replace pgfmathparse with xparse
+    % \pgfmathparse{#3}
+    % \tl_set:Nx \l_tmpa_tl { \pgfmathresult } % textual form for pgf printer
+    \tl_set:Nx \l_tmpa_tl { \fp_eval:n { #3 } } % textual form for pgf printer
+    \fp_set:Nn \l_tmpa_fp { \l_tmpa_tl }        % numeric form for comparisons
 
     % Star: default signed; star => suppress leading '+'
     \bool_set_true:N \l_exam_print_sign_bool
@@ -134,6 +202,7 @@
               }{
                 % general numeric case
                 \group_begin:
+                  %TODO \fp_format:nn
                   \bool_if:NTF \l_exam_print_sign_bool
                     { \ensuremath{\pgfmathprintnumber[print~sign]{\l_tmpa_tl}} }
                     { \ensuremath{\pgfmathprintnumber{\l_tmpa_tl}} }
@@ -142,13 +211,11 @@
           }
       }
   }
-% \ExplSyntaxOff
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \NewDocumentCommand{\signOnly}{m}{%
   \printCoeff[signs]{#1/abs(#1)}
 }
-
-% \ExplSyntaxOn
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \NewExpandableDocumentCommand{\printFrac}{O{}mm}{%
   {%
     %#1: Optional string to trigger display style
@@ -161,9 +228,7 @@
     }
   }
 }
-% \ExplSyntaxOff
-
-% \ExplSyntaxOn
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Error message for unsupported relations
 \msg_new:nnn {exam/signed-ineq}{unknown-relation}
   { The~relation~'#1'~is~not~supported.~Use~<,>,\string\leq,\string\geq. }
@@ -196,27 +261,209 @@
 % \signedIneq{<number>}{<relation>}
 \NewDocumentCommand{\signedIneq}{ m m }
   { \exam_signed_ineq:nn {\fpeval{#1}}{#2} }
-\ExplSyntaxOff
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Swap \pdfrandomseed with a number for consistency between compiles
-\pgfmathsetseed{\number\pdfrandomseed} %\pdfrandomseed
+% Scratch variables
+\int_zero_new:N \l__bin_len_int
+\int_zero_new:N \l__bin_mod_int
+\int_zero_new:N \l__bin_pad_int
+\tl_new:N        \l__bin_tl
 
-% Set random seed based on year and semester (eg sp26 is 1026)
-\defVar{\examRandSeed}{mod(\the\year,100)+int(ifthenelse(\month<6,1,2)*1000)}
-
-\ExplSyntaxOn
-\cs_new:Npn \exam_version_to_int:n #1
+% Pad a *binary string* to the next multiple of 4 (nibble)
+\cs_new:Npn \bin_pad_to_nibble:n #1
   {
-    \str_case:nnF {#1}
-      { {A}{0} {B}{100} {C}{200} {D}{300} }
-      { \msg_error:nnn { exam } { unknown-version } {#1} 0 }
+    % IMPORTANT: expand the input (#1) so macros like \pgfmathresult are resolved
+    \tl_set:Nx \l__bin_tl { #1 }
+
+    % Sanitize: trim edges and remove internal spaces
+    \tl_trim_spaces:N \l__bin_tl
+    \tl_remove_all:Nn \l__bin_tl { \c_space_token }
+
+    % Count and compute padding
+    \int_set:Nn \l__bin_len_int { \tl_count:N \l__bin_tl }
+    \int_set:Nn \l__bin_mod_int { \int_mod:nn { \l__bin_len_int } { 4 } }
+
+    \int_compare:nNnT { \l__bin_mod_int } > { 0 }
+      {
+        \int_set:Nn \l__bin_pad_int { \int_eval:n { 4 - \l__bin_mod_int } }
+        \int_step_inline:nn { \l__bin_pad_int }
+          { \tl_put_left:Nn \l__bin_tl { 0 } }
+      }
+
+    % Output
+    \tl_use:N \l__bin_tl
   }
-\cs_generate_variant:Nn \exam_version_to_int:n { e } % <-- creates :e
 
-\cs_if_exist:NTF {\version}{ %Modify examRandSeed if \version defined
-  % \textbackslash examRandSeed=\pgfmathprintnumber{\fpeval{\examRandSeed+\exam_version_to_int:e { \version } } }
-  \defVar{\examRandSeed}{\number\examRandSeed+\exam_version_to_int:e { \version } }
-}{}
-\ExplSyntaxOff
+% Decimal -> binary -> pad
+\cs_new:Npn \bin_of_num_pad_to_nibble:n #1
+  {
+    % \pgfmathparse{bin(#1)}%
+    % \bin_pad_to_nibble:n { \pgfmathresult }
+    \bin_pad_to_nibble:n { \int_from_bin:n { #1 } }
+  }
 
-\pgfmathsetseed{\number\examRandSeed}
+% User-facing wrappers
+\NewDocumentCommand \binpadnibble { m }        { \bin_pad_to_nibble:n { #1 } }
+\NewDocumentCommand \binpadnibblefromnum { m } { \bin_of_num_pad_to_nibble:n { #1 } }
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Internal state (unchanged)
+\bool_new:N \l_exam_first_bool
+\int_new:N  \l_exam_i_int
+\int_new:N  \l_exam_start_int
+\int_new:N  \l_exam_stop_int
+\int_new:N  \l_exam_step_int
+
+% 1) Numeric range: \myRange{start}{stop}{step}
+\NewDocumentCommand{\myRange}{mmm}
+ { \exam_myrange_numbers_nomathrel:nnn {#1}{#2}{#3} }
+
+\cs_new_protected:Npn \exam_myrange_numbers_nomathrel:nnn #1#2#3
+ {
+   \int_set:Nn \l_exam_start_int {#1}
+   \int_set:Nn \l_exam_stop_int  {#2}
+   \int_set:Nn \l_exam_step_int  {#3}
+   \bool_set_true:N \l_exam_first_bool
+
+   % If step = 0, do nothing
+   \int_if_zero:nTF { \l_exam_step_int } { }
+     {
+       % Let the stepper handle direction and stopping
+       \int_step_inline:nnnn { \l_exam_start_int } { \l_exam_step_int } { \l_exam_stop_int }
+         {
+           \bool_if:NF \l_exam_first_bool { , }
+           \int_to_arabic:n { ##1 }
+           \bool_set_false:N \l_exam_first_bool
+         }
+     }
+ }
+
+% 2) Capital letters: \myLetters[<step>]{<StartLetter>}{<StopLetter>}
+\NewDocumentCommand{\myLetters}{O{1}mm}
+ { \exam_myrange_letters_nomathrel:nnn {#1}{#2}{#3} }
+
+\cs_new_protected:Npn \exam_myrange_letters_nomathrel:nnn #1#2#3
+ {
+   \int_set:Nn \l_exam_step_int  {#1}
+   \int_set:Nn \l_exam_start_int {`#2}  % ASCII code
+   \int_set:Nn \l_exam_stop_int  {`#3}
+   \bool_set_true:N \l_exam_first_bool
+
+   \int_if_zero:nTF { \l_exam_step_int } { }
+     {
+       \int_step_inline:nnnn { \l_exam_start_int } { \l_exam_step_int } { \l_exam_stop_int }
+         {
+           \bool_if:NF \l_exam_first_bool { , }
+           \char_generate:nn { ##1 } {12}
+           \bool_set_false:N \l_exam_first_bool
+         }
+     }
+ }
+
+\NewDocumentCommand{\myLettersNum}{O{1}mm}
+ {
+   \exam_myrange_letters_num:nnn {#1}{#2}{#3}
+ }
+
+\cs_new_protected:Npn \exam_myrange_letters_num:nnn #1#2#3
+ {
+   \int_set:Nn \l_exam_step_int  {#1}
+   % Convert alphabetical index to ASCII code: 1→65, 2→66, ...
+   \int_set:Nn \l_exam_start_int { 64 + #2 }
+   \int_set:Nn \l_exam_stop_int  { 64 + #3 }
+   \bool_set_true:N \l_exam_first_bool
+
+   % Do nothing if step = 0
+   \int_if_zero:nTF { \l_exam_step_int } { }
+     {
+       \int_step_inline:nnnn { \l_exam_start_int } { \l_exam_step_int } { \l_exam_stop_int }
+         {
+           \bool_if:NF \l_exam_first_bool { , }
+           \char_generate:nn { ##1 } {12}
+           \bool_set_false:N \l_exam_first_bool
+         }
+     }
+ }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Set random seed based on year, semester, and version
+% e.g. VD in spring 2026 corresponds to 1326
+% year:           26 : \int_mod:nn { \year }{ 100 }
+% exam version   300 : 100 * ( \verNum - 1 )
+% semester      1000 : \int_eval:n { \month * 100 + \day
+
+\int_new:N \l__exam_year_two_int
+\int_new:N \l__exam_md_int
+\int_new:N \l__exam_sem_offset_int
+\int_new:N \l__exam_seed_int
+
+% two-digit year
+\int_set:Nn \l__exam_year_two_int { \int_mod:nn { \year } { 100 } }
+
+% month-day as MMDD integer (e.g. May 14 -> 514)
+\int_set:Nn \l__exam_md_int { \int_eval:n { \month * 100 + \day } }
+
+% semester-based offset: before May 15 -> 1000, before Jun 25 -> 2000,
+% before Aug 15 -> 3000, otherwise 4000
+\int_set:Nn \l__exam_sem_offset_int { 4000 }
+\int_compare:nNnTF { \l__exam_md_int } < { 515 }
+  { \int_set:Nn \l__exam_sem_offset_int { 1000 } }          %spring
+  {
+    \int_compare:nNnTF { \l__exam_md_int } < { 625 }
+      { \int_set:Nn \l__exam_sem_offset_int { 2000 } }      %summer I
+      {
+        \int_compare:nNnTF { \l__exam_md_int } < { 815 }
+          { \int_set:Nn \l__exam_sem_offset_int { 3000 } }  %summer II
+          { \int_set:Nn \l__exam_sem_offset_int { 4000 } }  %fall
+      }
+  }
+
+% base seed = semester offset + two-digit year
+\int_set:Nn \l__exam_seed_int { \l__exam_sem_offset_int + \l__exam_year_two_int }
+
+% if a `\version` macro exists, convert to numeric and offset by 100*(ver-1)
+\cs_if_exist:NTF \version
+  {
+    \letterToNum{\verNum}{\version}
+    \int_set:Nn \l__exam_seed_int { \int_eval:n { \l__exam_seed_int + 100 * ( \verNum - 1 ) } }
+  }
+  { }
+
+% Set global random seed (query with \sys_rand_seed:
+\sys_gset_rand_seed:n { \int_use:N \l__exam_seed_int }
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%legacy seed setting
+\pgfmathsetseed{ \int_use:N \l__exam_seed_int }
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\ExplSyntaxOff%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% old seed setting %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%% % Swap \pdfrandomseed with a number for consistency between compiles
+%%%%%%%%%%%%%%%%%%%%%%%%%% \pgfmathsetseed{\number\pdfrandomseed} %\pdfrandomseed
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%% % Set random seed based on year and semester (eg sp26 is 1026)
+%%%%%%%%%%%%%%%%%%%%%%%%%% \defVar{\examRandSeed}{mod(\the\year,100)+int(ifthenelse(\month<6,1,2)*1000)}
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%% \ExplSyntaxOn
+%%%%%%%%%%%%%%%%%%%%%%%%%% \cs_new:Npn \exam_version_to_int:n #1
+%%%%%%%%%%%%%%%%%%%%%%%%%%   {
+%%%%%%%%%%%%%%%%%%%%%%%%%%     \str_case:nnF {#1}
+%%%%%%%%%%%%%%%%%%%%%%%%%%       { {A}{0} {B}{100} {C}{200} {D}{300} }
+%%%%%%%%%%%%%%%%%%%%%%%%%%       { \msg_error:nnn { exam } { unknown-version } {#1} 0 }
+%%%%%%%%%%%%%%%%%%%%%%%%%%   }
+%%%%%%%%%%%%%%%%%%%%%%%%%% \cs_generate_variant:Nn \exam_version_to_int:n { e } % <-- creates :e
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%% \cs_if_exist:NTF {\version}{ %Modify examRandSeed if \version defined
+%%%%%%%%%%%%%%%%%%%%%%%%%%   % \textbackslash examRandSeed=\pgfmathprintnumber{\fpeval{\examRandSeed+\exam_version_to_int:e { \version } } }
+%%%%%%%%%%%%%%%%%%%%%%%%%%   \defVar{\examRandSeed}{\number\examRandSeed+\exam_version_to_int:e { \version } }
+%%%%%%%%%%%%%%%%%%%%%%%%%% }{}
+%%%%%%%%%%%%%%%%%%%%%%%%%% \ExplSyntaxOff
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%% \pgfmathsetseed{\number\examRandSeed}
