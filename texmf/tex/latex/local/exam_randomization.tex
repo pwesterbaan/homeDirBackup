@@ -43,7 +43,7 @@
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\NewDocumentCommand \randInts { s o D<>{\randIntLower} D(){\randIntUpper} m O{1} D<>}{
+\NewDocumentCommand \randInts { s o D<>{\randIntLower} D(){\randIntUpper} m O{1} D<>{} }{
 % \randInts[nz?]<min>(max){name1,name2,...}[t]
 % - [nz]: produce pm(magnitude), where magnitude in [min,max]
 % - <min> and (max) are *separate* optional delimited args; defaults are 1 and 5
@@ -53,20 +53,30 @@
 
   \tl_clear_new:N \l__my_number_tl
   \seq_clear_new:N \l_numbers_seq
+  %generate sequence of range of numbers
   \tl_if_eq:nnT {#2} {nz}{
     \int_step_inline:nnn {-#4}{-#3}
-      { \seq_put_right:Nn \l_numbers_seq { \fp_eval:n{ ##1 * #6 } } }
+      { \seq_put_right:Nx \l_numbers_seq { \int_eval:n{ ##1 * #6 } } }
     }
   \int_step_inline:nnn {#3}{#4}
-    { \seq_put_right:Nn \l_numbers_seq { \fp_eval:n{ ##1 * #6 } } }
+    { \seq_put_right:Nx \l_numbers_seq { \int_eval:n{ ##1 * #6 } } }
   \seq_shuffle:N \l_numbers_seq
 
+  %Remove values to skip from sequence
+  \clist_map_inline:nn { #7 }
+  {
+    \seq_remove_all:Nn \l_numbers_seq { ##1 }
+  }
+
+  %Randomly select...
   \clist_map_inline:nn { #5 }
   {
     \IfBooleanTF{#1}{
+      %without replacement
       \seq_pop_left:NN \l_numbers_seq \l__my_number_tl
-      \cs_gset:cpx { ##1 } { \tl_use:N \l__my_number_tl }
+      \cs_gset:cpx { ## 1 } { \tl_use:N \l__my_number_tl }
     }{
+      %with replacement
       \cs_gset:cpx { ## 1 } { \seq_rand_item:N \l_numbers_seq }
     }
   }
@@ -375,5 +385,5 @@
   { }
 
 % Set global random seed (query with \sys_rand_seed:
-% \sys_gset_rand_seed:n { \int_use:N \l__exam_seed_int }
+\sys_gset_rand_seed:n { \int_use:N \l__exam_seed_int }
 \ExplSyntaxOff%
