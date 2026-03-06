@@ -87,7 +87,10 @@ ${goto 125}${voffset -2}${if_up enp6s0}${downspeed enp6s0}${else}${downspeed wlp
 ${goto 125}${if_up enp6s0}${upspeed enp6s0}${else}${upspeed wlp5s0f0}${endif}
 ${goto 125}Net
 ${if_up enp6s0}${else}${voffset 3}${alignr}${wireless_link_bar 5,100 wlp5s0f0}${voffset -5}${endif}
-${voffset -29}${font caviar dreams:size=10}${execpi 60 ~/.scripts/getWeather.sh | ansito -}\
+${voffset -20}\
+${if_match ${texeci 3600 curl -s -o /dev/null -m 3 -w "%{http_code}" wttr.in} == 200}\
+${font caviar dreams:size=10}${texecpi 300 ~/.scripts/getWeather.sh | ansito -}\
+${endif}
 ${voffset 0}
 ${hr}${font Liberation Mono:size=11.5}
 ${execi 600 gcal .+|cut -c  1-22|tail -n 8| sed s/"< "/" <"/}
@@ -103,4 +106,4 @@ ${voffset -5}${hr}${else}${voffset -15}${endif}${voffset 5}${font Liberation Mon
 ${alignr}${nodename}
 ${alignr}${exec cat /etc/issue.net} $machine
 ${alignr}${if_up enp6s0}${addr enp6s0}${else}${addr wlp5s0f0}${endif}
-${voffset -100}${if_running spotify}${voffset -15}${endif}]];
+${voffset -69}${if_running spotify}${voffset -15}${endif}]];
