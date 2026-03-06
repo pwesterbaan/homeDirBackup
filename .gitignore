@@ -26,7 +26,9 @@ matlab*
 .scripts/conky/spotify/stored_track.txt
 .scripts/go
 .scripts/wegorc
+*.toml
 *.txt
+uv.lock
 .*
 *~
 
