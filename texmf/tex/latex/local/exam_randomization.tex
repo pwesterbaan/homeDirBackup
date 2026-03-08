@@ -30,7 +30,7 @@
 
 \ExplSyntaxOn
 % \NewDocumentCommand \defVar { m m }{
-%   \fp_set:Nn #1 { \fp_eval:n #2 }
+%   \fp_set:Nn #1 { \fp_eval:n { #2 }}
 % }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Print negative numbers inside parenthesis
@@ -43,6 +43,15 @@
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%TODO: If \l_numbers_seq is large, this is slow. If \l_numbers_seq
+%has more than ~32,000 elements, this method fails. Should I
+%automate picking each digit at random? e.g.:
+%   \randInts<1>(5){randDtHa}
+%   \randInts<0>(9){randDtHb,randDtHc,randDtHd,randDtHe}
+%   \defVar{\randDtH}{ \int_eval:n { \randDtHa*10000+\randDtHb*1000+\randDtHc*100+\randDtHd*10+\randDtHe }}
+
+\int_new:N \l__lower_bnd
+\int_new:N \l__upper_bnd
 \NewDocumentCommand \randInts { s o D<>{\randIntLower} D(){\randIntUpper} m O{1} D<>{} }{
 % \randInts[nz?]<min>(max){name1,name2,...}[t]
 % - [nz]: produce pm(magnitude), where magnitude in [min,max]
@@ -53,13 +62,15 @@
 
   \tl_clear_new:N \l__my_number_tl
   \seq_clear_new:N \l_numbers_seq
+  \int_set:Nn \l__lower_bnd { \int_min:nn { #3 }{ #4 } }
+  \int_set:Nn \l__upper_bnd { \int_max:nn { #3 }{ #4 } }
   %generate sequence of range of numbers
   \tl_if_eq:nnT {#2} {nz}{
-    \int_step_inline:nnn {-#4}{-#3}
-      { \seq_put_right:Nx \l_numbers_seq { \int_eval:n{ ##1 * #6 } } }
+    \int_step_inline:nnn {-\l__upper_bnd}{-\l__lower_bnd}
+      { \seq_put_right:Nx \l_numbers_seq { \fp_eval:n{ ##1 * #6 } } }
     }
-  \int_step_inline:nnn {#3}{#4}
-    { \seq_put_right:Nx \l_numbers_seq { \int_eval:n{ ##1 * #6 } } }
+  \int_step_inline:nnn { \l__lower_bnd }{ \l__upper_bnd }
+    { \seq_put_right:Nx \l_numbers_seq { \fp_eval:n{ ##1 * #6 } } }
   \seq_shuffle:N \l_numbers_seq
 
   %Remove values to skip from sequence
