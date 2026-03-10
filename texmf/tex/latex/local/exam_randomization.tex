@@ -43,55 +43,102 @@
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%TODO: If \l_numbers_seq is large, this is slow. If \l_numbers_seq
-%has more than ~32,000 elements, this method fails. Should I
-%automate picking each digit at random? e.g.:
-%   \randInts<1>(5){randDtHa}
-%   \randInts<0>(9){randDtHb,randDtHc,randDtHd,randDtHe}
-%   \defVar{\randDtH}{ \int_eval:n { \randDtHa*10000+\randDtHb*1000+\randDtHc*100+\randDtHd*10+\randDtHe }}
+%Claude Code was used to help generate the \randInts macro
 
 \int_new:N \l__lower_bnd
 \int_new:N \l__upper_bnd
+\int_new:N \l__pool_size_int
+\tl_new:N  \l__my_pick_tl
+\bool_new:N \l__pick_found_bool
+
+\msg_new:nnn { randInts } { too-many }
+  { \randInts*:~only~#1~value(s)~available~in~[#3]~but~#2~requested. }
+
 \NewDocumentCommand \randInts { s o D<>{\randIntLower} D(){\randIntUpper} m O{1} D<>{} }{
-% \randInts[nz?]<min>(max){name1,name2,...}[t]
-% - [nz]: produce pm(magnitude), where magnitude in [min,max]
-% - <min> and (max) are *separate* optional delimited args; defaults are 1 and 5
-% - clist of names; defines \name globally to the drawn integer
-% - optional randInt multiplier t (defaults to 1)
-% - optional clist of values to skip
+  % \randInts[nz?]<min>(max){name1,name2,...}[t]
+  % - [nz]: produce pm(magnitude), where magnitude in [min,max]
+  % - <min> and (max) are *separate* optional delimited args; defaults are 1 and 5
+  % - clist of names; defines \name globally to the drawn integer
+  % - optional randInt multiplier t (defaults to 1)
+  % - optional clist of values to skip
 
-  \tl_clear_new:N \l__my_number_tl
-  \seq_clear_new:N \l_numbers_seq
-  \int_set:Nn \l__lower_bnd { \int_min:nn { #3 }{ #4 } }
-  \int_set:Nn \l__upper_bnd { \int_max:nn { #3 }{ #4 } }
-  %generate sequence of range of numbers
-  \tl_if_eq:nnT {#2} {nz}{
-    \int_step_inline:nnn {-\l__upper_bnd}{-\l__lower_bnd}
-      { \seq_put_right:Nx \l_numbers_seq { \fp_eval:n{ ##1 * #6 } } }
+  %set the upper and lower bounds for the random integers
+  \int_set:Nn \l__lower_bnd { \int_min:nn {#3}{#4} }
+  \int_set:Nn \l__upper_bnd { \int_max:nn {#3}{#4} }
+
+  %build a sequence of "used integers"
+  %starting with the values to avoid in #7
+  \seq_clear_new:N \l__used_seq
+  \clist_map_inline:nn {#7}{
+    \tl_if_eq:nnTF {#2}{nz}{
+      % nz pool: ±[lower..upper], so check |value| is in range
+      \int_compare:nNnTF { \int_abs:n {##1} } < { \l__lower_bnd }{
+        % out of range low - skip
+        }{
+          \int_compare:nNnTF { \int_abs:n {##1} } > { \l__upper_bnd }{
+            % out of range high - skip
+          }{
+            \seq_put_right:Nn \l__used_seq {##1}
+          }
+      }
+    }{
+      % normal pool: check lower ≤ value ≤ upper
+      \int_compare:nNnTF
+        { ##1 } < { \l__lower_bnd }
+        { } % out of range - skip
+        {
+          \int_compare:nNnTF { ##1 } > { \l__upper_bnd }{
+            % out of range - skip
+          }{
+            \seq_put_right:Nn \l__used_seq {##1}
+          }
+        }
     }
-  \int_step_inline:nnn { \l__lower_bnd }{ \l__upper_bnd }
-    { \seq_put_right:Nx \l_numbers_seq { \fp_eval:n{ ##1 * #6 } } }
-  \seq_shuffle:N \l_numbers_seq
-
-  %Remove values to skip from sequence
-  \clist_map_inline:nn { #7 }
-  {
-    \seq_remove_all:Nn \l_numbers_seq { ##1 }
   }
 
-  %Randomly select...
-  \clist_map_inline:nn { #5 }
-  {
-    \IfBooleanTF{#1}{
-      %without replacement
-      \seq_pop_left:NN \l_numbers_seq \l__my_number_tl
-      \cs_gset:cpx { ## 1 } { \tl_use:N \l__my_number_tl }
-    }{
-      %with replacement
-      \cs_gset:cpx { ## 1 } { \seq_rand_item:N \l_numbers_seq }
+  % overflow check (only meaningful without replacement)
+  \IfBooleanT {#1}{
+    \tl_if_eq:nnTF {#2}{nz}
+      { \int_set:Nn \l__pool_size_int { 2 * ( \l__upper_bnd - \l__lower_bnd + 1 ) } }
+      { \int_set:Nn \l__pool_size_int {       \l__upper_bnd - \l__lower_bnd + 1   } }
+    % Subtract the number of values being skipped
+    \int_sub:Nn \l__pool_size_int { \seq_count:N \l__used_seq }
+    % Compare against the number of values requested
+    \int_compare:nNnT { \clist_count:n {#5} } > { \l__pool_size_int }{
+      \msg_fatal:nnxxx { randInts } { too-many }
+        { \int_use:N \l__pool_size_int }
+        { \clist_count:n {#5} }
+        { \tl_if_eq:nnTF {#2}{nz} {nz~} {} #3 .. #4 }
     }
+  }
+
+  %generate random integers
+  \clist_map_inline:nn {#5}{
+    \bool_set_false:N \l__pick_found_bool
+    \bool_until_do:Nn \l__pick_found_bool{
+      \tl_if_eq:nnTF {#2}{nz}{
+        \tl_set:Nx \l__my_pick_tl{
+          \fp_eval:n{
+            \int_rand:nn {1}{2} == 1
+              ? \int_rand:nn {\l__lower_bnd}{\l__upper_bnd} * #6
+              : -\int_rand:nn {\l__lower_bnd}{\l__upper_bnd} * #6
+            }
+          }
+        }{
+          \tl_set:Nx \l__my_pick_tl
+            { \fp_eval:n { \int_rand:nn {\l__lower_bnd}{\l__upper_bnd} * #6 } }
+        }
+      % Accept the pick only if it's not in the exclusion list
+      \seq_if_in:NVF \l__used_seq \l__my_pick_tl { \bool_set_true:N \l__pick_found_bool }
+    }
+
+    %Add value generated to used sequence if done w/o replacement
+    \IfBooleanT {#1}{ \seq_put_right:NV \l__used_seq \l__my_pick_tl }
+    %Globally store value generated
+    \cs_gset:cpx {##1}{ \tl_use:N \l__my_pick_tl }
   }
 }
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \NewDocumentCommand \printIfTrue { m m }{
   \ifnum #1 #2 \fi
