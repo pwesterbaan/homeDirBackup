@@ -3,12 +3,13 @@
 \usepackage{tikz,pgf}
 \usepackage{etoolbox,xparse}
 \usetikzlibrary{math}
-\usepackage{xintfrac}
+\usepackage{xintfrac,xintexpr}
 
 % MS Co-Pilot and Github Co-Pilot were used to help generate this code.
 
 \newcommand{\randIntLower}{1}   %Lower bound on rand ints
 \newcommand{\randIntUpper}{5}   %Upper bound on rand ints
+\newcommand{\numDecPlaces}{4}   %number of decimal places to print
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % TODO Move into math121_sp26_exam01_ch1_KEY.tex only?
@@ -39,6 +40,39 @@
     \ensuremath{(#1)}
   }{
     \ensuremath{#1}
+  }
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% approximate probabilities calculated using the Normal distribution
+%https://tex.stackexchange.com/a/759031/190910
+\xintdeffloatfunc snapprox(x,h) = 1 - 0.5 * h * exp(
+  -0.5*x^2 -1.26551223
+  +1.00002368*h    +0.37409196*h^2
+  +0.09678418*h^3 -0.18628806*h^4
+  +0.27886807*h^5 -1.13520398*h^6
+  +1.48851587*h^7 -0.82215223*h^8
+  +0.17087277*h^9);
+
+\xintNewFloatExpr{\sn}[1]{ snapprox(#1, 1/(1+0.25*sqrt(2)*#1))}
+
+\ExplSyntaxOn
+\NewDocumentCommand{\SN}{m}{
+  \fp_compare:nNnTF { #1 }<{ 0 }{
+    \fp_eval:n { 1-\sn{ \fp_abs:n {#1} } }
+  }{
+    \fp_eval:n { \sn{#1} }
+  }
+}
+
+\NewDocumentCommand \pnorm { D<>{0} D(){1} o m D[]{\numDecPlaces}}{
+  %\pnorm<mean>(stdev)[lb]{ub}[precision]
+
+  % Check if lower bound is defined
+  \IfNoValueTF{#3} {
+    \fp_eval:n { round(\SN{ \fp_eval:n {(#4-#1)/#2} }, #5)}
+  }{
+    \fp_eval:n { round(\SN{ \fp_eval:n {(#4-#1)/#2} }-\SN{ \fp_eval:n {(#3-#1)/#2} }, #5)}
   }
 }
 
@@ -138,6 +172,189 @@
     \cs_gset:cpx {##1}{ \tl_use:N \l__my_pick_tl }
   }
 }
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\bool_new:N \l_isprime_bool
+\int_new:N \l_trial_int
+
+\NewDocumentCommand \IfPrime { m m m } {
+  % #1 = number to test, #2 = true code, #3 = false code
+  \bool_set_true:N \l_isprime_bool
+
+  \int_compare:nNnT { #1 } < { 2 } { \bool_set_false:N \l_isprime_bool }
+
+  \int_if_even:nT { #1 } {
+    \int_compare:nNnT { #1 } > { 2 } { \bool_set_false:N \l_isprime_bool }
+  }
+
+  % Trial division by odd numbers from 3 up to floor(sqrt(#1))
+  \int_set:Nn \l_trial_int { 3 }
+  \bool_while_do:nn
+    {
+      \l_isprime_bool
+      &&
+      \int_compare_p:n { \l_trial_int * \l_trial_int <= #1 }
+    }
+    {
+      \int_compare:nNnT { \int_mod:nn{#1}{\l_trial_int} } = { 0 }
+        { \bool_set_false:N \l_isprime_bool }
+      \int_add:Nn \l_trial_int { 2 }
+    }
+
+  \bool_if:NTF \l_isprime_bool { #2 } { #3 }
+}
+
+\int_new:N \l_candidate_int
+
+\NewDocumentCommand \RandPrime { m m m } {
+  % #1 control sequence, #2 = lower bound, #3 = upper bound
+  % Result stored in \l_candidate_int (and printed)
+  \int_if_exist:NF #1 { \int_new:N #1 }
+  \bool_set_false:N \l_isprime_bool
+  \bool_until_do:Nn \l_isprime_bool {
+    \int_set:Nn #1 { \int_rand:nn{#2}{#3} }
+    \IfPrime{ #1 }
+      { \bool_set_true:N \l_isprime_bool }
+      {}
+  }
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% math125 exam02: computing powers mod m
+% Returns true if b has order exactly 4 mod m
+% i.e. b^2 != 1 (mod m)  AND  b^4 == 1 (mod m)
+\NewDocumentCommand \IfOrderFour { m m m m } {
+  % #1=base, #2=modulus, #3=true code, #4=false code
+  \int_set:Nn \l_tmpa_int { \int_mod:nn { #1 * #1 } { #2 } }           % b^2 mod m
+  \int_set:Nn \l_tmpb_int { \int_mod:nn { \l_tmpa_int * \l_tmpa_int } { #2 } }  % b^4 mod m
+  \int_compare:nNnTF { \l_tmpb_int } = { 1 }
+    {
+      \int_compare:nNnTF { \l_tmpa_int } = { 1 }
+        { #4 }  % b^2 == 1, order is 1 or 2, not 4
+        { #3 }  % b^4 == 1 but b^2 != 1: order is exactly 4 ✓
+    }
+    { #4 }  % b^4 != 1
+}
+
+% Pick random base with order 4 mod m
+\NewDocumentCommand \RandOrderFourBase { m m m m } {
+  % #1 = control seq for base, #2 = modulus
+  % #3 = lower bound for base search, #4 = upper bound
+  \int_if_exist:NF #1 { \int_new:N #1 }
+  \bool_set_false:N \l_isprime_bool  % reuse as "found" flag
+  \bool_until_do:Nn \l_isprime_bool {
+    \int_set:Nn #1 { \int_rand:nn { #3 } { #4 } }
+    \IfOrderFour { \int_use:N #1 } { #2 }
+      { \bool_set_true:N \l_isprime_bool }
+      {}
+  }
+}
+
+\NewDocumentCommand \IfOrderThree { m m m m } {
+  % #1=base, #2=modulus, #3=true, #4=false
+  % Check: b^3 ≡ 1 (mod m)  AND  b ≢ 1 (mod m)
+  \int_set:Nn \l_tmpa_int { \int_mod:nn { #1 * #1 }           { #2 } }  % b^2
+  \int_set:Nn \l_tmpb_int { \int_mod:nn { \l_tmpa_int * #1 }  { #2 } }  % b^3
+  \int_compare:nNnTF { \l_tmpb_int } = { 1 }
+    {
+      \int_compare:nNnTF { #1 } = { 1 }
+        { #4 }   % b = 1, trivial, reject
+        { #3 }   % b^3 ≡ 1 and b ≠ 1: order exactly 3 ✓
+    }
+    { #4 }
+}
+
+\NewDocumentCommand \RandOrderThreeBase { m m m m } {
+  % #1=control seq, #2=modulus, #3=lower, #4=upper
+  \int_if_exist:NF #1 { \int_new:N #1 }
+  \bool_set_false:N \l_isprime_bool
+  \bool_until_do:Nn \l_isprime_bool {
+    \int_set:Nn #1 { \int_rand:nn { #3 } { #4 } }
+    \IfOrderThree { \int_use:N #1 } { #2 }
+      { \bool_set_true:N \l_isprime_bool }
+      {}
+  }
+}
+
+\int_new:N \l_tmpc_int
+\NewDocumentCommand \IfGoodAlternating { m m m m } {
+  % #1=base, #2=modulus, #3=true, #4=false
+  % Requires: b^3 ≡ 1 (mod m), b ≢ 0,1 (mod m), b ≢ m-1 (mod m)
+  \int_set:Nn \l_tmpa_int { \int_mod:nn { #1 } { #2 } }           % b mod m
+  \int_set:Nn \l_tmpb_int { \int_mod:nn { \l_tmpa_int * \l_tmpa_int } { #2 } }  % b^2
+  \int_set:Nn \l_tmpc_int { \int_mod:nn { \l_tmpb_int * \l_tmpa_int } { #2 } }  % b^3
+
+  % Reject degenerate residues
+  \bool_set_false:N \l_isprime_bool
+  \int_compare:nNnT { \l_tmpa_int } > { 1 }  % b mod m > 1
+    {
+      \int_compare:nNnT { \l_tmpa_int } < { \int_eval:n{#2 - 1} }  % b mod m < m-1
+        {
+          \int_compare:nNnT { \l_tmpb_int } > { 1 }  % r = b^2 mod m > 1
+            {
+              \int_compare:nNnT { \l_tmpc_int } = { 1 }  % b^3 ≡ 1
+                { \bool_set_true:N \l_isprime_bool }
+            }
+        }
+    }
+  \bool_if:NTF \l_isprime_bool { #3 } { #4 }
+}
+
+\NewDocumentCommand \RandAlternatingBase { m m m m } {
+  % #1=control seq for base, #2=modulus, #3=lower, #4=upper
+  \int_if_exist:NF #1 { \int_new:N #1 }
+  \bool_set_false:N \l_isprime_bool
+  \bool_until_do:Nn \l_isprime_bool {
+    \int_set:Nn #1 { \int_rand:nn { #3 } { #4 } }
+    \IfGoodAlternating { \int_use:N #1 } { #2 }
+      { \bool_set_true:N \l_isprime_bool }
+      {}
+  }
+}
+
+\NewDocumentCommand \RandPrimeModThree { m m m } {
+  % #1=control seq, #2=lower, #3=upper
+  % Finds a random prime p in [lower,upper] with p ≡ 1 (mod 3)
+  \int_if_exist:NF #1 { \int_new:N #1 }
+  \bool_set_false:N \l_isprime_bool
+  \bool_until_do:Nn \l_isprime_bool {
+    \RandPrime #1 { #2 } { #3 }
+    \int_compare:nNnT { \int_mod:nn { \int_use:N #1 } { 3 } } = { 1 }
+      { \bool_set_true:N \l_isprime_bool }
+  }
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%TODO: Add optional argument for separtors when printing sequence
+\NewDocumentCommand{\ShuffleList}{m}{
+  % Build a sequence from the input list
+  \seq_clear:N \l_shuffle_seq
+  \clist_map_inline:nn {#1} {
+    \seq_put_right:Nn \l_shuffle_seq {##1}
+  }
+
+  \seq_gshuffle:N \l_shuffle_seq
+
+  \seq_use:Nnnn \l_shuffle_seq {}{}{}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Creates and sorts sequences
+\cs_new_protected:Npn \__sortintseq_add:Nn #1 #2{
+    \seq_gclear:N \g__sortintseq_tmp_seq
+    \clist_map_inline:nn { #2 }
+      { \seq_gput_right:No \g__sortintseq_tmp_seq { ##1 } }
+    \seq_gsort:Nn \g__sortintseq_tmp_seq {
+      \int_compare:nNnTF { ##1 } > { ##2 }
+        { \sort_return_swapped: }
+        { \sort_return_same: }
+    }
+    \cs_gset_eq:NN #1 \g__sortintseq_tmp_seq  % assign result to user's variable
+  }
+
+\NewDocumentCommand \SortIntSeq { mm }{
+    \__sortintseq_add:Nn #1 { #2 }
+}
+%Print a sequence
+\NewDocumentCommand \PrintSeq { m }{
+    \seq_use:Nn #1 { ,~ }
+}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \NewDocumentCommand \printIfTrue { m m }{
@@ -153,11 +370,13 @@
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Translates 1,...,26 to corresponding capital letter
+%TODO: Use \int_to_alpha:n
 \NewDocumentCommand \numToLetter { m }{
   \pgfmathparse{int(65 + #1 - 1)}\expandafter\char\pgfmathresult
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Translates letters to numbers
+%TODO: Use \int_from_alph:n
 \NewDocumentCommand \letterToNum { m m }{
   \pgfmathparse{int("`#2"-64)}
   \pgfmathsetmacro{#1}{\pgfmathresult}
@@ -177,7 +396,7 @@
     % Evaluate coefficient once via pgf
     % TODO Replace pgfmathparse with xparse
     % \pgfmathparse{#3}
-    % \tl_set:Nx \l_tmpa_tl { \pgfmathresult } % textual form for pgf printer
+    % \tl_set:Nx \l_tmpa_tl { \pgfmathresult }  % textual form for pgf printer
     \tl_set:Nx \l_tmpa_tl { \fp_eval:n { #3 } } % textual form for pgf printer
     \fp_set:Nn \l_tmpa_fp { \l_tmpa_tl }        % numeric form for comparisons
 
@@ -215,18 +434,32 @@
               }{
                 % general numeric case
                 \group_begin:
-                  %TODO \fp_format:nn
+                  %TODO \fp_format:nn or \fp_to_decimal:c
+                  %TODO use \fprintsigned
                   \bool_if:NTF \l_exam_print_sign_bool
-                    { \ensuremath{\pgfmathprintnumber[print~sign]{\l_tmpa_tl}} }
-                    { \ensuremath{\pgfmathprintnumber{\l_tmpa_tl}} }
+                    {
+                    \ensuremath{\pgfmathprintnumber[1000~sep={,},print~sign,fixed]{\l_tmpa_tl}}
+                    }
+                    % { \ensuremath{\pgfmathprintnumber{\l_tmpa_tl}} }
+                    { \ensuremath{ \num[group-separator={,}]{
+                      \fp_to_decimal:n { round(\l_tmpa_tl,
+                      \numDecPlaces) } }
+                      }
+                    }
                 \group_end:
               }
           }
       }
   }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\NewDocumentCommand \printsigned { m } {
+  \fp_compare:nTF { #1 >= 0 }
+    { + \fp_eval:n { #1 } }
+    {   \fp_eval:n { #1 } }
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \NewDocumentCommand{\signOnly}{m}{%
-  \printCoeff[signs]{\fp_eval:n { sign ( #1 ) } }
+  \printCoeff[signs]{\fp_sign:n { #1 } }
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \NewExpandableDocumentCommand{\printFrac}{O{}mm}{%
