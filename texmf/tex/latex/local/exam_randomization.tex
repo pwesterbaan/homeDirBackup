@@ -65,14 +65,14 @@
   }
 }
 
-\NewDocumentCommand \pnorm { D<>{0} D(){1} o m D[]{\numDecPlaces}}{
+\NewDocumentCommand \pnorm { D<>{0} D(){1} o m D<>{}}{
   %\pnorm<mean>(stdev)[lb]{ub}[precision]
 
   % Check if lower bound is defined
   \IfNoValueTF{#3} {
-    \fp_eval:n { round(\SN{ \fp_eval:n {(#4-#1)/#2} }, #5)}
+    \fp_format:nn { \fp_eval:n { \SN{ \fp_eval:n {(#4-#1)/#2} } }}{#5}
   }{
-    \fp_eval:n { round(\SN{ \fp_eval:n {(#4-#1)/#2} }-\SN{ \fp_eval:n {(#3-#1)/#2} }, #5)}
+    \fp_format:nn { \fp_eval:n { \SN{ \fp_eval:n {(#4-#1)/#2} }-\SN{ \fp_eval:n {(#3-#1)/#2} } } }{#5}
   }
 }
 
@@ -218,79 +218,27 @@
   }
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% math125 exam02: computing powers mod m
-% Returns true if b has order exactly 4 mod m
-% i.e. b^2 != 1 (mod m)  AND  b^4 == 1 (mod m)
-\NewDocumentCommand \IfOrderFour { m m m m } {
-  % #1=base, #2=modulus, #3=true code, #4=false code
-  \int_set:Nn \l_tmpa_int { \int_mod:nn { #1 * #1 } { #2 } }           % b^2 mod m
-  \int_set:Nn \l_tmpb_int { \int_mod:nn { \l_tmpa_int * \l_tmpa_int } { #2 } }  % b^4 mod m
-  \int_compare:nNnTF { \l_tmpb_int } = { 1 }
-    {
-      \int_compare:nNnTF { \l_tmpa_int } = { 1 }
-        { #4 }  % b^2 == 1, order is 1 or 2, not 4
-        { #3 }  % b^4 == 1 but b^2 != 1: order is exactly 4 ✓
-    }
-    { #4 }  % b^4 != 1
-}
+%%%%%%%%%%%%%%%%%%%%% math125 exam02: computing powers mod m
+\int_new:N \l_onePow_int
+\int_new:N \l_twoPow_int
+\int_new:N \l_thrPow_int
 
-% Pick random base with order 4 mod m
-\NewDocumentCommand \RandOrderFourBase { m m m m } {
-  % #1 = control seq for base, #2 = modulus
-  % #3 = lower bound for base search, #4 = upper bound
-  \int_if_exist:NF #1 { \int_new:N #1 }
-  \bool_set_false:N \l_isprime_bool  % reuse as "found" flag
-  \bool_until_do:Nn \l_isprime_bool {
-    \int_set:Nn #1 { \int_rand:nn { #3 } { #4 } }
-    \IfOrderFour { \int_use:N #1 } { #2 }
-      { \bool_set_true:N \l_isprime_bool }
-      {}
-  }
-}
-
-\NewDocumentCommand \IfOrderThree { m m m m } {
-  % #1=base, #2=modulus, #3=true, #4=false
-  % Check: b^3 ≡ 1 (mod m)  AND  b ≢ 1 (mod m)
-  \int_set:Nn \l_tmpa_int { \int_mod:nn { #1 * #1 }           { #2 } }  % b^2
-  \int_set:Nn \l_tmpb_int { \int_mod:nn { \l_tmpa_int * #1 }  { #2 } }  % b^3
-  \int_compare:nNnTF { \l_tmpb_int } = { 1 }
-    {
-      \int_compare:nNnTF { #1 } = { 1 }
-        { #4 }   % b = 1, trivial, reject
-        { #3 }   % b^3 ≡ 1 and b ≠ 1: order exactly 3 ✓
-    }
-    { #4 }
-}
-
-\NewDocumentCommand \RandOrderThreeBase { m m m m } {
-  % #1=control seq, #2=modulus, #3=lower, #4=upper
-  \int_if_exist:NF #1 { \int_new:N #1 }
-  \bool_set_false:N \l_isprime_bool
-  \bool_until_do:Nn \l_isprime_bool {
-    \int_set:Nn #1 { \int_rand:nn { #3 } { #4 } }
-    \IfOrderThree { \int_use:N #1 } { #2 }
-      { \bool_set_true:N \l_isprime_bool }
-      {}
-  }
-}
-
-\int_new:N \l_tmpc_int
 \NewDocumentCommand \IfGoodAlternating { m m m m } {
   % #1=base, #2=modulus, #3=true, #4=false
   % Requires: b^3 ≡ 1 (mod m), b ≢ 0,1 (mod m), b ≢ m-1 (mod m)
-  \int_set:Nn \l_tmpa_int { \int_mod:nn { #1 } { #2 } }           % b mod m
-  \int_set:Nn \l_tmpb_int { \int_mod:nn { \l_tmpa_int * \l_tmpa_int } { #2 } }  % b^2
-  \int_set:Nn \l_tmpc_int { \int_mod:nn { \l_tmpb_int * \l_tmpa_int } { #2 } }  % b^3
+  \int_set:Nn \l_onePow_int { \int_mod:nn { #1 } { #2 } }           % b mod m
+  \int_set:Nn \l_twoPow_int { \int_mod:nn { \l_onePow_int * \l_onePow_int } { #2 } }  % b^2
+  \int_set:Nn \l_thrPow_int { \int_mod:nn { \l_twoPow_int * \l_onePow_int } { #2 } }  % b^3
 
   % Reject degenerate residues
   \bool_set_false:N \l_isprime_bool
-  \int_compare:nNnT { \l_tmpa_int } > { 1 }  % b mod m > 1
+  \int_compare:nNnT { \l_onePow_int } > { 1 }  % b mod m > 1
     {
-      \int_compare:nNnT { \l_tmpa_int } < { \int_eval:n{#2 - 1} }  % b mod m < m-1
+      \int_compare:nNnT { \l_onePow_int } < { \int_eval:n{#2 - 1} }  % b mod m < m-1
         {
-          \int_compare:nNnT { \l_tmpb_int } > { 1 }  % r = b^2 mod m > 1
+          \int_compare:nNnT { \l_twoPow_int } > { 1 }  % r = b^2 mod m > 1
             {
-              \int_compare:nNnT { \l_tmpc_int } = { 1 }  % b^3 ≡ 1
+              \int_compare:nNnT { \l_thrPow_int } = { 1 }  % b^3 ≡ 1
                 { \bool_set_true:N \l_isprime_bool }
             }
         }
@@ -307,18 +255,6 @@
     \IfGoodAlternating { \int_use:N #1 } { #2 }
       { \bool_set_true:N \l_isprime_bool }
       {}
-  }
-}
-
-\NewDocumentCommand \RandPrimeModThree { m m m } {
-  % #1=control seq, #2=lower, #3=upper
-  % Finds a random prime p in [lower,upper] with p ≡ 1 (mod 3)
-  \int_if_exist:NF #1 { \int_new:N #1 }
-  \bool_set_false:N \l_isprime_bool
-  \bool_until_do:Nn \l_isprime_bool {
-    \RandPrime #1 { #2 } { #3 }
-    \int_compare:nNnT { \int_mod:nn { \int_use:N #1 } { 3 } } = { 1 }
-      { \bool_set_true:N \l_isprime_bool }
   }
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -365,14 +301,39 @@
   \ifnum #1 \else #2 \fi
   }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\NewDocumentCommand \lcm { m m m }{
-  \defVar{#1}{ #2*#3/gcd(#2,#3)}%
+\NewDocumentCommand \defGCD { m m m }{
+  \int_gset:Nn #1 { \int_gcd:nn #2 #3 }
 }
+
+\cs_new:Npn \int_gcd:nn #1 #2
+  {
+    \int_eval:n
+      {
+        \int_compare:nTF { #2 = 0 }
+          { #1 }
+          { \int_gcd:nn { #2 } { \int_mod:nn {#1} {#2} } }
+      }
+  }
+
+\NewDocumentCommand \defLCM { m m m }{
+  % \defVar{#1}{ #2*#3/gcd(#2,#3)}%
+  \int_gset:Nn #1 { \int_lcm:nn #2 #3 }
+}
+
+\cs_new:Npn \int_lcm:nn #1 #2
+  {
+    \int_eval:n { ( abs(#1) / \int_gcd:nn {#1} {#2} ) * abs(#2) }
+  }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Translates 1,...,26 to corresponding capital letter
 %TODO: Use \int_to_alpha:n
 \NewDocumentCommand \numToLetter { m }{
-  \pgfmathparse{int(65 + #1 - 1)}\expandafter\char\pgfmathresult
+  % \pgfmathparse{int(65 + #1 - 1)}\expandafter\char\pgfmathresult
+  \int_to_Alph:n { #1 }
+}
+
+\NewDocumentCommand \numToletter { m }{
+  \int_to_alph:n { #1 }
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Translates letters to numbers
@@ -387,11 +348,11 @@
 % \printCoeff * [signs] {<coeff>}
 %   star: suppress leading '+'
 %   [signs]: for ±1, print just the sign; otherwise normal numbers
-\NewDocumentCommand \printCoeff { s O{} m }{
-  \exam_print_coeff:nnn {#1} {#2} {#3}
+\NewDocumentCommand \printCoeff { s O{} m D<>{}}{
+  \exam_print_coeff:nnn {#1} {#2} {#3} {#4}
 }
 
-\cs_new_protected:Npn \exam_print_coeff:nnn #1 #2 #3
+\cs_new_protected:Npn \exam_print_coeff:nnn #1 #2 #3 #4
   {
     % Evaluate coefficient once via pgf
     % TODO Replace pgfmathparse with xparse
@@ -434,16 +395,18 @@
               }{
                 % general numeric case
                 \group_begin:
-                  %TODO \fp_format:nn or \fp_to_decimal:c
-                  %TODO use \fprintsigned
                   \bool_if:NTF \l_exam_print_sign_bool
                     {
-                    \ensuremath{\pgfmathprintnumber[1000~sep={,},print~sign,fixed]{\l_tmpa_tl}}
-                    }
-                    % { \ensuremath{\pgfmathprintnumber{\l_tmpa_tl}} }
-                    { \ensuremath{ \num[group-separator={,}]{
-                      \fp_to_decimal:n { round(\l_tmpa_tl,
-                      \numDecPlaces) } }
+                      \ensuremath{
+                        \num[group-separator={,}, explicit-sign=+]{
+                          \fp_format:nn { round(\l_tmpa_tl, \numDecPlaces) }{ #4 }
+                        }
+                      }
+                    }{
+                      \ensuremath{
+                        \num[group-separator={,}]{
+                          \fp_format:nn { round(\l_tmpa_tl, \numDecPlaces) }{ #4 }
+                        }
                       }
                     }
                 \group_end:
