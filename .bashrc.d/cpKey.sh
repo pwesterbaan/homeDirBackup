@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+#TODO: trap for cleanup
+# https://www.reddit.com/r/bash/comments/1rlrlom/stop_leaving_temp_files_behind_when_your_scripts/
+
 # auto complete filenames for cpKey
 complete -f -o plusdirs -X '!*.tex' cpKey
 
