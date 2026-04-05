@@ -23,16 +23,16 @@
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\newcommand{\defVar}[2]{%
-%TODO switch to expl3 version after math 121 exam 2 completed
-  \pgfmathparse{#2}%
-  \pgfmathsetmacro{#1}{\pgfmathresult}%
-}
+%  \newcommand{\defVar}[2]{%
+% %TODO switch to expl3 version after math 121 exam 2 completed
+%    \pgfmathparse{#2}%
+%    \pgfmathsetmacro{#1}{\pgfmathresult}%
+% }
 
 \ExplSyntaxOn
-% \NewDocumentCommand \defVar { m m }{
-%   \fp_set:Nn #1 { \fp_eval:n { #2 }}
-% }
+\NewDocumentCommand \defVar { m m }{
+ \cs_gset:Npx #1 { \fp_eval:n { #2 }}
+}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Print negative numbers inside parenthesis
 \NewDocumentCommand \printWithParens { m }{
@@ -66,7 +66,7 @@
 }
 
 \NewDocumentCommand \pnorm { D<>{0} D(){1} o m D<>{}}{
-  %\pnorm<mean>(stdev)[lb]{ub}[precision]
+  %\pnorm<mean>(stdev)[lb]{ub}<string formatting>
 
   % Check if lower bound is defined
   \IfNoValueTF{#3} {
@@ -218,46 +218,6 @@
   }
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%% math125 exam02: computing powers mod m
-\int_new:N \l_onePow_int
-\int_new:N \l_twoPow_int
-\int_new:N \l_thrPow_int
-
-\NewDocumentCommand \IfGoodAlternating { m m m m } {
-  % #1=base, #2=modulus, #3=true, #4=false
-  % Requires: b^3 ≡ 1 (mod m), b ≢ 0,1 (mod m), b ≢ m-1 (mod m)
-  \int_set:Nn \l_onePow_int { \int_mod:nn { #1 } { #2 } }           % b mod m
-  \int_set:Nn \l_twoPow_int { \int_mod:nn { \l_onePow_int * \l_onePow_int } { #2 } }  % b^2
-  \int_set:Nn \l_thrPow_int { \int_mod:nn { \l_twoPow_int * \l_onePow_int } { #2 } }  % b^3
-
-  % Reject degenerate residues
-  \bool_set_false:N \l_isprime_bool
-  \int_compare:nNnT { \l_onePow_int } > { 1 }  % b mod m > 1
-    {
-      \int_compare:nNnT { \l_onePow_int } < { \int_eval:n{#2 - 1} }  % b mod m < m-1
-        {
-          \int_compare:nNnT { \l_twoPow_int } > { 1 }  % r = b^2 mod m > 1
-            {
-              \int_compare:nNnT { \l_thrPow_int } = { 1 }  % b^3 ≡ 1
-                { \bool_set_true:N \l_isprime_bool }
-            }
-        }
-    }
-  \bool_if:NTF \l_isprime_bool { #3 } { #4 }
-}
-
-\NewDocumentCommand \RandAlternatingBase { m m m m } {
-  % #1=control seq for base, #2=modulus, #3=lower, #4=upper
-  \int_if_exist:NF #1 { \int_new:N #1 }
-  \bool_set_false:N \l_isprime_bool
-  \bool_until_do:Nn \l_isprime_bool {
-    \int_set:Nn #1 { \int_rand:nn { #3 } { #4 } }
-    \IfGoodAlternating { \int_use:N #1 } { #2 }
-      { \bool_set_true:N \l_isprime_bool }
-      {}
-  }
-}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %TODO: Add optional argument for separtors when printing sequence
 \NewDocumentCommand{\ShuffleList}{m}{
   % Build a sequence from the input list
@@ -265,7 +225,7 @@
   \clist_map_inline:nn {#1} {
     \seq_put_right:Nn \l_shuffle_seq {##1}
   }
-
+  % Shuffle sequence
   \seq_gshuffle:N \l_shuffle_seq
 
   \seq_use:Nnnn \l_shuffle_seq {}{}{}
@@ -302,6 +262,7 @@
   }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \NewDocumentCommand \defGCD { m m m }{
+  \int_if_exist:NF #1 { \int_new:N #1 }
   \int_gset:Nn #1 { \int_gcd:nn #2 #3 }
 }
 
@@ -316,7 +277,7 @@
   }
 
 \NewDocumentCommand \defLCM { m m m }{
-  % \defVar{#1}{ #2*#3/gcd(#2,#3)}%
+  \int_if_exist:NF #1 { \int_new:N #1 }
   \int_gset:Nn #1 { \int_lcm:nn #2 #3 }
 }
 
@@ -395,19 +356,12 @@
               }{
                 % general numeric case
                 \group_begin:
-                  \bool_if:NTF \l_exam_print_sign_bool
-                    {
-                      \ensuremath{
-                        \num[group-separator={,}, explicit-sign=+]{
-                          \fp_format:nn { round(\l_tmpa_tl, \numDecPlaces) }{ #4 }
-                        }
-                      }
-                    }{
-                      \ensuremath{
-                        \num[group-separator={,}]{
-                          \fp_format:nn { round(\l_tmpa_tl, \numDecPlaces) }{ #4 }
-                        }
-                      }
+                  \ensuremath{
+                    \bool_if:NTF \l_exam_print_sign_bool
+                      { \num[group-separator={,}, explicit-sign=+]{
+                          \fp_format:nn { round(\l_tmpa_tl, \numDecPlaces) }{ #4 } } }
+                      { \num[group-separator={,}]{
+                          \fp_format:nn { round(\l_tmpa_tl, \numDecPlaces) }{ #4 } } }
                     }
                 \group_end:
               }

@@ -1,0 +1,42 @@
+\ExplSyntaxOn
+%%%%%%%%%%%%%%%%%%%%% math125 exam02: computing powers mod m
+\int_new:N \l_onePow_int
+\int_new:N \l_twoPow_int
+\int_new:N \l_thrPow_int
+
+\NewDocumentCommand \IfGoodAlternating { m m m m } {
+  % #1=base, #2=modulus, #3=true, #4=false
+  % Requires: b^3 ≡ 1 (mod m), b ≢ 0,1 (mod m), b ≢ m-1 (mod m)
+  \int_set:Nn \l_onePow_int { \int_mod:nn { #1 } { #2 } }           % b mod m
+  \int_set:Nn \l_twoPow_int { \int_mod:nn { \l_onePow_int * \l_onePow_int } { #2 } }  % b^2
+  \int_set:Nn \l_thrPow_int { \int_mod:nn { \l_twoPow_int * \l_onePow_int } { #2 } }  % b^3
+
+  % Reject degenerate residues
+  \bool_set_false:N \l_isprime_bool
+  \int_compare:nNnT { \l_onePow_int } > { 1 }  % b mod m > 1
+    {
+      \int_compare:nNnT { \l_onePow_int } < { \int_eval:n{#2 - 1} }  % b mod m < m-1
+        {
+          \int_compare:nNnT { \l_twoPow_int } > { 1 }  % r = b^2 mod m > 1
+            {
+              \int_compare:nNnT { \l_thrPow_int } = { 1 }  % b^3 ≡ 1
+                { \bool_set_true:N \l_isprime_bool }
+            }
+        }
+    }
+  \bool_if:NTF \l_isprime_bool { #3 } { #4 }
+}
+
+\NewDocumentCommand \RandAlternatingBase { m m m m } {
+  % #1=control seq for base, #2=modulus, #3=lower, #4=upper
+  \int_if_exist:NF #1 { \int_new:N #1 }
+  \bool_set_false:N \l_isprime_bool
+  \bool_until_do:Nn \l_isprime_bool {
+    \int_set:Nn #1 { \int_rand:nn { #3 } { #4 } }
+    \IfGoodAlternating { \int_use:N #1 } { #2 }
+      { \bool_set_true:N \l_isprime_bool }
+      {}
+  }
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\ExplSyntaxOff
