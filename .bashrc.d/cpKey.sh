@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+#TODO: modify to use lualatex for pdf tagging
+
 #TODO: trap for cleanup
 # https://www.reddit.com/r/bash/comments/1rlrlom/stop_leaving_temp_files_behind_when_your_scripts/
 
@@ -16,7 +18,7 @@ cpKey() {
   local current_dir
   current_dir="$(pwd)"
 
-  # --- Parse args: -V/--versions "A B C" (or comma-separated), plus optional file list ---
+  # --- Parse args: -V/--versions "A, B, C", plus optional file list ---
   local -a versions=()
   local -a files=()
   while [[ $# -gt 0 ]]; do
@@ -24,11 +26,11 @@ cpKey() {
       -V|--version|--versions)
         shift
         if [[ $# -eq 0 ]]; then
-          echo "Error: -V/--versions requires an argument (e.g., 'A', 'A B C', or 'A,B,C')."
+          echo "Error: -V/--versions requires an argument (e.g., 'A' or 'A,B,C')."
           return 2
         fi
         IFS=', ' read -r -a _vers <<< "$1"
-        versions+=("${_vers[@]}")
+        versions+=("${_vers[@]^^}")
         ;;
       -h|--help)
         cat <<'EOF'
@@ -101,7 +103,7 @@ EOF
       local base="${f%.*}"
       base="${base/_KEY/}"
 
-      for ver in "${versions[@]}"; do
+      for ver in "${versions[@]^^}"; do
         local defver=""
         local jobname_blank=""
         local jobname_key=""
@@ -109,10 +111,10 @@ EOF
 
         if [[ -n "$ver" ]]; then
           # New naming: base_VA.pdf and base_VA_KEY.pdf
-          jobname_blank="${base}_V${ver}"
-          jobname_key="${base}_V${ver}_KEY"
-          defver="\\def\\version{${ver}} "
-          label=" (${ver})"
+          jobname_blank="${base}_V${ver^^}"
+          jobname_key="${base}_V${ver^^}_KEY"
+          defver="\\def\\version{${ver^^}} "
+          label=" (${ver^^})"
         else
           # Legacy naming when no version is provided
           jobname_blank="${base}"
@@ -172,8 +174,8 @@ local choice
         base="$(basename -s .tex "${f/_KEY/}")"
         for ver in "${versions[@]}"; do
           if [[ -n "$ver" ]]; then
-            exo-open "$dir/${base}_V${ver}.pdf"        2>/dev/null
-            exo-open "$dir/${base}_V${ver}_KEY.pdf"    2>/dev/null
+            exo-open "$dir/${base}_V${ver^^}.pdf"        2>/dev/null
+            exo-open "$dir/${base}_V${ver^^}_KEY.pdf"    2>/dev/null
           else
             exo-open "$dir/${base}.pdf"                2>/dev/null
             exo-open "$dir/${base}_KEY.pdf"            2>/dev/null
