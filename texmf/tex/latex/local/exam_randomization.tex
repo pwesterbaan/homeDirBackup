@@ -14,13 +14,13 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % TODO Move into math121_sp26_exam01_ch1_KEY.tex only?
 % Resample random numbers #1 and #2 until distinct
-\newcommand*{\resampleUntilnzSum}[2]{%
-  \pgfmathtruncatemacro{\again}{#1+#2==0}%   test if #1+#2==0
-  \whiledo{\again=1}{%
-    \randInts[nz]{#1,#2}% re-gen #1 and #2
-    \pgfmathtruncatemacro{\again}{#1+#2==0}% test if #1+#2==0
-  }%
-}
+% \newcommand*{\resampleUntilnzSum}[2]{%
+%   \pgfmathtruncatemacro{\again}{#1+#2==0}%   test if #1+#2==0
+%   \whiledo{\again=1}{%
+%     \randInts[nz]{#1,#2}% re-gen #1 and #2
+%     \pgfmathtruncatemacro{\again}{#1+#2==0}% test if #1+#2==0
+%   }%
+% }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %  \newcommand{\defVar}[2]{%
@@ -29,6 +29,7 @@
 %    \pgfmathsetmacro{#1}{\pgfmathresult}%
 % }
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \ExplSyntaxOn
 \NewDocumentCommand \defVar { m m }{
  \cs_gset:Npx #1 { \fp_eval:n { #2 }}
@@ -78,6 +79,9 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Claude Code was used to help generate the \randInts macro
+%% TODO: Simplify function signature using clist_inline?
+%% e.g. give lower,upper as clist
+%% e.g. keyword args? [uniq,nz,min=-2,max=7,multiplier=5,skip={\a,\b}]
 
 \int_new:N \l__lower_bnd
 \int_new:N \l__upper_bnd
@@ -89,7 +93,7 @@
   { \randInts*:~only~#1~value(s)~available~in~[#3]~but~#2~requested. }
 
 \NewDocumentCommand \randInts { s o D<>{\randIntLower} D(){\randIntUpper} m O{1} D<>{} }{
-  % \randInts[nz?]<min>(max){name1,name2,...}[t]
+  % \randInts[nz?]<min>(max){name1,name2,...}[t]<skip>
   % - [nz]: produce pm(magnitude), where magnitude in [min,max]
   % - <min> and (max) are *separate* optional delimited args; defaults are 1 and 5
   % - clist of names; defines \name globally to the drawn integer
@@ -112,7 +116,7 @@
           \int_compare:nNnTF { \int_abs:n {##1} } > { \l__upper_bnd }{
             % out of range high - skip
           }{
-            \seq_put_right:Nn \l__used_seq {##1}
+            \seq_put_right:Nx \l__used_seq {##1}
           }
       }
     }{
@@ -124,7 +128,7 @@
           \int_compare:nNnTF { ##1 } > { \l__upper_bnd }{
             % out of range - skip
           }{
-            \seq_put_right:Nn \l__used_seq {##1}
+            \seq_put_right:Nx \l__used_seq {##1}
           }
         }
     }
@@ -304,39 +308,63 @@
   \pgfmathsetmacro{#1}{\pgfmathresult}
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% TODO: shorter function name? ptCof
+%% TODO: Simplify function signature using clist_map_inline:nn ?
+%% e.g. give lower,upper as clist
+%% e.g. combine * variant with signs/zero opt arg (e.g. "no plus")
+%% e.g. keyword args? [signs,zero,no plus,format=0.2f]
+
 \bool_new:N \l_exam_print_sign_bool
 \bool_new:N \l_exam_signonly_units_bool
-% \printCoeff * [signs] {<coeff>}
+\bool_new:N \l_exam_print_zero_bool
+% \printCoeff * [signs,zero] {<coeff>}
 %   star: suppress leading '+'
 %   [signs]: for ±1, print just the sign; otherwise normal numbers
+%   [zero]: force-print zero as "0"
 \NewDocumentCommand \printCoeff { s O{} m D<>{}}{
   \exam_print_coeff:nnn {#1} {#2} {#3} {#4}
 }
 
 \cs_new_protected:Npn \exam_print_coeff:nnn #1 #2 #3 #4
   {
-    % Evaluate coefficient once via pgf
-    % TODO Replace pgfmathparse with xparse
-    % \pgfmathparse{#3}
-    % \tl_set:Nx \l_tmpa_tl { \pgfmathresult }  % textual form for pgf printer
-    \tl_set:Nx \l_tmpa_tl { \fp_eval:n { #3 } } % textual form for pgf printer
+    \tl_set:Nx \l_tmpa_tl { \fp_eval:n { #3 } } % textual form for printing
     \fp_set:Nn \l_tmpa_fp { \l_tmpa_tl }        % numeric form for comparisons
 
     % Star: default signed; star => suppress leading '+'
     \bool_set_true:N \l_exam_print_sign_bool
     \bool_if:nT {#1} { \bool_set_false:N \l_exam_print_sign_bool }
 
-    % Optional keyword: [signs] (case-insensitive; spaces ignored if present)
-    \bool_set_false:N \l_exam_signonly_units_bool
-    \str_if_eq:eeTF
-      { \tl_lower_case:n { \tl_trim_spaces:n {#2} } }
-      { signs }
-      { \bool_set_true:N \l_exam_signonly_units_bool }
-      { }
+    % Normalise the keyword once for all comparisons below
+    \tl_set:Nx \l_tmpb_tl { \tl_lower_case:n { \tl_trim_spaces:n {#2} } }
 
-    % 0 -> print nothing
+    % Optional keywords:
+    % [signs] (case-insensitive; spaces ignored if present)
+    % [zero] keyword — force print zero
+
+    \bool_set_false:N \l_exam_signonly_units_bool
+    \bool_set_false:N \l_exam_print_zero_bool
+
+    % Walk the comma-list in #2, setting whichever bools match
+    \clist_map_inline:nn { #2 }
+      {
+        \str_case:en { \tl_lower_case:n { \tl_trim_spaces:n { ##1 } } }
+        {
+          { signs } { \bool_set_true:N \l_exam_signonly_units_bool }
+          { zero  } { \bool_set_true:N \l_exam_print_zero_bool     }
+        }
+      }
+
+    % 0
     \fp_compare:nTF { \l_tmpa_fp == 0 }
-      { \ensuremath{} }
+      {
+        \bool_if:NTF \l_exam_print_zero_bool
+          {
+            \bool_if:NTF \l_exam_print_sign_bool
+              { \ensuremath{+0} }
+              { \ensuremath{0} }
+          }
+          { \ensuremath{} }
+      }
       {
         % -1
         \fp_compare:nTF { \l_tmpa_fp == -1 }
@@ -368,12 +396,13 @@
           }
       }
   }
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\NewDocumentCommand \printsigned { m } {
-  \fp_compare:nTF { #1 >= 0 }
-    { + \fp_eval:n { #1 } }
-    {   \fp_eval:n { #1 } }
-}
+%% TODO: Delete. Can't find anywhere the following was used
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \NewDocumentCommand \printsigned { m } {
+%   \fp_compare:nTF { #1 >= 0 }
+%     { + \fp_eval:n { #1 } }
+%     {   \fp_eval:n { #1 } }
+% }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \NewDocumentCommand{\signOnly}{m}{%
   \printCoeff[signs]{\fp_sign:n { #1 } }
