@@ -1,7 +1,7 @@
 # Directories
 auto/
 Desktop/
-Documents/
+Documents
 Downloads/
 Dropbox/
 gems/
@@ -35,3 +35,4 @@ uv.lock
 # exceptions to wildcards above
 !.scripts/
 !.gitignore*
+!.bashrc.d/

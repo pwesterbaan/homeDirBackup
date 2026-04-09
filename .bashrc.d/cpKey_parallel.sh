@@ -8,29 +8,26 @@
 # auto complete filenames for cpKey
 complete -f -o plusdirs -X '!*.tex' cpKey_parallel
 
-# Compiles blank and key PDFs for a single version of an exam.
+# Compiles blank PDF for a single version of an exam.
 # Args: ver f base
 #   ver  - version letter (e.g. "A"), or empty string for no versioning
 #   f    - the .tex filename (basename only; caller has already cd'd to its dir)
 #   base - base name without extension and without _KEY suffix
-compile_version() {
+compile_blank_version() {
   local ver="$1"
   local f="$2"
   local base="$3"
 
   local defver=""
   local jobname_blank=""
-  local jobname_key=""
   local label=""
 
   if [[ -n "$ver" ]]; then
     jobname_blank="${base}_V${ver^^}"
-    jobname_key="${base}_V${ver^^}_KEY"
     defver="\\def\\version{${ver^^}} "
     label=" (${ver^^})"
   else
     jobname_blank="${base}"
-    jobname_key="${base}_KEY"
   fi
 
   echo "**************"
@@ -38,14 +35,37 @@ compile_version() {
 
   # BLANK build (no injected answers/noanswers; source handles default)
   local BLANK_TEX="${defver}\\PassOptionsToClass{noanswers}{exam}\\input{%S}"
-  local JOBOPTS="pdflatex %O -interaction=nonstopmode -synctex=1 \"${BLANK_TEX}\""
+  local JOBOPTS="pdflatex %O -interaction=nonstopmode \"${BLANK_TEX}\""
   latexmk -pdf -silent -g -jobname="$jobname_blank" -pdflatex="$JOBOPTS" "$f" >/dev/null
+}
+
+# Compiles key PDF for a single version of an exam.
+# Args: ver f base
+#   ver  - version letter (e.g. "A"), or empty string for no versioning
+#   f    - the .tex filename (basename only; caller has already cd'd to its dir)
+#   base - base name without extension and without _KEY suffix
+compile_key_version() {
+  local ver="$1"
+  local f="$2"
+  local base="$3"
+
+  local defver=""
+  local jobname_key=""
+  local label=""
+
+  if [[ -n "$ver" ]]; then
+    jobname_key="${base}_V${ver^^}_KEY"
+    defver="\\def\\version{${ver^^}} "
+    label=" (${ver^^})"
+  else
+    jobname_key="${base}_KEY"
+  fi
 
   echo "Compile key${label}: $f"
 
   # KEY build (inject answers)
   local KEY_TEX="${defver}\\PassOptionsToClass{answers}{exam}\\input{%S}"
-  JOBOPTS="pdflatex %O -interaction=nonstopmode -synctex=1 \"${KEY_TEX}\""
+  JOBOPTS="pdflatex %O -interaction=nonstopmode \"${KEY_TEX}\""
   latexmk -pdf -silent -g -jobname="$jobname_key" -pdflatex="$JOBOPTS" "$f" >/dev/null
 
   echo "**************"
@@ -155,7 +175,12 @@ EOF
         tmpfile=$(mktemp)
         tmpfiles+=("$tmpfile")
 
-        compile_version "$ver" "$f" "$base" >"$tmpfile" 2>&1 &
+        compile_blank_version "$ver" "$f" "$base" >"$tmpfile" 2>&1 &
+        pids+=($!)
+
+        tmpfile=$(mktemp)
+        tmpfiles+=("$tmpfile")
+	compile_key_version "$ver" "$f" "$base" >"$tmpfile" 2>&1 &
         pids+=($!)
       done
 
