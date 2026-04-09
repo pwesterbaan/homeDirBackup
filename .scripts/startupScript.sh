@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 sleep 10
-/home/peter/.scripts/resetMonitors.sh
+home_dir="/home/peter"
+cd "$home_dir"
+.scripts/resetMonitors.sh
 
 # /snap/bin/chromium --profile-directory=Default --app-id=faolnafnngnfdaknnbpnkhgohbobgegn &
 # /snap/bin/chromium --profile-directory=Default --app-id=hpfldicfbfomlpcikngkocigghgafkph &
@@ -11,5 +13,6 @@ spotify &
 # /home/peter/.scripts/xppen_connect.sh
 
 sleep 5
-/home/peter/.scripts/getWeather.sh &
-/home/peter/.scripts/start-cnky.sh
+.scripts/getWeather.sh &
+.scripts/start-cnky.sh
+.scripts/fix_notifyd.sh
