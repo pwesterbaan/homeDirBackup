@@ -204,18 +204,18 @@
 
 % Template for daily class exit slips
 \newcommand{\className}{Default Class Name}
-\newcommand{\exitSlipQuestionTemplate}[1]{
+\newcommand{\exitSlipQuestionTemplate}[2][]{
   \vspace*{0.5in}
-  \noindent Exit slip
+  \noindent Exit slip #1
   \hspace*{\stretch{1}} \className
   \hspace*{\stretch{1}} Name: \fillin[\hfill\textbf{KEY}\hfill][40mm]\\
-  #1%
+  #2%
   \ifprintanswers\else\vspace*{\stretch{1}}\fi%
 }
-\newcommand{\exitSlip}[1]{
-  \exitSlipQuestionTemplate{#1}
+\newcommand{\exitSlip}[2][]{
+  \exitSlipQuestionTemplate[#1]{#2}
   \ifprintanswers\else
-    \exitSlipQuestionTemplate{#1}
+    \exitSlipQuestionTemplate[#1]{#2}
   \fi%
   \pagebreak
 }
@@ -255,6 +255,7 @@
 %% replace "to" with en-dash in cref{,,}
 \newcommand{\crefrangeconjunction}{--\,}
 \newcommand*{\ctranspose}[1][]{^{#1\mathsf{H}}}
+\newcommand*{\dnarr}[1]{\draw[->] ($(#1)+(-0.15,0.15)$)--($(#1)+(0.15,-0.15)$);}
 \newcommand*{\ddt}[1][]{{\frac{d^{#1}}{dt^{#1}}}}
 \newcommand*{\ddx}[1][]{{\frac{d^{#1}}{dx^{#1}}}}
 \newcommand*{\ddy}[1][]{{\frac{d^{#1}}{dy^{#1}}}}
@@ -334,6 +335,7 @@
 % \newcommand*{\transpose}[1][]{^{#1\intercal}}%{^T}%{\!\top\!}}
 \newcommand*{\transpose}[1][]{^{#1\mathsf{T}}}
 \newcommand{\TheSemester}{\ifthenelse{\month<6}{Spring}{Fall}\xspace\the\year\xspace}
+\newcommand*{\uparr}[1]{\draw[->] ($(#1)+(-0.15,-0.15)$)--($(#1)+(0.15,0.15)$);}
 \newcommand*{\vecArrow}[1]{\overrightharp{\ensuremath{#1}}}
 \newcommand*{\veca}{\myVec{a}}
 \newcommand*{\vecB}{\myVec{B}}
