@@ -99,7 +99,7 @@ ${execi 600 gcal .+|cut -c 27-50|tail -n 8| head -n 5}
 ${hr}${font Liberation Mono:size=7.5}
 ${voffset -3.5}${if_running spotify}
 ${lua conky_image ~/.scripts/conky/spotify/current_artwork.png 6 790 87 87}
-${voffset 10}${execpi 2 $HOME/.scripts/conky/spotify/spotify_getinfo.pl}
+${voffset 10}${execpi 4 $HOME/.scripts/conky/spotify/spotify_getinfo.pl}
 ${voffset -5}${hr}${else}${voffset -15}${endif}${voffset 5}${font Liberation Mono:size=9}
  Uptime: ${format_time $uptime_short "\dd \hh \mm"}
  Processes: ${processes}
