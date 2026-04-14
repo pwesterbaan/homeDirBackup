@@ -5,35 +5,26 @@
 \usetikzlibrary{math}
 \usepackage{xintfrac,xintexpr}
 
-% MS Co-Pilot and Github Co-Pilot were used to help generate this code.
+% MS Co-Pilot, Github Co-Pilot, and Claude.ai were used to help generate this code.
 
 \newcommand{\randIntLower}{1}   %Lower bound on rand ints
 \newcommand{\randIntUpper}{5}   %Upper bound on rand ints
 \newcommand{\numDecPlaces}{4}   %number of decimal places to print
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% TODO Move into math121_sp26_exam01_ch1_KEY.tex only?
-% Resample random numbers #1 and #2 until distinct
-% \newcommand*{\resampleUntilnzSum}[2]{%
-%   \pgfmathtruncatemacro{\again}{#1+#2==0}%   test if #1+#2==0
-%   \whiledo{\again=1}{%
-%     \randInts[nz]{#1,#2}% re-gen #1 and #2
-%     \pgfmathtruncatemacro{\again}{#1+#2==0}% test if #1+#2==0
-%   }%
-% }
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%  \newcommand{\defVar}[2]{%
-% %TODO switch to expl3 version after math 121 exam 2 completed
-%    \pgfmathparse{#2}%
-%    \pgfmathsetmacro{#1}{\pgfmathresult}%
-% }
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \ExplSyntaxOn
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Manually define a variable (control sequence)
 \NewDocumentCommand \defVar { m m }{
  \cs_gset:Npx #1 { \fp_eval:n { #2 }}
 }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% \fpIfGreater{a}{b}{true}{false}
+\NewDocumentCommand \fpIfGreater { m m m m }
+  {
+    \fp_compare:nNnTF {#1} > {#2} {#3} {#4}
+  }
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Print negative numbers inside parenthesis
 \NewDocumentCommand \printWithParens { m }{
@@ -45,40 +36,8 @@
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% approximate probabilities calculated using the Normal distribution
-%https://tex.stackexchange.com/a/759031/190910
-\xintdeffloatfunc snapprox(x,h) = 1 - 0.5 * h * exp(
-  -0.5*x^2 -1.26551223
-  +1.00002368*h    +0.37409196*h^2
-  +0.09678418*h^3 -0.18628806*h^4
-  +0.27886807*h^5 -1.13520398*h^6
-  +1.48851587*h^7 -0.82215223*h^8
-  +0.17087277*h^9);
-
-\xintNewFloatExpr{\sn}[1]{ snapprox(#1, 1/(1+0.25*sqrt(2)*#1))}
-
-\ExplSyntaxOn
-\NewDocumentCommand{\SN}{m}{
-  \fp_compare:nNnTF { #1 }<{ 0 }{
-    \fp_eval:n { 1-\sn{ \fp_abs:n {#1} } }
-  }{
-    \fp_eval:n { \sn{#1} }
-  }
-}
-
-\NewDocumentCommand \pnorm { D<>{0} D(){1} o m D<>{}}{
-  %\pnorm<mean>(stdev)[lb]{ub}<string formatting>
-
-  % Check if lower bound is defined
-  \IfNoValueTF{#3} {
-    \fp_format:nn { \fp_eval:n { \SN{ \fp_eval:n {(#4-#1)/#2} } }}{#5}
-  }{
-    \fp_format:nn { \fp_eval:n { \SN{ \fp_eval:n {(#4-#1)/#2} }-\SN{ \fp_eval:n {(#3-#1)/#2} } } }{#5}
-  }
-}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%Claude Code was used to help generate the \randInts macro
+%Claude.ai was used to help generate the \randInts macro
+%% TODO: Rename to randNum?
 %% TODO: Simplify function signature using clist_inline?
 %% e.g. give lower,upper as clist
 %% e.g. keyword args? [uniq,nz,min=-2,max=7,multiplier=5,skip={\a,\b}]
@@ -154,6 +113,7 @@
   \clist_map_inline:nn {#5}{
     \bool_set_false:N \l__pick_found_bool
     \bool_until_do:Nn \l__pick_found_bool{
+    %TODO: modify this \tl_if_eq to check if bool true for nonzero (from opt clist)
       \tl_if_eq:nnTF {#2}{nz}{
         \tl_set:Nx \l__my_pick_tl{
           \fp_eval:n{
@@ -304,15 +264,15 @@
 % Translates letters to numbers
 %TODO: Use \int_from_alph:n
 \NewDocumentCommand \letterToNum { m m }{
-  \pgfmathparse{int("`#2"-64)}
-  \pgfmathsetmacro{#1}{\pgfmathresult}
+  % \pgfmathparse{int("`#2"-64)}
+  % \pgfmathsetmacro{#1}{\pgfmathresult}
+  \cs_gset:cpx { # 1}{ \int_from_alph:n{#2} }
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% TODO: shorter function name? ptCof
 %% TODO: Simplify function signature using clist_map_inline:nn ?
-%% e.g. give lower,upper as clist
 %% e.g. combine * variant with signs/zero opt arg (e.g. "no plus")
-%% e.g. keyword args? [signs,zero,no plus,format=0.2f]
+%% e.g. keyword args? [signs,zero,no plus,format=0.2f,parens]
 
 \bool_new:N \l_exam_print_sign_bool
 \bool_new:N \l_exam_signonly_units_bool
@@ -327,6 +287,28 @@
 
 \cs_new_protected:Npn \exam_print_coeff:nnn #1 #2 #3 #4
   {
+    % Optional keywords:
+    % [signs] (case-insensitive; spaces ignored if present)
+    % [zero] keyword — force print zero
+
+    \bool_set_false:N \l_exam_signonly_units_bool
+    \bool_set_false:N \l_exam_print_zero_bool
+    % init bools here
+
+    % Walk the comma-list in #2, setting whichever bools match
+    \clist_map_inline:nn { #2 }
+      {
+        \str_case:en { \tl_lower_case:n { \tl_trim_spaces:n { ##1 } } }
+        {
+          { signs } { \bool_set_true:N \l_exam_signonly_units_bool }
+          { zero  } { \bool_set_true:N \l_exam_print_zero_bool     }
+          % { no plus } { } % replace #1 (* variant)
+          % { format=0.2f } { } % replace #4
+          % { } { }
+          % { } { }
+        }
+      }
+
     \tl_set:Nx \l_tmpa_tl { \fp_eval:n { #3 } } % textual form for printing
     \fp_set:Nn \l_tmpa_fp { \l_tmpa_tl }        % numeric form for comparisons
 
@@ -336,23 +318,6 @@
 
     % Normalise the keyword once for all comparisons below
     \tl_set:Nx \l_tmpb_tl { \tl_lower_case:n { \tl_trim_spaces:n {#2} } }
-
-    % Optional keywords:
-    % [signs] (case-insensitive; spaces ignored if present)
-    % [zero] keyword — force print zero
-
-    \bool_set_false:N \l_exam_signonly_units_bool
-    \bool_set_false:N \l_exam_print_zero_bool
-
-    % Walk the comma-list in #2, setting whichever bools match
-    \clist_map_inline:nn { #2 }
-      {
-        \str_case:en { \tl_lower_case:n { \tl_trim_spaces:n { ##1 } } }
-        {
-          { signs } { \bool_set_true:N \l_exam_signonly_units_bool }
-          { zero  } { \bool_set_true:N \l_exam_print_zero_bool     }
-        }
-      }
 
     % 0
     \fp_compare:nTF { \l_tmpa_fp == 0 }
@@ -616,8 +581,9 @@
 % if a `\version` macro exists, convert to numeric and offset by 100*(ver-1)
 \cs_if_exist:NTF \version
   {
-    \letterToNum{\verNum}{\version}
-    \int_set:Nn \l__exam_seed_int { \int_eval:n { \l__exam_seed_int + 100 * ( \verNum - 1 ) } }
+    % \letterToNum{\verNum}{\version}
+    % \int_set:Nn \l__exam_seed_int { \int_eval:n { \l__exam_seed_int + 100 * ( \verNum - 1 ) } }
+    \int_set:Nn \l__exam_seed_int { \int_eval:n { \l__exam_seed_int + 100 * ( \exp_args:Ne \int_from_alph:n{\version} - 1 ) } }
   }
   { }
 
