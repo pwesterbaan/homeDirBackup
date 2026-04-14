@@ -1,0 +1,190 @@
+\ExplSyntaxOn
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% approximate probabilities calculated using the Normal distribution
+%https://tex.stackexchange.com/a/759031/190910
+\xintdeffloatfunc snapprox(x,h) = 1 - 0.5 * h * exp(
+  -0.5*x^2 -1.26551223
+  +1.00002368*h    +0.37409196*h^2
+  +0.09678418*h^3 -0.18628806*h^4
+  +0.27886807*h^5 -1.13520398*h^6
+  +1.48851587*h^7 -0.82215223*h^8
+  +0.17087277*h^9);
+
+\xintNewFloatExpr{\sn}[1]{ snapprox(#1, 1/(1+0.25*sqrt(2)*#1))}
+
+\ExplSyntaxOn
+\NewDocumentCommand{\SN}{m}{
+  \fp_compare:nNnTF { #1 }<{ 0 }{
+    \fp_eval:n { 1-\sn{ \fp_abs:n {#1} } }
+  }{
+    \fp_eval:n { \sn{#1} }
+  }
+}
+
+\NewDocumentCommand \pnorm { D<>{0} D(){1} o m D<>{}}{
+  %\pnorm<mean>(stdev)[lb]{ub}<string formatting>
+  %TODO: optional clist with mean, st. dev., csname (for storing value)
+
+  % Check if lower bound is defined
+  \IfNoValueTF{#3} {
+    \fp_format:nn { \fp_eval:n { \SN{ \fp_eval:n {(#4-#1)/#2} } }}{#5}
+  }{
+    \fp_format:nn { \fp_eval:n { \SN{ \fp_eval:n {(#4-#1)/#2} }-\SN{ \fp_eval:n {(#3-#1)/#2} } } }{#5}
+  }
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% claude.ai was used to help generate this macro
+% Exact CDF of Student's t-distribution for positive-integer degrees of freedom
+% Uses closed-form finite-sum formulas from Abramowitz & Stegun 26.7.3/26.7.8
+% https://personal.math.ubc.ca/~cbm/aands/frameindex.htm
+
+\fp_new:N \l__pt_s_fp     % sin \theta  =  t / sqrt(t^2+\nu)
+\fp_new:N \l__pt_ct_fp    % cos^2\theta  =  \nu / (t^2+\nu)
+\fp_new:N \l__pt_term_fp  % running series coefficient
+\fp_new:N \l__pt_ctj_fp   % cos^{2j}\theta, accumulated
+\fp_new:N \l__pt_sum_fp   % partial series sum
+\fp_new:N \l__pt_val_fp   % result (always for t >= 0)
+
+% Internal: compute CDF for t >= 0, store in \l__pt_val_fp
+% #1 = t (non-negative), #2 = \nu (positive integer)
+\cs_new_protected:Nn \__pt_cdf_pos:nn
+  {
+    \fp_set:Nn \l__pt_s_fp   { (#1) / sqrt( (#1)^2 + (#2) ) }
+    \fp_set:Nn \l__pt_ct_fp  { (#2) / ( (#1)^2 + (#2) ) }
+    \fp_set:Nn \l__pt_sum_fp  { 0 }
+    \fp_set:Nn \l__pt_term_fp { 1 }  % P_0 = Q_0 = 1
+    \fp_set:Nn \l__pt_ctj_fp  { 1 }  % cos^0 \theta = 1
+    \int_if_odd:nTF { #2 }
+      {% ---------- odd \nu = 2m+1, m = (\nu-1)/2 --------------------------------
+       % F(t) = 1/2 + (1/\pi)·[arctan(t/\sqrt \nu) + sin\theta·cos\theta · \sum Q_j cos^{2j}\theta]
+       % Q_j recurrence: Q_j = Q_{j-1} · 2j/(2j-1)
+        \int_step_inline:nn { \int_eval:n { (#2 - 1) / 2 } }
+          {
+            \fp_add:Nn \l__pt_sum_fp { \l__pt_term_fp * \l__pt_ctj_fp }
+            \fp_set:Nn \l__pt_ctj_fp  { \l__pt_ctj_fp  * \l__pt_ct_fp }
+            \fp_set:Nn \l__pt_term_fp { \l__pt_term_fp * 2*##1 / (2*##1 + 1) }
+          }
+        \fp_set:Nn \l__pt_val_fp
+          {
+            0.5 + (1 / pi) * (
+              atan( (#1) / sqrt(#2) )
+              + \l__pt_s_fp * sqrt(\l__pt_ct_fp) * \l__pt_sum_fp
+            )
+          }
+      }
+      {% ---------- even \nu = 2m, m = \nu/2 -------------------------------------
+       % F(t) = 1/2 + sin\theta/2 · \sum P_j cos^{2j}\theta
+       % P_j recurrence: P_j = P_{j-1} · (2j-1)/(2j)
+        \int_step_inline:nn { \int_eval:n { (#2) / 2 } }
+          {
+            \fp_add:Nn \l__pt_sum_fp { \l__pt_term_fp * \l__pt_ctj_fp }
+            \fp_set:Nn \l__pt_ctj_fp  { \l__pt_ctj_fp  * \l__pt_ct_fp }
+            \fp_set:Nn \l__pt_term_fp { \l__pt_term_fp * (2*##1 - 1) / (2*##1) }
+          }
+        \fp_set:Nn \l__pt_val_fp { 0.5 + \l__pt_s_fp / 2 * \l__pt_sum_fp }
+      }
+  }
+
+% Internal: compute CDF for any t, store in \l__pt_val_fp
+\cs_new_protected:Nn \__pt_cdf:nn
+  {
+    \fp_compare:nNnTF { \fp_eval:n {#1} } < { 0 }
+      {
+        \__pt_cdf_pos:nn { \fp_eval:n { abs(#1) } } {#2}
+        \fp_set:Nn \l__pt_val_fp { 1 - \l__pt_val_fp }
+      }
+      { \__pt_cdf_pos:nn { \fp_eval:n {#1} } {#2} }
+  }
+
+% \PT{t}{\nu}<fmt>  ->  P(T_\nu <= t)   (typesets the probability)
+%TODO: optional clist with mean, st. dev., csname (for storing value)
+\NewDocumentCommand \PT { m m D<>{} }
+  {
+    \__pt_cdf:nn {#1} {#2}
+    \fp_format:nn { \l__pt_val_fp } {#3}
+  }
+
+\NewDocumentCommand \ptstore { m m m }
+  {% \ptstore \targetmacro {t} {df}
+    \__pt_cdf:nn { \fp_eval:n {#2} } {#3}
+    \cs_gset:Npx #1 { \fp_eval:n { \fp_to_decimal:N \l__pt_val_fp } }
+  }
+
+% \ptdist<\mu>(\sigma){\nu}[lb]{ub}<fmt>  ->  P(lb < X < ub) for X ~ t_\nu(\mu, \sigma^2)
+% Mirrors the interface of \pnorm exactly, with an extra required {\nu} argument
+%TODO: optional clist with mean, st. dev., csname (for storing value)
+\NewDocumentCommand \ptdist { D<>{0} D(){1} o m m D<>{} }
+  {% #1=\mu, #2=\sigma, #3=lb (optional), #4=ub, #5=\nu, #6=format
+    \__pt_cdf:nn { \fp_eval:n { (#4 - #1) / #2 } } {#5}
+    \fp_set_eq:NN \l__pt_val_b_fp \l__pt_val_fp   % store F(ub)
+    \IfNoValueTF {#3}
+      { \fp_format:nn { \l__pt_val_b_fp } {#6} }
+      {
+        \__pt_cdf:nn { \fp_eval:n { (#3 - #1) / #2 } } {#5}
+        \fp_format:nn { \l__pt_val_b_fp - \l__pt_val_fp } {#6}
+      }
+  }
+
+\fp_new:N \l__pt_val_b_fp  % scratch register for interval probabilities
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% ============================================================
+%% Quantile function (inverse CDF) for the t-distribution
+%% Requires \__pt_cdf:nn from the CDF implementation above.
+%% ============================================================
+%% code generated using Claude.ai
+%TODO: optional clist with formatting (see printCoeff)
+\fp_new:N \l__qt_lo_fp
+\fp_new:N \l__qt_hi_fp
+\fp_new:N \l__qt_mid_fp
+
+%% Internal bisection engine.
+%% 54 steps: width 100 / 2^54 = 5.5e-15 (sub-ULP precision).
+\cs_new_protected:Nn \__qt_bisect:nn
+  {% #1 = p (probability), #2 = nu (positive integer df)
+    \fp_set:Nn \l__qt_lo_fp { -50 }
+    \fp_set:Nn \l__qt_hi_fp {  50 }
+    \int_step_inline:nn { 54 }
+      {
+        \fp_set:Nn \l__qt_mid_fp { ( \l__qt_lo_fp + \l__qt_hi_fp ) / 2 }
+        \__pt_cdf:nn { \l__qt_mid_fp } {#2}
+        \fp_compare:nNnTF { \l__pt_val_fp } < { #1 }
+          { \fp_set_eq:NN \l__qt_lo_fp \l__qt_mid_fp }
+          { \fp_set_eq:NN \l__qt_hi_fp \l__qt_mid_fp }
+      }
+    \fp_set:Nn \l__qt_mid_fp { ( \l__qt_lo_fp + \l__qt_hi_fp ) / 2 }
+  }
+
+%% \qt{p}{df}<fmt>
+%%   Standard quantile: returns t such that P(T_{df} <= t) = p.
+\NewDocumentCommand \qt { m m D<>{} }
+  {
+    \__qt_bisect:nn { \fp_eval:n {#1} } {#2}
+    \fp_format:nn { \l__qt_mid_fp } {#3}
+  }
+
+\NewDocumentCommand \qtstore { m m m }
+  {% \qtstore \targetmacro {p} {df}
+    \__qt_bisect:nn { \fp_eval:n {#2} } {#3}
+    \cs_gset:Npx #1 { \fp_eval:n { \fp_to_decimal:N \l__qt_mid_fp } }
+  }
+
+%% \tcrit{alpha}{df}<fmt>
+%%   Two-tailed critical value for significance level alpha.
+%%   Returns the POSITIVE t* such that P(|T_{df}| > t*) = alpha,
+%%   equivalently P(T_{df} <= t*) = 1 - alpha/2.
+\NewDocumentCommand \tcrit { m m D<>{} }
+  {
+    \__qt_bisect:nn { \fp_eval:n { 1 - (#1) } } {#2}
+    \fp_format:nn { \l__qt_mid_fp } {#3}
+  }
+
+\NewDocumentCommand \tcritstore { m m m }
+  {% \tcritstore \targetmacro {alpha} {df}  — two-tailed critical value
+    \__qt_bisect:nn { \fp_eval:n { 1 - (#2) } } {#3}
+    \cs_gset:Npx #1 { \fp_eval:n { \fp_to_decimal:N \l__qt_mid_fp } }
+  }
+
+\ExplSyntaxOff
