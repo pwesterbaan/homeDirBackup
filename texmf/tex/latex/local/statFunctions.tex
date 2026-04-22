@@ -34,6 +34,16 @@
   }
 }
 
+\NewDocumentCommand \pnormstore { D<>{0} D(){1} o m m D<>{} }{
+  \IfNoValueTF{#3} {
+    \cs_gset:cpx { #4 }{ \fp_eval:n { \SN{ \fp_eval:n {(#5-#1)/#2} } }}
+  }{
+    \cs_gset:cpx { #4 }{ \fp_eval:n { \SN{ \fp_eval:n {(#5-#1)/#2} }-\SN{ \fp_eval:n {(#3-#1)/#2} } } }
+  }
+}
+
+%TODO: create qnorm and qnorm store
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % claude.ai was used to help generate this macro
 % Exact CDF of Student's t-distribution for positive-integer degrees of freedom
