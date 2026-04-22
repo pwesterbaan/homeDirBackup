@@ -1,9 +1,7 @@
 %% Exam randomization
 % Examples in RandIntTest.tex
-\usepackage{tikz,pgf}
-\usepackage{etoolbox,xparse}
+\RequirePackage{tikz,pgf,siunitx,etoolbox,xparse,xintfrac,xintexpr}
 \usetikzlibrary{math}
-\usepackage{xintfrac,xintexpr}
 
 % MS Co-Pilot, Github Co-Pilot, and Claude.ai were used to help generate this code.
 
@@ -14,8 +12,21 @@
 \ExplSyntaxOn
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Manually define a variable (control sequence)
+%TODO swap Npx for cpx
 \NewDocumentCommand \defVar { m m }{
- \cs_gset:Npx #1 { \fp_eval:n { #2 }}
+  % \cs_gset:cpx { #1 }{ \fp_eval:n { #2 }}
+  \cs_gset:Npx #1 { \fp_eval:n { #2 }}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\NewDocumentCommand \defMinMax { m m m m}{
+  \cs_gset:cpx { #1 }{ \fp_min:nn { #3 }{ #4 }}
+  \cs_gset:cpx { #2 }{ \fp_max:nn { #3 }{ #4 }}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\NewDocumentCommand \randItem { m m }{
+  \cs_gset:cpx { #1 }{ \clist_rand_item:n { #2 }}
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -53,41 +64,42 @@
 
 \NewDocumentCommand \randInts { s o D<>{\randIntLower} D(){\randIntUpper} m O{1} D<>{} }{
   % \randInts[nz?]<min>(max){name1,name2,...}[t]<skip>
-  % - [nz]: produce pm(magnitude), where magnitude in [min,max]
-  % - <min> and (max) are *separate* optional delimited args; defaults are 1 and 5
-  % - clist of names; defines \name globally to the drawn integer
-  % - optional randInt multiplier t (defaults to 1)
-  % - optional clist of values to skip
+  % #1 - starred variant produces unique values
+  % #2 - [nz]: produce pm(magnitude), where magnitude in [min,max]
+  % #3, #4 - <min> and (max) are *separate* optional delimited args; defaults are 1 and 5
+  % #5 - clist of names; defines \name globally to the drawn integer
+  % #6 - optional randInt multiplier t (defaults to 1)
+  % #7 - optional clist of values to skip
 
   %set the upper and lower bounds for the random integers
-  \int_set:Nn \l__lower_bnd { \int_min:nn {#3}{#4} }
-  \int_set:Nn \l__upper_bnd { \int_max:nn {#3}{#4} }
+  \int_set:Nn \l__lower_bnd { \int_min:nn {\fp_eval:n { round(#3) }}{\fp_eval:n { round(#4) }} }
+  \int_set:Nn \l__upper_bnd { \int_max:nn {\fp_eval:n { round(#3) }}{\fp_eval:n { round(#4) }} }
 
   %build a sequence of "used integers"
   %starting with the values to avoid in #7
   \seq_clear_new:N \l__used_seq
   \clist_map_inline:nn {#7}{
     \tl_if_eq:nnTF {#2}{nz}{
-      % nz pool: ±[lower..upper], so check |value| is in range
-      \int_compare:nNnTF { \int_abs:n {##1} } < { \l__lower_bnd }{
+      % nz pool: ±[lower..upper]*multiplier, so check |value| is in range
+      \fp_compare:nNnTF { abs(##1) } < { \l__lower_bnd * #6}{
         % out of range low - skip
         }{
-          \int_compare:nNnTF { \int_abs:n {##1} } > { \l__upper_bnd }{
+          \fp_compare:nNnTF { abs(##1) } > { \l__upper_bnd * #6 }{
             % out of range high - skip
           }{
-            \seq_put_right:Nx \l__used_seq {##1}
+            \seq_put_right:Nx \l__used_seq { \fp_eval:n {##1} }
           }
       }
     }{
-      % normal pool: check lower ≤ value ≤ upper
-      \int_compare:nNnTF
-        { ##1 } < { \l__lower_bnd }
+      % normal pool: check lower*multiplier ≤ value ≤ upper*multiplier
+      \fp_compare:nNnTF
+        { ##1 } < { \l__lower_bnd * #6 }
         { } % out of range - skip
         {
-          \int_compare:nNnTF { ##1 } > { \l__upper_bnd }{
+          \fp_compare:nNnTF { ##1 } > { \l__upper_bnd * #6 }{
             % out of range - skip
           }{
-            \seq_put_right:Nx \l__used_seq {##1}
+            \seq_put_right:Nx \l__used_seq { \fp_eval:n {##1} }
           }
         }
     }
@@ -167,19 +179,17 @@
   \bool_if:NTF \l_isprime_bool { #2 } { #3 }
 }
 
-\int_new:N \l_candidate_int
-
-\NewDocumentCommand \RandPrime { m m m } {
+\NewDocumentCommand \randPrime { m m m } {
   % #1 control sequence, #2 = lower bound, #3 = upper bound
   % Result stored in \l_candidate_int (and printed)
-  \int_if_exist:NF #1 { \int_new:N #1 }
   \bool_set_false:N \l_isprime_bool
   \bool_until_do:Nn \l_isprime_bool {
-    \int_set:Nn #1 { \int_rand:nn{#2}{#3} }
-    \IfPrime{ #1 }
+    \tl_set:Nx \l_tmpa_tl { \int_rand:nn{ #2 }{ #3 } }
+    \IfPrime{ \l_tmpa_tl }
       { \bool_set_true:N \l_isprime_bool }
       {}
   }
+  \cs_gset:cpx { #1 }{ \tl_use:N \l_tmpa_tl }
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %TODO: Add optional argument for separtors when printing sequence
@@ -251,9 +261,7 @@
   }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Translates 1,...,26 to corresponding capital letter
-%TODO: Use \int_to_alpha:n
 \NewDocumentCommand \numToLetter { m }{
-  % \pgfmathparse{int(65 + #1 - 1)}\expandafter\char\pgfmathresult
   \int_to_Alph:n { #1 }
 }
 
@@ -262,10 +270,7 @@
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Translates letters to numbers
-%TODO: Use \int_from_alph:n
 \NewDocumentCommand \letterToNum { m m }{
-  % \pgfmathparse{int("`#2"-64)}
-  % \pgfmathsetmacro{#1}{\pgfmathresult}
   \cs_gset:cpx { # 1}{ \int_from_alph:n{#2} }
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -281,9 +286,8 @@
 %   star: suppress leading '+'
 %   [signs]: for ±1, print just the sign; otherwise normal numbers
 %   [zero]: force-print zero as "0"
-\NewDocumentCommand \printCoeff { s O{} m D<>{}}{
-  \exam_print_coeff:nnn {#1} {#2} {#3} {#4}
-}
+\NewDocumentCommand \printCoeff { s O{} m D<>{}}
+{\exam_print_coeff:nnn {#1} {#2} {#3} {#4}}
 
 \cs_new_protected:Npn \exam_print_coeff:nnn #1 #2 #3 #4
   {
@@ -326,7 +330,7 @@
           {
             \bool_if:NTF \l_exam_print_sign_bool
               { \ensuremath{+0} }
-              { \ensuremath{0} }
+              { \ensuremath{0}  }
           }
           { \ensuremath{} }
       }
@@ -351,9 +355,9 @@
                 \group_begin:
                   \ensuremath{
                     \bool_if:NTF \l_exam_print_sign_bool
-                      { \num[group-separator={,}, explicit-sign=+]{
+                      { \num[group-separator={,}, group-digits=integer, explicit-sign=+]{
                           \fp_format:nn { round(\l_tmpa_tl, \numDecPlaces) }{ #4 } } }
-                      { \num[group-separator={,}]{
+                      { \num[group-separator={,}, group-digits=integer]{
                           \fp_format:nn { round(\l_tmpa_tl, \numDecPlaces) }{ #4 } } }
                     }
                 \group_end:
