@@ -1,23 +1,28 @@
 %% Exam randomization
-% Examples in RandIntTest.tex
 \RequirePackage{tikz,pgf,siunitx,etoolbox,xparse,xintfrac,xintexpr}
 \usetikzlibrary{math}
 
 % MS Co-Pilot, Github Co-Pilot, and Claude.ai were used to help generate this code.
 
-\newcommand{\randIntLower}{1}   %Lower bound on rand ints
-\newcommand{\randIntUpper}{5}   %Upper bound on rand ints
+% \newcommand{\randNumLower}{1}   %Lower bound on rand ints
+% \newcommand{\randNumUpper}{5}   %Upper bound on rand ints
 \newcommand{\numDecPlaces}{4}   %number of decimal places to print
 
+% %Claude.ai was used to help generate the \randNums macro
+\include{randNums}
+\include{printCoeff}
 \ExplSyntaxOn
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Manually define a variable (control sequence)
-%TODO swap Npx for cpx
 \NewDocumentCommand \defVar { m m }{
-  % \cs_gset:cpx { #1 }{ \fp_eval:n { #2 }}
-  \cs_gset:Npx #1 { \fp_eval:n { #2 }}
+  \cs_gset:cpx { #1 }{ \fp_eval:n { #2 }}
 }
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%TODO \NewDocumentCommand \sortVars { m m }{
+% sorts a list of values and stores in a list of csnames
+% #1 - clist of csnames
+% #2 - clist of values to sort
+%}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \NewDocumentCommand \defMinMax { m m m m}{
   \cs_gset:cpx { #1 }{ \fp_min:nn { #3 }{ #4 }}
@@ -43,109 +48,6 @@
     \ensuremath{(#1)}
   }{
     \ensuremath{#1}
-  }
-}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%Claude.ai was used to help generate the \randInts macro
-%% TODO: Rename to randNum?
-%% TODO: Simplify function signature using clist_inline?
-%% e.g. give lower,upper as clist
-%% e.g. keyword args? [uniq,nz,min=-2,max=7,multiplier=5,skip={\a,\b}]
-
-\int_new:N \l__lower_bnd
-\int_new:N \l__upper_bnd
-\int_new:N \l__pool_size_int
-\tl_new:N  \l__my_pick_tl
-\bool_new:N \l__pick_found_bool
-
-\msg_new:nnn { randInts } { too-many }
-  { \randInts*:~only~#1~value(s)~available~in~[#3]~but~#2~requested. }
-
-\NewDocumentCommand \randInts { s o D<>{\randIntLower} D(){\randIntUpper} m O{1} D<>{} }{
-  % \randInts[nz?]<min>(max){name1,name2,...}[t]<skip>
-  % #1 - starred variant produces unique values
-  % #2 - [nz]: produce pm(magnitude), where magnitude in [min,max]
-  % #3, #4 - <min> and (max) are *separate* optional delimited args; defaults are 1 and 5
-  % #5 - clist of names; defines \name globally to the drawn integer
-  % #6 - optional randInt multiplier t (defaults to 1)
-  % #7 - optional clist of values to skip
-
-  %set the upper and lower bounds for the random integers
-  \int_set:Nn \l__lower_bnd { \int_min:nn {\fp_eval:n { round(#3) }}{\fp_eval:n { round(#4) }} }
-  \int_set:Nn \l__upper_bnd { \int_max:nn {\fp_eval:n { round(#3) }}{\fp_eval:n { round(#4) }} }
-
-  %build a sequence of "used integers"
-  %starting with the values to avoid in #7
-  \seq_clear_new:N \l__used_seq
-  \clist_map_inline:nn {#7}{
-    \tl_if_eq:nnTF {#2}{nz}{
-      % nz pool: ±[lower..upper]*multiplier, so check |value| is in range
-      \fp_compare:nNnTF { abs(##1) } < { \l__lower_bnd * #6}{
-        % out of range low - skip
-        }{
-          \fp_compare:nNnTF { abs(##1) } > { \l__upper_bnd * #6 }{
-            % out of range high - skip
-          }{
-            \seq_put_right:Nx \l__used_seq { \fp_eval:n {##1} }
-          }
-      }
-    }{
-      % normal pool: check lower*multiplier ≤ value ≤ upper*multiplier
-      \fp_compare:nNnTF
-        { ##1 } < { \l__lower_bnd * #6 }
-        { } % out of range - skip
-        {
-          \fp_compare:nNnTF { ##1 } > { \l__upper_bnd * #6 }{
-            % out of range - skip
-          }{
-            \seq_put_right:Nx \l__used_seq { \fp_eval:n {##1} }
-          }
-        }
-    }
-  }
-
-  % overflow check (only meaningful without replacement)
-  \IfBooleanT {#1}{
-    \tl_if_eq:nnTF {#2}{nz}
-      { \int_set:Nn \l__pool_size_int { 2 * ( \l__upper_bnd - \l__lower_bnd + 1 ) } }
-      { \int_set:Nn \l__pool_size_int {       \l__upper_bnd - \l__lower_bnd + 1   } }
-    % Subtract the number of values being skipped
-    \int_sub:Nn \l__pool_size_int { \seq_count:N \l__used_seq }
-    % Compare against the number of values requested
-    \int_compare:nNnT { \clist_count:n {#5} } > { \l__pool_size_int }{
-      \msg_fatal:nnxxx { randInts } { too-many }
-        { \int_use:N \l__pool_size_int }
-        { \clist_count:n {#5} }
-        { \tl_if_eq:nnTF {#2}{nz} {nz~} {} #3 .. #4 }
-    }
-  }
-
-  %generate random integers
-  \clist_map_inline:nn {#5}{
-    \bool_set_false:N \l__pick_found_bool
-    \bool_until_do:Nn \l__pick_found_bool{
-    %TODO: modify this \tl_if_eq to check if bool true for nonzero (from opt clist)
-      \tl_if_eq:nnTF {#2}{nz}{
-        \tl_set:Nx \l__my_pick_tl{
-          \fp_eval:n{
-            \int_rand:nn {1}{2} == 1
-              ? \int_rand:nn {\l__lower_bnd}{\l__upper_bnd} * #6
-              : -\int_rand:nn {\l__lower_bnd}{\l__upper_bnd} * #6
-            }
-          }
-        }{
-          \tl_set:Nx \l__my_pick_tl
-            { \fp_eval:n { \int_rand:nn {\l__lower_bnd}{\l__upper_bnd} * #6 } }
-        }
-      % Accept the pick only if it's not in the exclusion list
-      \seq_if_in:NVF \l__used_seq \l__my_pick_tl { \bool_set_true:N \l__pick_found_bool }
-    }
-
-    %Add value generated to used sequence if done w/o replacement
-    \IfBooleanT {#1}{ \seq_put_right:NV \l__used_seq \l__my_pick_tl }
-    %Globally store value generated
-    \cs_gset:cpx {##1}{ \tl_use:N \l__my_pick_tl }
   }
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -274,118 +176,22 @@
   \cs_gset:cpx { # 1}{ \int_from_alph:n{#2} }
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% TODO: shorter function name? ptCof
-%% TODO: Simplify function signature using clist_map_inline:nn ?
-%% e.g. combine * variant with signs/zero opt arg (e.g. "no plus")
-%% e.g. keyword args? [signs,zero,no plus,format=0.2f,parens]
-
-\bool_new:N \l_exam_print_sign_bool
-\bool_new:N \l_exam_signonly_units_bool
-\bool_new:N \l_exam_print_zero_bool
-% \printCoeff * [signs,zero] {<coeff>}
-%   star: suppress leading '+'
-%   [signs]: for ±1, print just the sign; otherwise normal numbers
-%   [zero]: force-print zero as "0"
-\NewDocumentCommand \printCoeff { s O{} m D<>{}}
-{\exam_print_coeff:nnn {#1} {#2} {#3} {#4}}
-
-\cs_new_protected:Npn \exam_print_coeff:nnn #1 #2 #3 #4
-  {
-    % Optional keywords:
-    % [signs] (case-insensitive; spaces ignored if present)
-    % [zero] keyword — force print zero
-
-    \bool_set_false:N \l_exam_signonly_units_bool
-    \bool_set_false:N \l_exam_print_zero_bool
-    % init bools here
-
-    % Walk the comma-list in #2, setting whichever bools match
-    \clist_map_inline:nn { #2 }
-      {
-        \str_case:en { \tl_lower_case:n { \tl_trim_spaces:n { ##1 } } }
-        {
-          { signs } { \bool_set_true:N \l_exam_signonly_units_bool }
-          { zero  } { \bool_set_true:N \l_exam_print_zero_bool     }
-          % { no plus } { } % replace #1 (* variant)
-          % { format=0.2f } { } % replace #4
-          % { } { }
-          % { } { }
-        }
-      }
-
-    \tl_set:Nx \l_tmpa_tl { \fp_eval:n { #3 } } % textual form for printing
-    \fp_set:Nn \l_tmpa_fp { \l_tmpa_tl }        % numeric form for comparisons
-
-    % Star: default signed; star => suppress leading '+'
-    \bool_set_true:N \l_exam_print_sign_bool
-    \bool_if:nT {#1} { \bool_set_false:N \l_exam_print_sign_bool }
-
-    % Normalise the keyword once for all comparisons below
-    \tl_set:Nx \l_tmpb_tl { \tl_lower_case:n { \tl_trim_spaces:n {#2} } }
-
-    % 0
-    \fp_compare:nTF { \l_tmpa_fp == 0 }
-      {
-        \bool_if:NTF \l_exam_print_zero_bool
-          {
-            \bool_if:NTF \l_exam_print_sign_bool
-              { \ensuremath{+0} }
-              { \ensuremath{0}  }
-          }
-          { \ensuremath{} }
-      }
-      {
-        % -1
-        \fp_compare:nTF { \l_tmpa_fp == -1 }
-          {
-            \bool_if:NTF \l_exam_signonly_units_bool {
-              \ensuremath{-} } { \ensuremath{-1} }
-          }
-          {
-            % +1
-            \fp_compare:nTF { \l_tmpa_fp == 1 }
-              {
-                \bool_if:NTF \l_exam_signonly_units_bool
-                  {  \bool_if:NTF \l_exam_print_sign_bool { % '+' or empty
-                    \ensuremath{+} } { \ensuremath{} }
-                  }{ \bool_if:NTF \l_exam_print_sign_bool {
-                    \ensuremath{+1} } { \ensuremath{1} } }
-              }{
-                % general numeric case
-                \group_begin:
-                  \ensuremath{
-                    \bool_if:NTF \l_exam_print_sign_bool
-                      { \num[group-separator={,}, group-digits=integer, explicit-sign=+]{
-                          \fp_format:nn { round(\l_tmpa_tl, \numDecPlaces) }{ #4 } } }
-                      { \num[group-separator={,}, group-digits=integer]{
-                          \fp_format:nn { round(\l_tmpa_tl, \numDecPlaces) }{ #4 } } }
-                    }
-                \group_end:
-              }
-          }
-      }
-  }
-%% TODO: Delete. Can't find anywhere the following was used
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \NewDocumentCommand \printsigned { m } {
-%   \fp_compare:nTF { #1 >= 0 }
-%     { + \fp_eval:n { #1 } }
-%     {   \fp_eval:n { #1 } }
-% }
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%TODO Update printCoeff call
 \NewDocumentCommand{\signOnly}{m}{%
   \printCoeff[signs]{\fp_sign:n { #1 } }
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \NewExpandableDocumentCommand{\printFrac}{O{}mm}{%
-  {%
-    %#1: Optional string to trigger display style
-    %#2: numerator
-    %#3: denominator
-    %# Pretty prints the fraction #2/#3
-    \str_if_eq:nnT{#1}{d}{\displaystyle}
-    \xintTeXsignedFrac{%
-      \xintPIrr{\fpeval{#2}/\fpeval{#3}}
+  %#1: Optional string to trigger display style
+  %#2: numerator
+  %#3: denominator
+  %# Pretty prints the fraction #2/#3
+  {
+    \ensuremath{
+      \str_if_eq:nnT{#1}{d}{\displaystyle}
+      \xintTeXsignedFrac{%
+        \xintPIrr{\fpeval{#2}/\fpeval{#3}}
+      }
     }
   }
 }
@@ -422,50 +228,6 @@
 % \signedIneq{<number>}{<relation>}
 \NewDocumentCommand{\signedIneq}{ m m }
   { \exam_signed_ineq:nn {\fpeval{#1}}{#2} }
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% Scratch variables
-\int_zero_new:N \l__bin_len_int
-\int_zero_new:N \l__bin_mod_int
-\int_zero_new:N \l__bin_pad_int
-\tl_new:N       \l__bin_tl
-
-% Pad a *binary string* to the next multiple of 4 (nibble)
-\cs_new:Npn \bin_pad_to_nibble:n #1
-  {
-    % IMPORTANT: expand the input (#1) so macros like \pgfmathresult are resolved
-    \tl_set:Nx \l__bin_tl { #1 }
-
-    % Sanitize: trim edges and remove internal spaces
-    \tl_trim_spaces:N \l__bin_tl
-    \tl_remove_all:Nn \l__bin_tl { \c_space_token }
-
-    % Count and compute padding
-    \int_set:Nn \l__bin_len_int { \tl_count:N \l__bin_tl }
-    \int_set:Nn \l__bin_mod_int { \int_mod:nn { \l__bin_len_int } { 4 } }
-
-    \int_compare:nNnT { \l__bin_mod_int } > { 0 }
-      {
-        \int_set:Nn \l__bin_pad_int { \int_eval:n { 4 - \l__bin_mod_int } }
-        \int_step_inline:nn { \l__bin_pad_int }
-          { \tl_put_left:Nn \l__bin_tl { 0 } }
-      }
-
-    % Output
-    \tl_use:N \l__bin_tl
-  }
-
-% Decimal -> binary -> pad
-\cs_new:Npn \bin_of_num_pad_to_nibble:n #1
-  {
-    % \pgfmathparse{bin(#1)}%
-    % \bin_pad_to_nibble:n { \pgfmathresult }
-    \bin_pad_to_nibble:n { \int_from_bin:n { #1 } }
-  }
-
-% User-facing wrappers
-\NewDocumentCommand \binpadnibble { m }        { \bin_pad_to_nibble:n { #1 } }
-\NewDocumentCommand \binpadnibblefromnum { m } { \bin_of_num_pad_to_nibble:n { #1 } }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Internal state (unchanged)
@@ -562,7 +324,7 @@
 \int_set:Nn \l__exam_year_two_int { \int_mod:nn { \year } { 100 } }
 
 % month-day as MMDD integer (e.g. May 14 -> 514)
-\int_set:Nn \l__exam_md_int { \int_eval:n { \month * 100 + \day } }
+\int_set:Nn \l__exam_md_int { \month * 100 + \day }
 
 % semester-based offset: before May 15 -> 1000, before Jun 25 -> 2000,
 % before Aug 15 -> 3000, otherwise 4000

@@ -31,12 +31,194 @@
   % #1=control seq for base, #2=modulus, #3=lower, #4=upper
   \int_if_exist:NF #1 { \int_new:N #1 }
   \bool_set_false:N \l_isprime_bool
+  % \typeout{DEBUG~\string#2~=~fp_eval:n {#2}}
+  % \typeout{DEBUG~lower~=~\fp_eval:n {#3}}
+  % \typeout{DEBUG~upper~=~\fp_eval:n {#4}}
   \bool_until_do:Nn \l_isprime_bool {
+    \cs_log:N #1
     \int_set:Nn #1 { \int_rand:nn { #3 } { #4 } }
     \IfGoodAlternating { \int_use:N #1 } { #2 }
       { \bool_set_true:N \l_isprime_bool }
-      {}
+      { }
   }
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Scratch variables
+\int_zero_new:N \l__bin_len_int
+\int_zero_new:N \l__bin_mod_int
+\int_zero_new:N \l__bin_pad_int
+\tl_new:N       \l__bin_tl
+
+% Pad a *binary string* to the next multiple of 4 (nibble)
+\cs_new:Npn \bin_pad_to_nibble:n #1
+  {
+    % IMPORTANT: expand the input (#1) so macros like \pgfmathresult are resolved
+    \tl_set:Nx \l__bin_tl { #1 }
+
+    % Sanitize: trim edges and remove internal spaces
+    \tl_trim_spaces:N \l__bin_tl
+    \tl_remove_all:Nn \l__bin_tl { \c_space_token }
+
+    % Count and compute padding
+    \int_set:Nn \l__bin_len_int { \tl_count:N \l__bin_tl }
+    \int_set:Nn \l__bin_mod_int { \int_mod:nn { \l__bin_len_int } { 4 } }
+
+    \int_compare:nNnT { \l__bin_mod_int } > { 0 }
+      {
+        \int_set:Nn \l__bin_pad_int { \int_eval:n { 4 - \l__bin_mod_int } }
+        \int_step_inline:nn { \l__bin_pad_int }
+          { \tl_put_left:Nn \l__bin_tl { 0 } }
+      }
+
+    % Output
+    \tl_use:N \l__bin_tl
+  }
+
+% Decimal -> binary -> pad
+\cs_new:Npn \bin_of_num_pad_to_nibble:n #1
+  {
+    % \pgfmathparse{bin(#1)}%
+    % \bin_pad_to_nibble:n { \pgfmathresult }
+    \bin_pad_to_nibble:n { \int_from_bin:n { #1 } }
+  }
+
+% User-facing wrappers
+\NewDocumentCommand \binpadnibble { m }        { \bin_pad_to_nibble:n { #1 } }
+\NewDocumentCommand \binpadnibblefromnum { m } { \bin_of_num_pad_to_nibble:n { #1 } }
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Extended Euclidean Algorithm
+\ExplSyntaxOn%
+\int_new:N \g_euclid_a_int
+\int_new:N \g_euclid_b_int
+\int_new:N \g_euclid_q_int
+\int_new:N \g_euclid_r_int
+\tl_new:N \g_euclid_rows_tl
+
+\NewDocumentCommand{\euclid}{mm}{%
+  \int_gset:Nn \g_euclid_a_int {\int_max:nn { #1 }{ #2 }}%
+  \int_gset:Nn \g_euclid_b_int {\int_min:nn { #1 }{ #2 }}%
+  \tl_gclear:N \g_euclid_rows_tl
+  \bool_while_do:nn { \int_compare_p:nNn { \int_use:N \g_euclid_b_int } > { 0 } }
+    {%
+      \int_gset:Nn \g_euclid_q_int
+        { \int_div_truncate:nn { \g_euclid_a_int } { \g_euclid_b_int } }%
+      \int_gset:Nn \g_euclid_r_int
+        { \int_mod:nn { \g_euclid_a_int } { \g_euclid_b_int } }%
+      \tl_gput_right:Nx \g_euclid_rows_tl {
+        \int_use:N \g_euclid_a_int
+        &= \int_use:N \g_euclid_q_int
+        \cdot \int_use:N \g_euclid_b_int
+        + \int_use:N \g_euclid_r_int \\
+      }%
+      \int_gset_eq:NN \g_euclid_a_int \g_euclid_b_int
+      \int_gset_eq:NN \g_euclid_b_int \g_euclid_r_int
+    }%
+  \begin{align*}
+    \g_euclid_rows_tl
+  \end{align*}%
+}
+
+\seq_new:N \g_euclid_steps_seq
+%\int_new:N \g_euclid_a_int
+%\int_new:N \g_euclid_b_int
+%\int_new:N \g_euclid_q_int
+%\int_new:N \g_euclid_r_int
+\int_new:N \g_euclid_s_int
+\int_new:N \g_euclid_t_int
+\int_new:N \g_euclid_sprev_int
+\int_new:N \g_euclid_tprev_int
+\int_new:N \g_euclid_stmp_int
+\int_new:N \g_euclid_ttmp_int
+\tl_new:N \l_tmpc_tl
+
+\cs_new:Npn \__euclid_abs:n #1 { \int_eval:n { \int_abs:n {#1} } }
+
+\NewDocumentCommand{\exteuclid}{mm}{%
+  %--- Forward pass: collect steps ---
+  \int_gset:Nn \g_euclid_a_int {\int_max:nn { #1 }{ #2 }}%
+  \int_gset:Nn \g_euclid_b_int {\int_min:nn { #1 }{ #2 }}%
+  \seq_gclear:N \g_euclid_steps_seq
+  \bool_while_do:nn { \int_compare_p:nNn { \int_use:N \g_euclid_b_int } > { 0 } }
+    {%
+      \int_gset:Nn \g_euclid_q_int
+        { \int_div_truncate:nn { \g_euclid_a_int } { \g_euclid_b_int } }%
+      \int_gset:Nn \g_euclid_r_int
+        { \int_mod:nn { \g_euclid_a_int } { \g_euclid_b_int } }%
+      \seq_gput_right:Nx \g_euclid_steps_seq {
+        { \int_use:N \g_euclid_a_int }
+        { \int_use:N \g_euclid_q_int }
+        { \int_use:N \g_euclid_b_int }
+        { \int_use:N \g_euclid_r_int }
+      }%
+      \int_gset_eq:NN \g_euclid_a_int \g_euclid_b_int
+      \int_gset_eq:NN \g_euclid_b_int \g_euclid_r_int
+    }%
+
+  %--- Back-substitution ---
+  \tl_gclear:N \g_euclid_rows_tl
+  \seq_gpop_right:NN \g_euclid_steps_seq \l_tmpa_tl         % discard r=0 step
+  \seq_gpop_right:NN \g_euclid_steps_seq \l_tmpb_tl         % GCD step
+  \tl_set:Nx \l_tmpc_tl { \tl_item:Nn \l_tmpb_tl {1} }     % a
+  \tl_set:Nx \l_tmpd_tl { \tl_item:Nn \l_tmpb_tl {2} }     % q
+  \tl_set:Nx \l_tmpe_tl { \tl_item:Nn \l_tmpb_tl {3} }     % b
+  \tl_set:Nx \l_tmpf_tl { \tl_item:Nn \l_tmpb_tl {4} }     % GCD value
+  \int_gset:Nn \g_euclid_s_int { 1 }
+  \int_gset:Nn \g_euclid_t_int { - \tl_use:N \l_tmpd_tl }
+  % First line: GCD = a - q*b
+  \tl_gput_right:Nx \g_euclid_rows_tl {
+    \tl_use:N \l_tmpf_tl &= \tl_use:N \l_tmpc_tl
+    - \tl_use:N \l_tmpd_tl \cdot \tl_use:N \l_tmpe_tl \\
+  }
+
+  \bool_while_do:nn { \int_compare_p:nNn { \seq_count:N \g_euclid_steps_seq } > { 0 } }
+    {%
+      \seq_gpop_right:NN \g_euclid_steps_seq \l_tmpa_tl
+      \tl_set:Nx \l_tmpc_tl { \tl_item:Nn \l_tmpa_tl {1} }   % this_a
+      \tl_set:Nx \l_tmpd_tl { \tl_item:Nn \l_tmpa_tl {2} }   % this_q
+      \tl_set:Nx \l_tmpe_tl { \tl_item:Nn \l_tmpa_tl {3} }   % this_b
+      \int_gset_eq:NN \g_euclid_sprev_int \g_euclid_s_int
+      \int_gset_eq:NN \g_euclid_tprev_int \g_euclid_t_int
+      % Update: new_s = t,  new_t = s - t*q
+      \int_gset_eq:NN \g_euclid_stmp_int \g_euclid_t_int
+      \int_gset:Nn \g_euclid_ttmp_int
+        { \g_euclid_s_int - \g_euclid_t_int * \tl_use:N \l_tmpd_tl }
+      \int_gset_eq:NN \g_euclid_s_int \g_euclid_stmp_int
+      \int_gset_eq:NN \g_euclid_t_int \g_euclid_ttmp_int
+      % Expansion line: t_prev*(this_a - q*this_b) [+-] s_prev*this_b
+      \tl_gput_right:Nx \g_euclid_rows_tl {
+        &=
+        \int_compare:nNnTF { \int_use:N \g_euclid_sprev_int } < { 0 }
+          { - \__euclid_abs:n{\int_use:N \g_euclid_sprev_int} }
+          { \int_use:N \g_euclid_sprev_int }
+        \cdot \tl_use:N \l_tmpe_tl
+        \int_compare:nNnTF { \int_use:N \g_euclid_tprev_int } < { 0 }
+          { - \__euclid_abs:n{\int_use:N \g_euclid_tprev_int} \cdot ( \tl_use:N \l_tmpc_tl - \tl_use:N \l_tmpd_tl \cdot \tl_use:N \l_tmpe_tl ) }
+          { + \int_use:N \g_euclid_tprev_int \cdot ( \tl_use:N \l_tmpc_tl - \tl_use:N \l_tmpd_tl \cdot \tl_use:N \l_tmpe_tl ) }
+        \\
+      }
+      % Simplified line
+      \int_compare:nNnTF { \seq_count:N \g_euclid_steps_seq } > { 0 }
+        {% intermediate: use current step's variable names
+          \tl_gput_right:Nx \g_euclid_rows_tl {
+            &= \int_use:N \g_euclid_s_int \cdot \tl_use:N \l_tmpc_tl
+            \int_compare:nNnTF { \int_use:N \g_euclid_t_int } < { 0 }
+              { - \__euclid_abs:n{\int_use:N \g_euclid_t_int} \cdot \tl_use:N \l_tmpe_tl }
+              { + \int_use:N \g_euclid_t_int \cdot \tl_use:N \l_tmpe_tl }
+            \\
+          }%
+        }
+        {% final: use original #1, #2
+          \tl_gput_right:Nx \g_euclid_rows_tl {
+            &= \int_use:N \g_euclid_s_int \cdot #1
+            \int_compare:nNnTF { \int_use:N \g_euclid_t_int } < { 0 }
+              { - \__euclid_abs:n{\int_use:N \g_euclid_t_int} \cdot #2 }
+              { + \int_use:N \g_euclid_t_int \cdot #2 }
+          }%
+        }%
+    }%
+  \begin{align*}
+    \g_euclid_rows_tl
+  \end{align*}%
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \ExplSyntaxOff

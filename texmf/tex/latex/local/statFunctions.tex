@@ -22,16 +22,22 @@
   }
 }
 
-\NewDocumentCommand \pnorm { D<>{0} D(){1} o m D<>{}}{
-  %\pnorm<mean>(stdev)[lb]{ub}<string formatting>
-  %TODO: optional clist with mean, st. dev., csname (for storing value)
+\fp_new:N \l__stat_norm_prob
 
-  % Check if lower bound is defined
-  \IfNoValueTF{#3} {
-    \fp_format:nn { \fp_eval:n { \SN{ \fp_eval:n {(#4-#1)/#2} } }}{#5}
+  \bool_if:NTF \l__stat_kv_upper_explicit_bool {
+    \fp_set:Nn \l__stat_norm_prob {
+      \fp_eval:n {
+        \SN{ \fp_eval:n {(\l__stat_kv_upper_fp - \l__stat_kv_mean_fp)/ \l__stat_kv_stdev_fp} }}}
   }{
-    \fp_format:nn { \fp_eval:n { \SN{ \fp_eval:n {(#4-#1)/#2} }-\SN{ \fp_eval:n {(#3-#1)/#2} } } }{#5}
+    \fp_set:Nn \l__stat_norm_prob { 1 }
   }
+  \bool_if:NT \l__stat_kv_lower_explicit_bool {
+    \fp_sub:Nn \l__stat_norm_prob {
+      \fp_eval:n {
+        \SN{ \fp_eval:n {(\l__stat_kv_lower_fp - \l__stat_kv_mean_fp)/ \l__stat_kv_stdev_fp} }}}
+  }
+  \exp_args:NnV \fp_format:nn { \l__stat_norm_prob } \l__stat_fmt_tl
+  \group_end:
 }
 
 \NewDocumentCommand \pnormstore { D<>{0} D(){1} o m m D<>{} }{
