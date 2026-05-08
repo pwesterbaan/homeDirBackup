@@ -31,17 +31,6 @@
 \seq_new:N    \l__sort_seq                  % sequence to hold values for sorting
 \tl_new:N     \l__my_pick_tl                % scratch for randomly chosen value
 
-%keyval variables
-\bool_new:N   \l__exam_randNums_kv_nonzero_bool
-\bool_new:N   \l__exam_randNums_kv_uniq_bool
-\bool_new:N   \l__exam_randNums_kv_sort_bool
-\bool_new:N   \l__exam_randNums_kv_step_explicit_bool
-\clist_new:N  \l__exam_randNums_kv_skip_clist
-\fp_new:N     \l__exam_randNums_kv_min_fp
-\fp_new:N     \l__exam_randNums_kv_max_fp
-\fp_new:N     \l__exam_randNums_kv_mult_fp
-\fp_new:N     \l__exam_randNums_kv_step_fp
-
 \keys_define:nn { exam / randNums }
   {
     nz            .bool_set:N  = \l__exam_randNums_kv_nonzero_bool,
@@ -72,14 +61,21 @@
     mult          .initial:n   = 1,
     %
     step          .code:n      = {
-                    \fp_set:Nn  \l__exam_randNums_kv_step_fp { #1 }
+                    \fp_set:Nn       \l__exam_randNums_kv_step_fp { #1 }
                     \bool_set_true:N \l__exam_randNums_kv_step_explicit_bool },
     step          .initial:n   = 1,
   }
 
-%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Error messages %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \msg_new:nnn { randNums } { too-many }
   { \randNums*:~only~#1~value(s)~available~in~[#3]~but~#2~requested. }
+
+\msg_new:nnn { randNums } { bad-step }
+  { step=#1~does~not~produce~an~integer~scale.~
+    Use~step=0.1,~0.01,~0.5~etc.~for~sub-integer~precision,~
+    or~use~mult=~for~integer~multiples. }
 
 % \randNums * [keys] {csname1,csname2,...}
 % #1 - starred variant produces unique values
@@ -91,6 +87,7 @@
 %         min = (1) minimum value of range
 %         max = (5) maximum value of range
 %        mult = (1) value to multiply by after drawing (e.g. random multiples of 5)
+%        step = (1) sets spacing in sample space (e.g. 1, 1.1, 1.2, ..., 5)
 % #3 - clist of names; defines \name globally to the drawn value
 \NewDocumentCommand \randNums { s O{} m }{
   \group_begin: %grouping used to keep key changes local
@@ -119,15 +116,18 @@
   \__randints_count_dp:NN \l__dp_lower_int { \l__exam_randNums_kv_min_tl }
   \__randints_count_dp:NN \l__dp_upper_int { \l__exam_randNums_kv_max_tl }
 
-
   % Scale factor = 10^(max decimal places); 1 when both bounds are integers
   \fp_set:Nn \l__dp_scale_fp
   { \fp_eval:n { 10 ^ \int_max:nn { \l__dp_lower_int } { \l__dp_upper_int } } }
 
   %manually override scaling
   \bool_if:NT \l__exam_randNums_kv_step_explicit_bool {
-    \fp_set:Nn \l__dp_scale_fp { \fp_eval:n { 1 / \l__exam_randNums_kv_step_fp }}
-  }
+    \fp_set:Nn \l__dp_scale_fp { \fp_eval:n { round( 1 / \l__exam_randNums_kv_step_fp )}}
+    % Validate: 1/step must be a positive integer, i.e. step must be of the form 1/N
+    \fp_compare:nNnF { abs( \l__dp_scale_fp - 1 / \l__exam_randNums_kv_step_fp ) } < { 10**-4 }
+      { \msg_error:nnn { randNums } { bad-step }
+        { \fp_eval:n { \l__exam_randNums_kv_step_fp } } }
+    }
 
 % \typeout{DEBUG~dp_lower/upper_int: \int_eval:n {\l__dp_lower_int},~\int_eval:n {\l__dp_upper_int}}
 \typeout{DEBUG~dp_scale_fp: \fp_eval:n {\l__dp_scale_fp}}
@@ -136,15 +136,15 @@
   % set the upper and lower bounds for the random integers
   \int_set:Nn \l__exam_randNums_min_int {
     \fp_eval:n{ min(
-      \l__exam_randNums_kv_min_fp,
-      \l__exam_randNums_kv_max_fp )
-      * \l__dp_scale_fp  }
+      \l__exam_randNums_kv_min_fp * \l__dp_scale_fp ,
+      \l__exam_randNums_kv_max_fp * \l__dp_scale_fp)
+    }
   }
   \int_set:Nn \l__exam_randNums_max_int {
     \fp_eval:n{ max(
-      \l__exam_randNums_kv_min_fp,
-      \l__exam_randNums_kv_max_fp )
-      * \l__dp_scale_fp }
+      \l__exam_randNums_kv_min_fp * \l__dp_scale_fp,
+      \l__exam_randNums_kv_max_fp * \l__dp_scale_fp)
+    }
   }
 
 \typeout{DEBUG~scaled~min/max:~\int_eval:n { \l__exam_randNums_min_int },~\int_eval:n { \l__exam_randNums_max_int }}
@@ -167,12 +167,12 @@
       % normal pool: check lower*multiplier <= value <= upper*multiplier
       \fp_compare:nNnTF { ##1 } < {
         \l__exam_randNums_min_int /
-        \l__dp_scale_fp * \l__exam_randNums_kv_mult_fp }
+        abs(\l__dp_scale_fp) * \l__exam_randNums_kv_mult_fp }
         { } % out of range - skip
         {
           \fp_compare:nNnTF { ##1 } > {
-            \l__exam_randNums_max_int / \l__dp_scale_fp *
-            \l__exam_randNums_kv_mult_fp }{
+            \l__exam_randNums_max_int /
+            abs(\l__dp_scale_fp) * \l__exam_randNums_kv_mult_fp }{
             % out of range - skip
           }{
             \seq_put_right:Nx \l__used_seq { \fp_eval:n { ##1 } }
@@ -211,11 +211,11 @@
               ? \int_rand:nn
                 {\l__exam_randNums_min_int}
                 {\l__exam_randNums_max_int}
-                / \l__dp_scale_fp * \l__exam_randNums_kv_mult_fp
+                / abs(\l__dp_scale_fp) * \l__exam_randNums_kv_mult_fp
               : -\int_rand:nn
                 {\l__exam_randNums_min_int}
                 {\l__exam_randNums_max_int}
-                / \l__dp_scale_fp * \l__exam_randNums_kv_mult_fp
+                / abs(\l__dp_scale_fp) * \l__exam_randNums_kv_mult_fp
             }
           }
         }{
@@ -223,7 +223,7 @@
             { \fp_eval:n { \int_rand:nn
                 {\l__exam_randNums_min_int}
                 {\l__exam_randNums_max_int}
-                / \l__dp_scale_fp * \l__exam_randNums_kv_mult_fp  } }
+                / abs(\l__dp_scale_fp) * \l__exam_randNums_kv_mult_fp  } }
         }
       % Accept the pick only if it's not in the exclusion list
       \seq_if_in:NVF \l__used_seq \l__my_pick_tl { \bool_set_true:N \l__pick_found_bool }
@@ -266,7 +266,7 @@
 
   three dp: \a
 
-  \randNums[nz,max=floor(3.14),step=1]{a}%%
+  \randNums[nz,max=floor(3.14),step=0.0001]{a}%%
 
   floor: \a
 
