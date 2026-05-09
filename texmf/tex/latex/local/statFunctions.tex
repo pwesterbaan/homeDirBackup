@@ -24,6 +24,36 @@
 
 \fp_new:N \l__stat_norm_prob
 
+\keys_define:nn { stat }
+{
+  mean    .fp_set:N         = \l__stat_kv_mean_fp,
+  mean    .initial:n        = 0,
+  mean    .value_required:n = true,
+  %
+  stdev   .fp_set:N         = \l__stat_kv_stdev_fp,
+  stdev   .initial:n        = 1,
+  stdev   .value_required:n = true,
+  %
+  lower   .code:n   = {
+            \fp_set:Nn       \l__stat_kv_lower_fp { #1 }
+            \bool_set_true:N \l__stat_kv_lower_explicit_bool },
+  lower   .value_required:n = true,
+  %
+  upper   .code:n   = {
+            \fp_set:Nn       \l__stat_kv_upper_fp { #1 }
+            \bool_set_true:N \l__stat_kv_upper_explicit_bool },
+  upper   .value_required:n = true,
+  %
+  format  .tl_set:N         =  \l__stat_fmt_tl,
+  format  .initial:n        = 0.3f,
+}
+\NewDocumentCommand \pnorm { m }{
+  \group_begin:
+  \bool_set_false:N \l__stat_kv_lower_explicit_bool
+  \bool_set_false:N \l__stat_kv_upper_explicit_bool
+  \keys_set:nn { stat }{ #1 }
+  %\pnorm<mean>(stdev)[lb]{ub}<string formatting>
+  %TODO: optional clist with mean, st. dev., csname (for storing value)
   \bool_if:NTF \l__stat_kv_upper_explicit_bool {
     \fp_set:Nn \l__stat_norm_prob {
       \fp_eval:n {
