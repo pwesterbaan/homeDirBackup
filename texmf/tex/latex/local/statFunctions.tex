@@ -1,14 +1,26 @@
 \ExplSyntaxOn
 
+%TODO: pnorm bisect
+
+% \keys_define:nn {}{
+%   stat/store .inherit:n = stat
+% }
+
 \keys_define:nn { stat }
 {
   mean    .fp_set:N         = \l__stat_kv_mean_fp,
   mean    .initial:n        = 0,
   mean    .value_required:n = true,
   %
+  pvalue  .fp_set:N         = \l__stat_kv_pvalue_fp,
+  pvalue  .value_required:n = true,
+  %
   stdev   .fp_set:N         = \l__stat_kv_stdev_fp,
   stdev   .initial:n        = 1,
   stdev   .value_required:n = true,
+  %
+  df      .int_set:N        = \l__stat_kv_df_int,
+  df      .value_required:n = true,
   %
   lower   .code:n   = {
             \fp_set:Nn       \l__stat_kv_lower_fp { #1 }
@@ -23,17 +35,18 @@
   format  .tl_set:N         = \l__stat_fmt_tl,
   format  .initial:n        = 0.3f,
   %TODO add alias for format?
+  %
+  var     .code:n   = {
+            \tl_set:Nn       \l__stat_kv_store_csname { #1 }
+            \bool_set_true:N \l__stat_kv_var_explicit_bool },
+  var     .initial:n        = {},
+  var     .value_required:n = true,
 }
 
-%TODO: Is this inheritance correct?
-\keys_define:nn {}{
-  stat/store .inherit:n = stat
-}
-
-\keys_define:nn { stat/store }{
-  varname .tl_set:N  = \l_stat_store_kv_csname,
-  varname .initial:n = {}
-}
+% \keys_define:nn { stat/store }{
+%   var  .tl_set:N  = \l__stat_kv_store_csname,
+%   var  .initial:n = {}
+% }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % approximate probabilities calculated using the Normal distribution
@@ -60,12 +73,11 @@
 \fp_new:N \l__stat_norm_prob
 
 \cs_new_protected:Nn \__stat_compute_pnorm: {
+  \fp_set:Nn \l__stat_norm_prob { 1 }
   \bool_if:NTF \l__stat_kv_upper_explicit_bool {
     \fp_set:Nn \l__stat_norm_prob {
       \fp_eval:n {
         \SN{ \fp_eval:n {(\l__stat_kv_upper_fp - \l__stat_kv_mean_fp)/ \l__stat_kv_stdev_fp} }}}
-  }{
-    \fp_set:Nn \l__stat_norm_prob { 1 }
   }
   \bool_if:NT \l__stat_kv_lower_explicit_bool {
     \fp_sub:Nn \l__stat_norm_prob {
@@ -74,25 +86,31 @@
   }
 }
 
+%\pnorm{keys: mean, stdev, lower, upper, format}
 \NewDocumentCommand \pnorm { m }{
   \group_begin:
   \bool_set_false:N \l__stat_kv_lower_explicit_bool
   \bool_set_false:N \l__stat_kv_upper_explicit_bool
   \keys_set:nn { stat }{ #1 }
   \__stat_compute_pnorm:
-  \exp_args:NnV \fp_format:nn { \l__stat_norm_prob } \l__stat_fmt_tl
+  \bool_if:NTF \l__stat_kv_var_explicit_bool {
+    \cs_gset:cpx { \l__stat_kv_store_csname }{ \fp_to_decimal:N \l__stat_norm_prob }
+  }{
+    \exp_args:NnV \fp_format:nn { \l__stat_norm_prob } \l__stat_fmt_tl
+  }
   \group_end:
 }
 
-\NewDocumentCommand \pnormstore { m }{
-  \group_begin:
-  \bool_set_false:N \l__stat_kv_lower_explicit_bool
-  \bool_set_false:N \l__stat_kv_upper_explicit_bool
-  \keys_set:nn { stat/store }{ #1 }
-  \__stat_compute_pnorm:
-  \cs_gset:cpx { \l_stat_store_kv_csname }{ \fp_to_decimal:N \l__stat_norm_prob }
-  \group_end:
-}
+%%%%%\pnormstore{keys: mean, stdev, lower, upper, format, var}
+%%%%%NewDocumentCommand \pnormstore { m }{
+%%%%% \group_begin:
+%%%%% \bool_set_false:N \l__stat_kv_lower_explicit_bool
+%%%%% \bool_set_false:N \l__stat_kv_upper_explicit_bool
+%%%%% \keys_set:nn { stat/store }{ #1 }
+%%%%% \__stat_compute_pnorm:
+%%%%% \cs_gset:cpx { \l_stat_store_kv_csname }{ \fp_to_decimal:N \l__stat_norm_prob }
+%%%%% \group_end:
+%%%%%
 
 %TODO: create qnorm and qnorm store
 
@@ -152,42 +170,44 @@
 % Internal: compute CDF for any t, store in \l__pt_val_fp
 \cs_new_protected:Nn \__pt_cdf:nn
   {
+  \__pt_cdf_pos:nn { \fp_eval:n { abs(#1) } } {#2}
     \fp_compare:nNnTF { \fp_eval:n {#1} } < { 0 }
-      {
-        \__pt_cdf_pos:nn { \fp_eval:n { abs(#1) } } {#2}
-        \fp_set:Nn \l__pt_val_fp { 1 - \l__pt_val_fp }
-      }
-      { \__pt_cdf_pos:nn { \fp_eval:n {#1} } {#2} }
+      { \fp_set:Nn \l__pt_val_fp { 1 - \l__pt_val_fp } }
+      { }
   }
 
-% \PT{t}{\nu}<fmt>  ->  P(T_\nu <= t)   (typesets the probability)
-%TODO: optional clist with mean, st. dev., csname (for storing value)
-\NewDocumentCommand \PT { m m D<>{} }
-  {
-    \__pt_cdf:nn {#1} {#2}
-    \fp_format:nn { \l__pt_val_fp } {#3}
+\fp_new:N \l__stat_tdist_prob
+\cs_new_protected:Nn \__stat_compute_ptdist: {
+  \fp_set:Nn \l__stat_tdist_prob { 1 }
+  \bool_if:NT \l__stat_kv_upper_explicit_bool {
+    \__pt_cdf:nn { \fp_eval:n {
+      (\l__stat_kv_upper_fp - \l__stat_kv_mean_fp) / \l__stat_kv_stdev_fp }}{
+      \l__stat_kv_df_int }
+    \fp_set_eq:NN \l__stat_tdist_prob \l__pt_val_fp
   }
+  \bool_if:NT \l__stat_kv_lower_explicit_bool {
+    \__pt_cdf:nn { \fp_eval:n {
+      (\l__stat_kv_lower_fp - \l__stat_kv_mean_fp) / \l__stat_kv_stdev_fp }}{
+      \l__stat_kv_df_int }
+    \fp_sub:Nn \l__stat_tdist_prob { \fp_eval:n \l__pt_val_fp }
+  }
+}
 
-\NewDocumentCommand \ptstore { m m m }
-  {% \ptstore \targetmacro {t} {df}
-    \__pt_cdf:nn { \fp_eval:n {#2} } {#3}
-    \cs_gset:Npx #1 { \fp_eval:n { \fp_to_decimal:N \l__pt_val_fp } }
+%\ptdist{keys: mean, stdev, lower, upper, df}
+\NewDocumentCommand \ptdist { m }{
+  \group_begin:
+  \bool_set_false:N \l__stat_kv_lower_explicit_bool
+  \bool_set_false:N \l__stat_kv_upper_explicit_bool
+  \bool_set_false:N \l__stat_kv_var_explicit_bool
+  \keys_set:nn { stat }{ #1 }
+  \__stat_compute_ptdist:
+  \bool_if:NTF \l__stat_kv_var_explicit_bool {
+    \cs_gset:cpx { \l__stat_kv_store_csname }{ \fp_to_decimal:N \l__stat_tdist_prob }
+  }{
+    \exp_args:NnV \fp_format:nn { \l__stat_tdist_prob } \l__stat_fmt_tl
   }
-
-% \ptdist<\mu>(\sigma){\nu}[lb]{ub}<fmt>  ->  P(lb < X < ub) for X ~ t_\nu(\mu, \sigma^2)
-% Mirrors the interface of \pnorm exactly, with an extra required {\nu} argument
-%TODO: optional clist with mean, st. dev., csname (for storing value)
-\NewDocumentCommand \ptdist { D<>{0} D(){1} o m m D<>{} }
-  {% #1=\mu, #2=\sigma, #3=lb (optional), #4=ub, #5=\nu, #6=format
-    \__pt_cdf:nn { \fp_eval:n { (#4 - #1) / #2 } } {#5}
-    \fp_set_eq:NN \l__pt_val_b_fp \l__pt_val_fp   % store F(ub)
-    \IfNoValueTF {#3}
-      { \fp_format:nn { \l__pt_val_b_fp } {#6} }
-      {
-        \__pt_cdf:nn { \fp_eval:n { (#3 - #1) / #2 } } {#5}
-        \fp_format:nn { \l__pt_val_b_fp - \l__pt_val_fp } {#6}
-      }
-  }
+  \group_end:
+}
 
 \fp_new:N \l__pt_val_b_fp  % scratch register for interval probabilities
 
@@ -197,7 +217,6 @@
 %% Requires \__pt_cdf:nn from the CDF implementation above.
 %% ============================================================
 %% code generated using Claude.ai
-%TODO: optional clist with formatting (see printCoeff)
 \fp_new:N \l__qt_lo_fp
 \fp_new:N \l__qt_hi_fp
 \fp_new:N \l__qt_mid_fp
@@ -219,34 +238,40 @@
     \fp_set:Nn \l__qt_mid_fp { ( \l__qt_lo_fp + \l__qt_hi_fp ) / 2 }
   }
 
-%% \qt{p}{df}<fmt>
 %%   Standard quantile: returns t such that P(T_{df} <= t) = p.
-\NewDocumentCommand \qt { m m D<>{} }
-  {
-    \__qt_bisect:nn { \fp_eval:n {#1} } {#2}
-    \fp_format:nn { \l__qt_mid_fp } {#3}
+%\qt{keys: pvalue, df, var, format}
+\NewDocumentCommand \qt { m }{
+  \group_begin:
+  \bool_set_false:N \l__stat_kv_lower_explicit_bool
+  \bool_set_false:N \l__stat_kv_upper_explicit_bool
+  \bool_set_false:N \l__stat_kv_var_explicit_bool
+  \keys_set:nn { stat }{ #1 }
+  \__qt_bisect:nn { \fp_eval:n { \l__stat_kv_pvalue_fp } } { \l__stat_kv_df_int }
+  \bool_if:NTF \l__stat_kv_var_explicit_bool {
+    \cs_gset:cpx { \l__stat_kv_store_csname }{ \fp_to_decimal:N \l__qt_mid_fp }
+  }{
+    \exp_args:NnV \fp_format:nn { \l__qt_mid_fp } \l__stat_fmt_tl
   }
+  \group_end:
+}
 
-\NewDocumentCommand \qtstore { m m m }
-  {% \qtstore \targetmacro {p} {df}
-    \__qt_bisect:nn { \fp_eval:n {#2} } {#3}
-    \cs_gset:Npx #1 { \fp_eval:n { \fp_to_decimal:N \l__qt_mid_fp } }
-  }
-
-%% \tcrit{alpha}{df}<fmt>
 %%   Two-tailed critical value for significance level alpha.
 %%   Returns the POSITIVE t* such that P(|T_{df}| > t*) = alpha,
 %%   equivalently P(T_{df} <= t*) = 1 - alpha/2.
-\NewDocumentCommand \tcrit { m m D<>{} }
-  {
-    \__qt_bisect:nn { \fp_eval:n { 1 - (#1) } } {#2}
-    \fp_format:nn { \l__qt_mid_fp } {#3}
+%\tcrit{keys: pvalue, df, var, format}
+\NewDocumentCommand \tcrit { m } {
+  \group_begin:
+  \bool_set_false:N \l__stat_kv_lower_explicit_bool
+  \bool_set_false:N \l__stat_kv_upper_explicit_bool
+  \bool_set_false:N \l__stat_kv_var_explicit_bool
+  \keys_set:nn { stat }{ #1 }
+  \__qt_bisect:nn { \fp_eval:n { 1 - (\l__stat_kv_pvalue_fp) } } { \l__stat_kv_df_int }
+  \bool_if:NTF \l__stat_kv_var_explicit_bool {
+    \cs_gset:cpx { \l__stat_kv_store_csname }{ \fp_to_decimal:N \l__qt_mid_fp }
+  }{
+    \exp_args:NnV \fp_format:nn { \l__qt_mid_fp } \l__stat_fmt_tl
   }
-
-\NewDocumentCommand \tcritstore { m m m }
-  {% \tcritstore \targetmacro {alpha} {df}  — two-tailed critical value
-    \__qt_bisect:nn { \fp_eval:n { 1 - (#2) } } {#3}
-    \cs_gset:Npx #1 { \fp_eval:n { \fp_to_decimal:N \l__qt_mid_fp } }
-  }
+  \group_end:
+}
 
 \ExplSyntaxOff
