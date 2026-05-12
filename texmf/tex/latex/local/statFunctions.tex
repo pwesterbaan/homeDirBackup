@@ -115,8 +115,8 @@
   \group_end:
 }
 
-%%   Standard quantile: returns t such that P(T_{df} <= t) = p.
-%\qt{keys: pvalue, var, format}
+%%   Standard quantile: returns z such that P(Z <= z) = p.
+%\qnorm{keys: pvalue, var, format}
 \NewDocumentCommand \qnorm { m }{
   \group_begin:
   \keys_set:nn { stat }{ #1 }
