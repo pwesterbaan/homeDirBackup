@@ -1,7 +1,5 @@
 \ExplSyntaxOn
 
-%TODO: pnorm bisect
-
 % \keys_define:nn {}{
 %   stat/store .inherit:n = stat
 % }
@@ -22,24 +20,20 @@
   df      .int_set:N        = \l__stat_kv_df_int,
   df      .value_required:n = true,
   %
-  lower   .code:n   = {
-            \fp_set:Nn       \l__stat_kv_lower_fp { #1 }
-            \bool_set_true:N \l__stat_kv_lower_explicit_bool },
+  lower   .fp_set:N         = \l__stat_kv_lower_fp,
+  lower   .initial:n        = nan,
   lower   .value_required:n = true,
   %
-  upper   .code:n   = {
-            \fp_set:Nn       \l__stat_kv_upper_fp { #1 }
-            \bool_set_true:N \l__stat_kv_upper_explicit_bool },
+  upper   .fp_set:N         = \l__stat_kv_upper_fp,
+  upper   .initial:n        = nan,
   upper   .value_required:n = true,
   %
   format  .tl_set:N         = \l__stat_fmt_tl,
   format  .initial:n        = 0.3f,
   %TODO add alias for format?
   %
-  var     .code:n   = {
-            \tl_set:Nn       \l__stat_kv_store_csname { #1 }
-            \bool_set_true:N \l__stat_kv_var_explicit_bool },
-  var     .initial:n        = {},
+  var     .tl_set:N         = \l__stat_kv_store_csname,
+  var     .initial:n        = \q_no_value,
   var     .value_required:n = true,
 }
 
@@ -61,7 +55,6 @@
 
 \xintNewFloatExpr{\sn}[1]{ snapprox(#1, 1/(1+0.25*sqrt(2)*#1))}
 
-\ExplSyntaxOn
 \NewDocumentCommand{\SN}{m}{
   \fp_compare:nNnTF { #1 }<{ 0 }{
     \fp_eval:n { 1-\sn{ \fp_abs:n {#1} } }
@@ -74,45 +67,65 @@
 
 \cs_new_protected:Nn \__stat_compute_pnorm: {
   \fp_set:Nn \l__stat_norm_prob { 1 }
-  \bool_if:NTF \l__stat_kv_upper_explicit_bool {
+  \fp_if_nan:nF { \l__stat_kv_upper_fp }{
     \fp_set:Nn \l__stat_norm_prob {
       \fp_eval:n {
         \SN{ \fp_eval:n {(\l__stat_kv_upper_fp - \l__stat_kv_mean_fp)/ \l__stat_kv_stdev_fp} }}}
   }
-  \bool_if:NT \l__stat_kv_lower_explicit_bool {
+  \fp_if_nan:nF { \l__stat_kv_lower_fp }{
     \fp_sub:Nn \l__stat_norm_prob {
       \fp_eval:n {
         \SN{ \fp_eval:n {(\l__stat_kv_lower_fp - \l__stat_kv_mean_fp)/ \l__stat_kv_stdev_fp} }}}
   }
 }
 
+%% ============================================================
+%% Quantile function (inverse CDF) for the normal-distribution
+%% ============================================================
+%% code generated using Claude.ai
+\fp_new:N \l__qnorm_lo_fp
+\fp_new:N \l__qnorm_hi_fp
+\fp_new:N \l__qnorm_mid_fp
+
+%% Internal bisection engine.
+%% 54 steps: width 100 / 2^54 = 5.5e-15 (sub-ULP precision).
+\cs_new_protected:Nn \__qnorm_bisect:n
+{% #1 = p (probability)
+  \fp_set:Nn \l__qnorm_lo_fp { -50 }
+  \fp_set:Nn \l__qnorm_hi_fp {  50 }
+  \int_step_inline:nn { 54 }
+    {
+      \fp_set:Nn \l__qnorm_mid_fp { \fp_eval:n {( \l__qnorm_lo_fp + \l__qnorm_hi_fp ) / 2 }}%
+      \fp_set:Nn \l__stat_norm_prob { \fp_eval:n { \SN{ \fp_eval:n \l__qnorm_mid_fp } } }
+      \fp_compare:nNnTF { \l__stat_norm_prob } < { #1 }
+        { \fp_set_eq:NN \l__qnorm_lo_fp \l__qnorm_mid_fp }
+        { \fp_set_eq:NN \l__qnorm_hi_fp \l__qnorm_mid_fp }
+    }
+  \fp_set:Nn \l__qnorm_mid_fp { \fp_eval:n {( \l__qnorm_lo_fp + \l__qnorm_hi_fp ) / 2 }}
+}
+
 %\pnorm{keys: mean, stdev, lower, upper, format}
 \NewDocumentCommand \pnorm { m }{
   \group_begin:
-  \bool_set_false:N \l__stat_kv_lower_explicit_bool
-  \bool_set_false:N \l__stat_kv_upper_explicit_bool
   \keys_set:nn { stat }{ #1 }
   \__stat_compute_pnorm:
-  \bool_if:NTF \l__stat_kv_var_explicit_bool {
-    \cs_gset:cpx { \l__stat_kv_store_csname }{ \fp_to_decimal:N \l__stat_norm_prob }
-  }{
-    \exp_args:NnV \fp_format:nn { \l__stat_norm_prob } \l__stat_fmt_tl
-  }
+  \quark_if_no_value:NTF \l__stat_kv_store_csname
+    { \exp_args:NnV \fp_format:nn { \l__stat_norm_prob } \l__stat_fmt_tl }
+    { \cs_gset:cpx { \l__stat_kv_store_csname }{ \fp_to_decimal:N \l__stat_norm_prob } }
   \group_end:
 }
 
-%%%%%\pnormstore{keys: mean, stdev, lower, upper, format, var}
-%%%%%NewDocumentCommand \pnormstore { m }{
-%%%%% \group_begin:
-%%%%% \bool_set_false:N \l__stat_kv_lower_explicit_bool
-%%%%% \bool_set_false:N \l__stat_kv_upper_explicit_bool
-%%%%% \keys_set:nn { stat/store }{ #1 }
-%%%%% \__stat_compute_pnorm:
-%%%%% \cs_gset:cpx { \l_stat_store_kv_csname }{ \fp_to_decimal:N \l__stat_norm_prob }
-%%%%% \group_end:
-%%%%%
-
-%TODO: create qnorm and qnorm store
+%%   Standard quantile: returns t such that P(T_{df} <= t) = p.
+%\qt{keys: pvalue, var, format}
+\NewDocumentCommand \qnorm { m }{
+  \group_begin:
+  \keys_set:nn { stat }{ #1 }
+  \__qnorm_bisect:n { \fp_eval:n { \l__stat_kv_pvalue_fp } }
+  \quark_if_no_value:NTF \l__stat_kv_store_csname
+    { \exp_args:NnV \fp_format:nn { \l__qnorm_mid_fp } \l__stat_fmt_tl }
+    { \cs_gset:cpx { \l__stat_kv_store_csname }{ \fp_to_decimal:N \l__qnorm_mid_fp } }
+  \group_end:
+}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % claude.ai was used to help generate this macro
@@ -179,13 +192,13 @@
 \fp_new:N \l__stat_tdist_prob
 \cs_new_protected:Nn \__stat_compute_ptdist: {
   \fp_set:Nn \l__stat_tdist_prob { 1 }
-  \bool_if:NT \l__stat_kv_upper_explicit_bool {
+  \fp_if_nan:nF { \l__stat_kv_upper_fp }{
     \__pt_cdf:nn { \fp_eval:n {
       (\l__stat_kv_upper_fp - \l__stat_kv_mean_fp) / \l__stat_kv_stdev_fp }}{
       \l__stat_kv_df_int }
     \fp_set_eq:NN \l__stat_tdist_prob \l__pt_val_fp
   }
-  \bool_if:NT \l__stat_kv_lower_explicit_bool {
+  \fp_if_nan:nF { \l__stat_kv_lower_fp }{
     \__pt_cdf:nn { \fp_eval:n {
       (\l__stat_kv_lower_fp - \l__stat_kv_mean_fp) / \l__stat_kv_stdev_fp }}{
       \l__stat_kv_df_int }
@@ -196,20 +209,15 @@
 %\ptdist{keys: mean, stdev, lower, upper, df}
 \NewDocumentCommand \ptdist { m }{
   \group_begin:
-  \bool_set_false:N \l__stat_kv_lower_explicit_bool
-  \bool_set_false:N \l__stat_kv_upper_explicit_bool
-  \bool_set_false:N \l__stat_kv_var_explicit_bool
   \keys_set:nn { stat }{ #1 }
   \__stat_compute_ptdist:
-  \bool_if:NTF \l__stat_kv_var_explicit_bool {
-    \cs_gset:cpx { \l__stat_kv_store_csname }{ \fp_to_decimal:N \l__stat_tdist_prob }
-  }{
-    \exp_args:NnV \fp_format:nn { \l__stat_tdist_prob } \l__stat_fmt_tl
-  }
+  \quark_if_no_value:NTF \l__stat_kv_store_csname
+    { \exp_args:NnV \fp_format:nn { \l__stat_tdist_prob } \l__stat_fmt_tl }
+    { \cs_gset:cpx { \l__stat_kv_store_csname }{ \fp_to_decimal:N \l__stat_tdist_prob } }
   \group_end:
 }
 
-\fp_new:N \l__pt_val_b_fp  % scratch register for interval probabilities
+% \fp_new:N \l__pt_val_b_fp  % scratch register for interval probabilities
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% ============================================================
@@ -242,16 +250,11 @@
 %\qt{keys: pvalue, df, var, format}
 \NewDocumentCommand \qt { m }{
   \group_begin:
-  \bool_set_false:N \l__stat_kv_lower_explicit_bool
-  \bool_set_false:N \l__stat_kv_upper_explicit_bool
-  \bool_set_false:N \l__stat_kv_var_explicit_bool
   \keys_set:nn { stat }{ #1 }
   \__qt_bisect:nn { \fp_eval:n { \l__stat_kv_pvalue_fp } } { \l__stat_kv_df_int }
-  \bool_if:NTF \l__stat_kv_var_explicit_bool {
-    \cs_gset:cpx { \l__stat_kv_store_csname }{ \fp_to_decimal:N \l__qt_mid_fp }
-  }{
-    \exp_args:NnV \fp_format:nn { \l__qt_mid_fp } \l__stat_fmt_tl
-  }
+  \quark_if_no_value:NTF \l__stat_kv_store_csname
+    { \exp_args:NnV \fp_format:nn { \l__qt_mid_fp } \l__stat_fmt_tl }
+    { \cs_gset:cpx { \l__stat_kv_store_csname }{ \fp_to_decimal:N \l__qt_mid_fp } }
   \group_end:
 }
 
@@ -261,16 +264,11 @@
 %\tcrit{keys: pvalue, df, var, format}
 \NewDocumentCommand \tcrit { m } {
   \group_begin:
-  \bool_set_false:N \l__stat_kv_lower_explicit_bool
-  \bool_set_false:N \l__stat_kv_upper_explicit_bool
-  \bool_set_false:N \l__stat_kv_var_explicit_bool
   \keys_set:nn { stat }{ #1 }
   \__qt_bisect:nn { \fp_eval:n { 1 - (\l__stat_kv_pvalue_fp) } } { \l__stat_kv_df_int }
-  \bool_if:NTF \l__stat_kv_var_explicit_bool {
-    \cs_gset:cpx { \l__stat_kv_store_csname }{ \fp_to_decimal:N \l__qt_mid_fp }
-  }{
-    \exp_args:NnV \fp_format:nn { \l__qt_mid_fp } \l__stat_fmt_tl
-  }
+  \quark_if_no_value:NTF \l__stat_kv_store_csname
+    { \exp_args:NnV \fp_format:nn { \l__qt_mid_fp } \l__stat_fmt_tl }
+    { \cs_gset:cpx { \l__stat_kv_store_csname }{ \fp_to_decimal:N \l__qt_mid_fp } }
   \group_end:
 }
 
