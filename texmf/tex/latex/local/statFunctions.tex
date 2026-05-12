@@ -104,7 +104,7 @@
   \fp_set:Nn \l__qnorm_mid_fp { \fp_eval:n {( \l__qnorm_lo_fp + \l__qnorm_hi_fp ) / 2 }}
 }
 
-%\pnorm{keys: mean, stdev, lower, upper, format}
+%\pnorm{keys: mean, stdev, lower, upper, var, format}
 \NewDocumentCommand \pnorm { m }{
   \group_begin:
   \keys_set:nn { stat }{ #1 }
@@ -206,7 +206,7 @@
   }
 }
 
-%\ptdist{keys: mean, stdev, lower, upper, df}
+%\ptdist{keys: mean, stdev, lower, upper, df, var, format}
 \NewDocumentCommand \ptdist { m }{
   \group_begin:
   \keys_set:nn { stat }{ #1 }
