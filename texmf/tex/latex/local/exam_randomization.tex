@@ -320,20 +320,34 @@
 % month-day as MMDD integer (e.g. May 14 -> 514)
 \int_set:Nn \l__exam_md_int { \month * 100 + \day }
 
-% semester-based offset: before May 15 -> 1000, before Jun 25 -> 2000,
-% before Aug 15 -> 3000, otherwise 4000
-\int_set:Nn \l__exam_sem_offset_int { 4000 }
-\int_compare:nNnTF { \l__exam_md_int } < { 515 }
-  { \int_set:Nn \l__exam_sem_offset_int { 1000 } }          %spring
-  {
-    \int_compare:nNnTF { \l__exam_md_int } < { 625 }
-      { \int_set:Nn \l__exam_sem_offset_int { 2000 } }      %summer I
-      {
-        \int_compare:nNnTF { \l__exam_md_int } < { 815 }
-          { \int_set:Nn \l__exam_sem_offset_int { 3000 } }  %summer II
-          { \int_set:Nn \l__exam_sem_offset_int { 4000 } }  %fall
-      }
+% semester-based offset:
+% before May  5 -> 1000,
+% before Jun 20 -> 2000,
+% before Aug 15 -> 3000,
+% otherwise 4000
+\int_case:nnF { 1 }
+{
+  { \int_compare_p:n { \l__exam_md_int < 505 } }
+    { \int_set:Nn \l__exam_sem_offset_int { 1000 } }
+  { \int_compare_p:n { \l__exam_md_int < 620 } }
+    { \int_set:Nn \l__exam_sem_offset_int { 2000 } }
+  { \int_compare_p:n { \l__exam_md_int < 815 } }
+    { \int_set:Nn \l__exam_sem_offset_int { 3000 } }
   }
+    { \int_set:Nn \l__exam_sem_offset_int { 4000 } }
+
+% \int_set:Nn \l__exam_sem_offset_int { 4000 }
+% \int_compare:nNnTF { \l__exam_md_int } < { 508 }
+%   { \int_set:Nn \l__exam_sem_offset_int { 1000 } }          %spring
+%   {
+%     \int_compare:nNnTF { \l__exam_md_int } < { 620 }
+%       { \int_set:Nn \l__exam_sem_offset_int { 2000 } }      %summer I
+%       {
+%         \int_compare:nNnTF { \l__exam_md_int } < { 815 }
+%           { \int_set:Nn \l__exam_sem_offset_int { 3000 } }  %summer II
+%           { \int_set:Nn \l__exam_sem_offset_int { 4000 } }  %fall
+%       }
+%   }
 
 % base seed = semester offset + two-digit year
 \int_set:Nn \l__exam_seed_int { \l__exam_sem_offset_int + \l__exam_year_two_int }
