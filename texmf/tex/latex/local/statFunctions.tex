@@ -1,8 +1,8 @@
 \ExplSyntaxOn
 
-% \keys_define:nn {}{
-%   stat/store .inherit:n = stat
-% }
+\keys_define:nn {}{
+  stat/quantile .inherit:n = stat
+}
 
 \keys_define:nn { stat }
 {
@@ -37,10 +37,16 @@
   var     .value_required:n = true,
 }
 
-% \keys_define:nn { stat/store }{
-%   var  .tl_set:N  = \l__stat_kv_store_csname,
-%   var  .initial:n = {}
-% }
+\keys_define:nn { stat/quantile }{
+  q_lower .fp_set:N   = \l__stat_quantile_kv_q_lower_fp,
+  q_lower .initial:n  = -25,
+  %
+  q_upper .fp_set:N   = \l__stat_quantile_kv_q_upper_fp,
+  q_upper .initial:n  = 25,
+  %
+  tol     .fp_set:N   = \l__stat_quantile_kv_tol_fp,
+  tol     .initial:n  = 1e-8,
+}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % approximate probabilities calculated using the Normal distribution
@@ -83,17 +89,21 @@
 %% Quantile function (inverse CDF) for the normal-distribution
 %% ============================================================
 %% code generated using Claude.ai
-\fp_new:N \l__qnorm_lo_fp
-\fp_new:N \l__qnorm_hi_fp
-\fp_new:N \l__qnorm_mid_fp
+\fp_new:N  \l__qnorm_lo_fp
+\fp_new:N  \l__qnorm_hi_fp
+\fp_new:N  \l__qnorm_mid_fp
+\int_new:N \l__quantile_numSteps_int
 
 %% Internal bisection engine.
-%% 54 steps: width 100 / 2^54 = 5.5e-15 (sub-ULP precision).
+%% width / 2^steps <= tol -> log_2(width/tol) >= steps
 \cs_new_protected:Nn \__qnorm_bisect:n
 {% #1 = p (probability)
-  \fp_set:Nn \l__qnorm_lo_fp { -50 }
-  \fp_set:Nn \l__qnorm_hi_fp {  50 }
-  \int_step_inline:nn { 54 }
+  \fp_set:Nn \l__qnorm_lo_fp { \l__stat_quantile_kv_q_lower_fp }
+  \fp_set:Nn \l__qnorm_hi_fp { \l__stat_quantile_kv_q_upper_fp }
+  \int_set:Nn \l__quantile_numSteps_int {
+    \fp_eval:n { ceil(ln((\l__qnorm_hi_fp-\l__qnorm_lo_fp)/
+    \l__stat_quantile_kv_tol_fp)/ln(2))} }
+  \int_step_inline:nn { \int_eval:n { \l__quantile_numSteps_int }}
     {
       \fp_set:Nn \l__qnorm_mid_fp { \fp_eval:n {( \l__qnorm_lo_fp + \l__qnorm_hi_fp ) / 2 }}%
       \fp_set:Nn \l__stat_norm_prob { \fp_eval:n { \SN{ \fp_eval:n \l__qnorm_mid_fp } } }
@@ -119,7 +129,7 @@
 %\qnorm{keys: pvalue, var, format}
 \NewDocumentCommand \qnorm { m }{
   \group_begin:
-  \keys_set:nn { stat }{ #1 }
+  \keys_set:nn { stat/quantile }{ #1 }
   \__qnorm_bisect:n { \fp_eval:n { \l__stat_kv_pvalue_fp } }
   \quark_if_no_value:NTF \l__stat_kv_store_csname
     { \exp_args:NnV \fp_format:nn { \l__qnorm_mid_fp } \l__stat_fmt_tl }
@@ -230,12 +240,15 @@
 \fp_new:N \l__qt_mid_fp
 
 %% Internal bisection engine.
-%% 54 steps: width 100 / 2^54 = 5.5e-15 (sub-ULP precision).
+%% width / 2^steps <= tol -> log_2(width/tol) >= steps
 \cs_new_protected:Nn \__qt_bisect:nn
   {% #1 = p (probability), #2 = nu (positive integer df)
-    \fp_set:Nn \l__qt_lo_fp { -50 }
-    \fp_set:Nn \l__qt_hi_fp {  50 }
-    \int_step_inline:nn { 54 }
+    \fp_set:Nn \l__qt_lo_fp { \l__stat_quantile_kv_q_lower_fp }
+    \fp_set:Nn \l__qt_hi_fp { \l__stat_quantile_kv_q_upper_fp }
+    \int_set:Nn \l__quantile_numSteps_int {
+      \fp_eval:n { ceil(ln((\l__qt_hi_fp-\l__qt_lo_fp)/
+        \l__stat_quantile_kv_tol_fp)/ln(2))} }
+    \int_step_inline:nn { \int_eval:n { \l__quantile_numSteps_int }}
       {
         \fp_set:Nn \l__qt_mid_fp { ( \l__qt_lo_fp + \l__qt_hi_fp ) / 2 }
         \__pt_cdf:nn { \l__qt_mid_fp } {#2}
@@ -250,7 +263,7 @@
 %\qt{keys: pvalue, df, var, format}
 \NewDocumentCommand \qt { m }{
   \group_begin:
-  \keys_set:nn { stat }{ #1 }
+  \keys_set:nn { stat/quantile }{ #1 }
   \__qt_bisect:nn { \fp_eval:n { \l__stat_kv_pvalue_fp } } { \l__stat_kv_df_int }
   \quark_if_no_value:NTF \l__stat_kv_store_csname
     { \exp_args:NnV \fp_format:nn { \l__qt_mid_fp } \l__stat_fmt_tl }
