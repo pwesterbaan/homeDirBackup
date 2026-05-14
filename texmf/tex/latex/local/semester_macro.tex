@@ -1,0 +1,22 @@
+%% macro to print 'current' semester
+\ExplSyntaxOn%
+\int_new:N \l__shortcuts_md_int
+\tl_new:N \l__shortcuts_sem_tl
+
+\cs_new:Npn \TheSemester {
+  \int_set:Nn \l__shortcuts_md_int { \month * 100 + \day }
+  \int_case:nnF { 1 }
+    {
+      { \int_compare_p:n { \l__shortcuts_md_int < 505 } }
+        { \tl_set:Nn \l__shortcuts_sem_tl { Spring } }
+
+      { \int_compare_p:n { \l__shortcuts_md_int < 620 } }
+        { \tl_set:Nn \l__shortcuts_sem_tl { Summer~I } }
+
+      { \int_compare_p:n { \l__shortcuts_md_int < 815 } }
+        { \tl_set:Nn \l__shortcuts_sem_tl { Summer~II } }
+    }
+    { \tl_set:Nn \l__shortcuts_sem_tl { Fall } }
+  \tl_use:N \l__shortcuts_sem_tl \xspace \the\year
+}
+\ExplSyntaxOff
