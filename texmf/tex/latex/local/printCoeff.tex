@@ -1,51 +1,42 @@
+\RequirePackage{siunitx}
 \ExplSyntaxOn%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\num from siunitx for explicit printing of +
 \cs_new_protected:Npn \__printcoeff_num:nn #1 #2
   { \num[#1]{#2} }
 
-% Key family for \printCoeff
-%   signsOnly     - for ±1, print just the sign
-%   zero          - force-print zero as "0"
-%   noplus        - suppress leading '+' (alternative to star)
-%   format=<fmt>  - fp_format string, e.g. format=0.2f
-%   numDec        - number of decimal places to round to
 \keys_define:nn { exam / printCoeff }
   {
-    signs-only    .bool_set:N       =  \l_exam_signonly_units_bool ,
-    signs-only    .initial:n        =  false ,
-    signs-only    .default:n        =  true , %set when called without setting
+    signs-only  .bool_set:N       =  \l_exam_signonly_units_bool ,
+    signs-only  .initial:n        =  true ,
+    signs-only  .default:n        =  false , %set when called without setting
+    one         .meta:n           = { signs-only }, %alias for `signs-only'
     %
-    zero          .bool_set:N       =  \l_exam_print_zero_bool ,
-    zero          .initial:n        =  false ,
-    zero          .default:n        =  true , %set when called without setting
+    zero        .bool_set:N       =  \l_exam_print_zero_bool ,
+    zero        .initial:n        =  false ,
+    zero        .default:n        =  true ,  %set when called without setting
     %
-    noplus        .bool_set:N       =  \l__printcoeff_noplus_bool ,
-    noplus        .initial:n        =  false ,
-    noplus        .default:n        =  true , %set when called without setting
+    noplus      .bool_set:N       =  \l__printcoeff_noplus_bool ,
+    noplus      .initial:n        =  false ,
+    noplus      .default:n        =  true ,  %set when called without setting
     %
-    format        .tl_set:N         =  \l__printcoeff_fmt_tl ,
-    format        .value_required:n = true,
+    format      .tl_set:N         =  \l__printcoeff_fmt_tl ,
+    format      .value_required:n = true,
     %TODO add alias for format?
-    %
-    numDec        .int_set:N        =  \l__numDecPlaces,
-    numDec        .initial:n        =  4,
   }
 
 % \printCoeff * [keys] {<coeff>}
 %   star:           suppress leading '+' (equivalent to noplus key)
-%   [signs-only]:   for ±1, print just the sign
-%   [zero]:         force-print zero as "0"
-%   [noplus]:       suppress leading '+' without the star
-%   [format=<fmt>]: fp_format string (default: empty)
+%   [one]:          (false) for \pm 1, enable printing one
+%   [zero]:         (false) enable printing zero
+%   [noplus]:       (false) suppress leading '+' without the star
+%   [format=<fmt>]: () fp_format string (default: empty)
 \NewDocumentCommand \printCoeff { s O{} m }
   { \exam_print_coeff:nnn {#1} {#2} {#3} }
 
 \cs_new_protected:Npn \exam_print_coeff:nnn #1 #2 #3
   {
     \group_begin:
-%%%%%    % Reset all keys to per-invocation defaults, then apply user's keys
-%%%%%%    \keys_set:nn { exam / printCoeff }
-%%%%%%      { signs-only, zeros, noplus, format={} }
       \keys_set:nn { exam / printCoeff } { #2 }
 
       % Star is equivalent to noplus
@@ -56,71 +47,40 @@
       \bool_if:NT \l__printcoeff_noplus_bool
         { \bool_set_false:N \l_exam_print_sign_bool }
 
-      \tl_set:Nx \l_tmpa_tl { \fp_eval:n { #3 } } % textual form for printing
-      \fp_set:Nn \l_tmpa_fp { \l_tmpa_tl }        % numeric form for comparisons
+      \fp_set:Nn \l_tmpa_fp { \fp_eval:n { #3 } } % numeric form for comparisons
 
-      %TODO consider case where num=-1,0,1 with format nonempty
-      %TODO: \l_exam_print_zero_bool only used in zero case
-      %TODO: \l_exam_signonly_units_bool only used in +/- 1 cases
-      %TODO: Use \l_exam_print_sign_bool in generic case
-      %TODO: cases-
-      %TODO:   -- \l_exam_signonly_units_bool == T && abs(\l_tmpa_fp) == 1
-      %TODO:       TRUE: fp_compare:nTF {\l_tmpa_fp == -1 }{-1}{
-      %TODO:         \bool_if:NTF \l_exam_print_sign_bool {+}{} }
-      %TODO:
-      %TODO:       FALSE: \bool_if:NTF \l_exam_print_zero_bool { generic }{print nothing}
-      % 0
-      \fp_compare:nTF { \l_tmpa_fp == 0 }
-        {
-          \bool_if:NTF \l_exam_print_zero_bool
-            {
-              \bool_if:NTF \l_exam_print_sign_bool
-                { \ensuremath{+0} }
-                { \ensuremath{0}  }
-            }
-            { \ensuremath{} }
+      \bool_if:nTF {
+        \fp_compare_p:n {abs(\l_tmpa_fp)==1} && \l_exam_signonly_units_bool
+      }{
+        \fp_compare:nTF {\l_tmpa_fp == -1}
+          {\ensuremath{-}}  %-1 w/ signonly_units
+          {
+           \bool_if:NTF \l_exam_print_sign_bool
+           {\ensuremath{+}} %1 w/  sign
+           {}               %1 w/o sign
+         }
+      }{
+
+        \bool_if:nT {% print zero or non-zero number: generic case
+          \l_exam_print_zero_bool || \fp_compare_p:n {\l_tmpa_fp != 0}
         }
         {
-          % -1
-          \fp_compare:nTF { \l_tmpa_fp == -1 }
+          \group_begin:
+          \ensuremath{
+            \exp_args:Ne \__printcoeff_num:nn
             {
-              \bool_if:NTF \l_exam_signonly_units_bool
-                { \ensuremath{-}  }
-                { \ensuremath{-1} }
+              group-separator={,},
+              group-digits=integer,
+              \bool_if:NT \l_exam_print_sign_bool { print-implicit-plus=true }
             }
             {
-              % +1
-              \fp_compare:nTF { \l_tmpa_fp == 1 }
-                {
-                  \bool_if:NTF \l_exam_signonly_units_bool
-                    { \bool_if:NTF \l_exam_print_sign_bool
-                        { \ensuremath{+} }
-                        { \ensuremath{}  }
-                    }
-                    { \bool_if:NTF \l_exam_print_sign_bool
-                        { \ensuremath{+1} }
-                        { \ensuremath{1}  }
-                    }
-                }
-                {
-                  % general numeric case
-                  \group_begin:
-                    \ensuremath{
-                      \exp_args:Ne \__printcoeff_num:nn
-                      {
-                        group-separator={,},
-                        group-digits=integer,
-                        \bool_if:NT \l_exam_print_sign_bool { print-implicit-plus=true }
-                      }
-                      {
-                        \exp_args:NnV \fp_format:nn
-                        { round(\l_tmpa_tl, \l__numDecPlaces) } \l__printcoeff_fmt_tl
-                      }
-                    }
-                  \group_end:
-                }
+              \exp_args:NnV \fp_format:nn
+              { \l_tmpa_fp } \l__printcoeff_fmt_tl
             }
+          }
+          \group_end:
         }
+      }
     \group_end:
     }
 \ExplSyntaxOff%
