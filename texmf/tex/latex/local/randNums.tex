@@ -3,7 +3,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \int_new:N    \l__dp_lower_int   % decimal places in lower bound string
 \int_new:N    \l__dp_upper_int   % decimal places in upper bound string
-% \fp_new:N     \l__dp_scale_fp    % = 1/step %%% = 10^max(dp_lower, dp_upper)
 \seq_new:N    \l__dp_seq         % scratch for splitting on "."
 \tl_new:N     \l__dp_frac_tl     % scratch for the fractional part
 
@@ -33,41 +32,38 @@
 
 \keys_define:nn { exam / randNums }
   {
-    nz            .bool_set:N  = \l__exam_randNums_kv_nonzero_bool,
-    nz            .initial:n   = false,
-    nz            .default:n   = true,
+    nz            .bool_set:N       = \l__exam_randNums_kv_nonzero_bool,
+    nz            .initial:n        = false,
+    nz            .default:n        = true,
     %
-    sort          .bool_set:N  = \l__exam_randNums_kv_sort_bool,
-    sort          .initial:n   = false,
-    sort          .default:n   = true,
+    sort          .bool_set:N       = \l__exam_randNums_kv_sort_bool,
+    sort          .initial:n        = false,
+    sort          .default:n        = true,
     %
-    uniq          .bool_set:N  = \l__exam_randNums_kv_uniq_bool,
-    uniq          .initial:n   = false,
-    uniq          .default:n   = true,
+    uniq          .bool_set:N       = \l__exam_randNums_kv_uniq_bool,
+    uniq          .initial:n        = false,
+    uniq          .default:n        = true,
     %
-    skip          .clist_set:N = \l__exam_randNums_kv_skip_clist,
+    skip          .clist_set:N      = \l__exam_randNums_kv_skip_clist,
     %
-    min           .code:n      = {
+    min           .code:n           = {
                     \fp_set:Nn  \l__exam_randNums_kv_min_fp { #1 }
                     \tl_set:Nn  \l__exam_randNums_kv_min_tl { #1 } },
-    min           .initial:n   = 1,
+    min           .initial:n        = 1,
     min           .value_required:n = true,
     %
-    max           .code:n      = {
+    max           .code:n           = {
                     \fp_set:Nn  \l__exam_randNums_kv_max_fp { #1 }
                     \tl_set:Nn  \l__exam_randNums_kv_max_tl { #1 } },
-    max           .initial:n   = 5,
+    max           .initial:n        = 5,
     max           .value_required:n = true,
     %
-    mult          .fp_set:N    = \l__exam_randNums_kv_mult_fp,
-    mult          .initial:n   = 1,
+    mult          .fp_set:N         = \l__exam_randNums_kv_mult_fp,
+    mult          .initial:n        = 1,
     mult          .value_required:n = true,
     %
-    numDec        .code:n      = {
-                  %TODO: swapping \fp_set:Nn for \int_set:Nn causes error?
-                  \fp_set:Nn       \l__exam_randNums_kv_numDec_fp { #1 }
-                  \bool_set_true:N \l__exam_randNums_kv_numDec_explicit_bool },
-    numDec        .initial:n   = 1,
+    numDec        .fp_set:N         = \l__exam_randNums_kv_numDec_fp,
+    numDec        .initial:n        = nan,
     numDec        .value_required:n = true,
   }
 
@@ -76,12 +72,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \msg_new:nnn { randNums } { too-many }
   { \randNums*:~only~#1~value(s)~available~in~[#3]~but~#2~requested. }
-
-%TODO unused error message?
-\msg_new:nnn { randNums } { bad-step }
-  { step=#1~does~not~produce~an~integer~scale.~
-    Use~step=0.1,~0.01,~0.5~etc.~for~sub-integer~precision,~
-    or~use~mult=~for~integer~multiples. }
 
 % \randNums * [keys] {csname1,csname2,...}
 % #1 - starred variant produces unique values
@@ -97,22 +87,10 @@
 % #3 - clist of names; defines \name globally to the drawn value
 \NewDocumentCommand \randNums { s O{} m }{
   \group_begin: %grouping used to keep key changes local
-  %TODO: why does this key need to be explicitly reset?
-  \bool_set_false:N \l__exam_randNums_kv_numDec_explicit_bool
   \keys_set:nn { exam / randNums }{ #2 }
 
   % Star is equivalent to uniq
   \bool_if:nT {#1} { \bool_set_true:N \l__exam_randNums_kv_uniq_bool }
-
-%%%%%% \typeout{!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!}
-%%%%%% \bool_if:NTF \l__exam_randNums_kv_nonzero_bool {\typeout{DEBUG~nz:~true}}{\typeout{DEBUG~nz:~false}}
-%%%%%% \bool_if:NTF \l__exam_randNums_kv_sort_bool {\typeout{DEBUG~sort:~true}}{\typeout{DEBUG~sort:~false}}
-%%%%%% \bool_if:NTF \l__exam_randNums_kv_uniq_bool {\typeout{DEBUG~uniq:~true}}{\typeout{DEBUG~uniq:~false}}
-%%%%%% \bool_if:NTF \l__exam_randNums_kv_numDec_explicit_bool {\typeout{DEBUG~numDec:~true}}{\typeout{DEBUG~numDec:~false}}
-%%%%%% \clist_map_inline:nn {\l__exam_randNums_kv_skip_clist}{\typeout{DEBUG~skip:~##1 }}
-%%%%%% \typeout{DEBUG~min/max:~\fp_eval:n {\l__exam_randNums_kv_min_tl},~\fp_eval:n {\l__exam_randNums_kv_max_tl}}
-%%%%%% \typeout{DEBUG~mult:~\fp_eval:n {\l__exam_randNums_kv_mult_fp}}
-%%%%%% \typeout{DEBUG~numDec:~\fp_eval:n {\l__exam_randNums_kv_numDec_fp}}
 
   % Set uniq_bool based on keyval pair
   \bool_set_false:N \l__exam_randNums_uniq_bool
@@ -127,17 +105,9 @@
   { \fp_eval:n { 10 ^ \int_max:nn { \l__dp_lower_int } { \l__dp_upper_int } } }
 
   %manually override scaling
-  \bool_if:NT \l__exam_randNums_kv_numDec_explicit_bool {
-    % \fp_set:Nn \l__dp_scale_fp { \fp_eval:n { round( 1 / \l__exam_randNums_kv_numDec_fp )}}
-    % Validate: 1/numDec must be a positive integer, i.e. numDec must be of the form 1/N
-    % \fp_compare:nNnF { abs( \l__dp_scale_fp - 1 / \l__exam_randNums_kv_numDec_fp ) } < { 10**-4 }
-    %   { \msg_error:nnn { randNums } { bad-numDec }
-    %     { \fp_eval:n { \l__exam_randNums_kv_numDec_fp } } }
+  \fp_if_nan:nF { \l__exam_randNums_kv_numDec_fp }{
     \fp_set:Nn \l__dp_scale_fp { \fp_eval:n { 10 ^ \l__exam_randNums_kv_numDec_fp }}
     }
-
-%%%%%% \typeout{DEBUG~dp_lower/upper_int:~\int_eval:n {\l__dp_lower_int},~\int_eval:n {\l__dp_upper_int}}
-%%%%%% \typeout{DEBUG~dp_scale_fp:~\fp_eval:n {\l__dp_scale_fp}}
 
   % set the upper and lower bounds for the random integers
   \int_set:Nn \l__exam_randNums_min_int {
@@ -152,8 +122,6 @@
       \l__exam_randNums_kv_max_fp * \l__dp_scale_fp))
     }
   }
-
-%%%%%% \typeout{DEBUG~scaled~min/max:~\int_eval:n { \l__exam_randNums_min_int },~\int_eval:n { \l__exam_randNums_max_int }}
 
   %build a sequence of "used values"
   \seq_clear_new:N \l__used_seq
