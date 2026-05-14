@@ -1,7 +1,7 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{texPreamble}[09/18/2019]
 
-% TODO: Use this make compat with beamer (e.g. enable only certain packages)
+% % TODO: Use this make compat with beamer (e.g. enable only certain packages)
 \makeatletter
 \@ifclassloaded{beamer}{
     % yes code
@@ -43,6 +43,13 @@
 \RequirePackage{mathrsfs}
 \RequirePackage{nameref}
 \RequirePackage{lipsum}
+% \RequirePackage{fdsymbol}                      %grab icons for card suits (modifies all math fonts)
+%Grab ONLY heart and diamond
+%https://tex.stackexchange.com/a/9643/190910
+\DeclareSymbolFont{extraup}{U}{zavm}{m}{n}
+\DeclareMathSymbol{\varheartsuit}{\mathalpha}{extraup}{86}
+\DeclareMathSymbol{\vardiamondsuit}{\mathalpha}{extraup}{87}
+
 \RequirePackage[shortlabels, inline]{enumitem}  %customize enumerate at initialization
 \RequirePackage[makeroom]{cancel}               %cross out math
 \RequirePackage[normalem]{ulem}
