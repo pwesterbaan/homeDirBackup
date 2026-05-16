@@ -1,4 +1,5 @@
 \RequirePackage{siunitx}
+\RequirePackage{l3str-format} % needed for TL2025
 \ExplSyntaxOn%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %\num from siunitx for explicit printing of +
@@ -22,7 +23,7 @@
     %
     format      .tl_set:N         =  \l__printcoeff_fmt_tl ,
     format      .value_required:n = true,
-    %TODO add alias for format?
+    fmt         .meta:n           = { format }, %alias for format?
   }
 
 % \printCoeff * [keys] {<coeff>}
