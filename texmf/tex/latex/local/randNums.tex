@@ -21,48 +21,48 @@
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\bool_new:N   \l__pick_found_bool           % track if rand num in skip
-\bool_new:N   \l__exam_randNums_uniq_bool   % [uniq] or star
-\int_new:N    \l__exam_randNums_min_int     % sorted min
-\int_new:N    \l__exam_randNums_max_int     % sorted max
-\int_new:N    \l__pool_size_int             % stores size of pool of ints
-\int_new:N    \l__sort_idx_int              % index for sorting values
-\seq_new:N    \l__sort_seq                  % sequence to hold values for sorting
-\tl_new:N     \l__my_pick_tl                % scratch for randomly chosen value
+\bool_new:N   \l__pick_found_bool      % track if rand num in skip
+\bool_new:N   \l__randNums_uniq_bool   % [uniq] or star
+\int_new:N    \l__randNums_min_int     % sorted min
+\int_new:N    \l__randNums_max_int     % sorted max
+\int_new:N    \l__pool_size_int        % stores size of pool of ints
+\int_new:N    \l__sort_idx_int         % index for sorting values
+\seq_new:N    \l__sort_seq             % sequence to hold values for sorting
+\tl_new:N     \l__my_pick_tl           % scratch for randomly chosen value
 
-\keys_define:nn { exam / randNums }
+\keys_define:nn { randNums }
   {
-    nz            .bool_set:N       = \l__exam_randNums_kv_nonzero_bool,
+    nz            .bool_set:N       = \l__randNums_kv_nonzero_bool,
     nz            .initial:n        = false,
     nz            .default:n        = true,
     %
-    sort          .bool_set:N       = \l__exam_randNums_kv_sort_bool,
+    sort          .bool_set:N       = \l__randNums_kv_sort_bool,
     sort          .initial:n        = false,
     sort          .default:n        = true,
     %
-    uniq          .bool_set:N       = \l__exam_randNums_kv_uniq_bool,
+    uniq          .bool_set:N       = \l__randNums_kv_uniq_bool,
     uniq          .initial:n        = false,
     uniq          .default:n        = true,
     %
-    skip          .clist_set:N      = \l__exam_randNums_kv_skip_clist,
+    skip          .clist_set:N      = \l__randNums_kv_skip_clist,
     %
     min           .code:n           = {
-                    \fp_set:Nn  \l__exam_randNums_kv_min_fp { #1 }
-                    \tl_set:Nn  \l__exam_randNums_kv_min_tl { #1 } },
+                    \fp_set:Nn  \l__randNums_kv_min_fp { #1 }
+                    \tl_set:Nn  \l__randNums_kv_min_tl { #1 } },
     min           .initial:n        = 1,
     min           .value_required:n = true,
     %
     max           .code:n           = {
-                    \fp_set:Nn  \l__exam_randNums_kv_max_fp { #1 }
-                    \tl_set:Nn  \l__exam_randNums_kv_max_tl { #1 } },
+                    \fp_set:Nn  \l__randNums_kv_max_fp { #1 }
+                    \tl_set:Nn  \l__randNums_kv_max_tl { #1 } },
     max           .initial:n        = 5,
     max           .value_required:n = true,
     %
-    mult          .fp_set:N         = \l__exam_randNums_kv_mult_fp,
+    mult          .fp_set:N         = \l__randNums_kv_mult_fp,
     mult          .initial:n        = 1,
     mult          .value_required:n = true,
     %
-    numDec        .fp_set:N         = \l__exam_randNums_kv_numDec_fp,
+    numDec        .fp_set:N         = \l__randNums_kv_numDec_fp,
     numDec        .initial:n        = nan,
     numDec        .value_required:n = true,
   }
@@ -87,51 +87,51 @@
 % #3 - clist of names; defines \name globally to the drawn value
 \NewDocumentCommand \randNums { s O{} m }{
   \group_begin: %grouping used to keep key changes local
-  \keys_set:nn { exam / randNums }{ #2 }
+  \keys_set:nn { randNums }{ #2 }
 
   % Star is equivalent to uniq
-  \bool_if:nT {#1} { \bool_set_true:N \l__exam_randNums_kv_uniq_bool }
+  \bool_if:nT {#1} { \bool_set_true:N \l__randNums_kv_uniq_bool }
 
   % Set uniq_bool based on keyval pair
-  \bool_set_false:N \l__exam_randNums_uniq_bool
-  \bool_if:NT \l__exam_randNums_kv_uniq_bool { \bool_set_true:N \l__exam_randNums_uniq_bool }
+  \bool_set_false:N \l__randNums_uniq_bool
+  \bool_if:NT \l__randNums_kv_uniq_bool { \bool_set_true:N \l__randNums_uniq_bool }
 
   % % Detect decimal places in each bound's string form
-  \__randints_count_dp:NN \l__dp_lower_int { \l__exam_randNums_kv_min_tl }
-  \__randints_count_dp:NN \l__dp_upper_int { \l__exam_randNums_kv_max_tl }
+  \__randints_count_dp:NN \l__dp_lower_int { \l__randNums_kv_min_tl }
+  \__randints_count_dp:NN \l__dp_upper_int { \l__randNums_kv_max_tl }
 
   % Scale factor = 10^(max decimal places); 1 when both bounds are integers
   \fp_set:Nn \l__dp_scale_fp
   { \fp_eval:n { 10 ^ \int_max:nn { \l__dp_lower_int } { \l__dp_upper_int } } }
 
   %manually override scaling
-  \fp_if_nan:nF { \l__exam_randNums_kv_numDec_fp }{
-    \fp_set:Nn \l__dp_scale_fp { \fp_eval:n { 10 ^ \l__exam_randNums_kv_numDec_fp }}
+  \fp_if_nan:nF { \l__randNums_kv_numDec_fp }{
+    \fp_set:Nn \l__dp_scale_fp { \fp_eval:n { 10 ^ \l__randNums_kv_numDec_fp }}
     }
 
   % set the upper and lower bounds for the random integers
-  \int_set:Nn \l__exam_randNums_min_int {
+  \int_set:Nn \l__randNums_min_int {
     \fp_eval:n{ round(min(
-      \l__exam_randNums_kv_min_fp * \l__dp_scale_fp ,
-      \l__exam_randNums_kv_max_fp * \l__dp_scale_fp))
+      \l__randNums_kv_min_fp * \l__dp_scale_fp ,
+      \l__randNums_kv_max_fp * \l__dp_scale_fp))
     }
   }
-  \int_set:Nn \l__exam_randNums_max_int {
+  \int_set:Nn \l__randNums_max_int {
     \fp_eval:n{ round(max(
-      \l__exam_randNums_kv_min_fp * \l__dp_scale_fp,
-      \l__exam_randNums_kv_max_fp * \l__dp_scale_fp))
+      \l__randNums_kv_min_fp * \l__dp_scale_fp,
+      \l__randNums_kv_max_fp * \l__dp_scale_fp))
     }
   }
 
   %build a sequence of "used values"
   \seq_clear_new:N \l__used_seq
-  \clist_map_inline:Nn \l__exam_randNums_kv_skip_clist {
-    \bool_if:NTF { \l__exam_randNums_kv_nonzero_bool }{
+  \clist_map_inline:Nn \l__randNums_kv_skip_clist {
+    \bool_if:NTF { \l__randNums_kv_nonzero_bool }{
       % nz pool: ±[lower..upper]*multiplier, so check |value| is in range
-      \fp_compare:nNnTF { abs(##1) } < { \l__exam_randNums_min_int * \l__exam_randNums_kv_mult_fp }{
+      \fp_compare:nNnTF { abs(##1) } < { \l__randNums_min_int * \l__randNums_kv_mult_fp }{
         % out of range low - skip
         }{
-          \fp_compare:nNnTF { abs(##1) } > { \l__exam_randNums_max_int * \l__exam_randNums_kv_mult_fp }{
+          \fp_compare:nNnTF { abs(##1) } > { \l__randNums_max_int * \l__randNums_kv_mult_fp }{
             % out of range high - skip
           }{
             \seq_put_right:Nx \l__used_seq { \fp_eval:n { ##1 } }
@@ -140,16 +140,16 @@
     }{
       % normal pool: check lower*multiplier <= value <= upper*multiplier
       \fp_compare:nNnTF { ##1 } < {
-        \l__exam_randNums_min_int
+        \l__randNums_min_int
         / \l__dp_scale_fp
-        * \l__exam_randNums_kv_mult_fp
+        * \l__randNums_kv_mult_fp
         }
         { } % out of range - skip
         {
           \fp_compare:nNnTF { ##1 } > {
-            \l__exam_randNums_max_int
+            \l__randNums_max_int
             / \l__dp_scale_fp
-            * \l__exam_randNums_kv_mult_fp
+            * \l__randNums_kv_mult_fp
           }{
             % out of range - skip
           }{
@@ -160,10 +160,10 @@
   }
 
   % overflow check (only meaningful without replacement)
-  \bool_if:NTF { \l__exam_randNums_uniq_bool }{
-    \bool_if:NTF { \l__exam_randNums_kv_nonzero_bool }
-      { \int_set:Nn \l__pool_size_int { 2 * ( \l__exam_randNums_max_int - \l__exam_randNums_min_int + 1 ) } }
-      { \int_set:Nn \l__pool_size_int {       \l__exam_randNums_max_int - \l__exam_randNums_min_int + 1   } }
+  \bool_if:NTF { \l__randNums_uniq_bool }{
+    \bool_if:NTF { \l__randNums_kv_nonzero_bool }
+      { \int_set:Nn \l__pool_size_int { 2 * ( \l__randNums_max_int - \l__randNums_min_int + 1 ) } }
+      { \int_set:Nn \l__pool_size_int {       \l__randNums_max_int - \l__randNums_min_int + 1   } }
     % Subtract the number of values being skipped
     \int_sub:Nn \l__pool_size_int { \seq_count:N \l__used_seq }
     % Compare against the number of values requested
@@ -171,9 +171,9 @@
       \msg_fatal:nnxxx { randNums } { too-many }
         { \int_use:N \l__pool_size_int }
         { \clist_count:n { #3 } }
-        { \bool_if:NTF { \l__exam_randNums_kv_nonzero_bool } {nz~}
-          {} \int_eval:n { \l__exam_randNums_min_int }
-          .. \int_eval:n { \l__exam_randNums_max_int }}%
+        { \bool_if:NTF { \l__randNums_kv_nonzero_bool } {nz~}
+          {} \int_eval:n { \l__randNums_min_int }
+          .. \int_eval:n { \l__randNums_max_int }}%
     }
   }{
   }
@@ -182,29 +182,29 @@
   \clist_map_inline:nn {#3}{
     \bool_set_false:N \l__pick_found_bool
     \bool_until_do:Nn \l__pick_found_bool{
-      \bool_if:NTF { \l__exam_randNums_kv_nonzero_bool }{
+      \bool_if:NTF { \l__randNums_kv_nonzero_bool }{
         \tl_set:Nx \l__my_pick_tl{
           \fp_eval:n{
             \int_rand:nn {1}{2} == 1
               ? \int_rand:nn
-                {\l__exam_randNums_min_int}
-                {\l__exam_randNums_max_int}
+                {\l__randNums_min_int}
+                {\l__randNums_max_int}
                 / \l__dp_scale_fp
-                * \l__exam_randNums_kv_mult_fp
+                * \l__randNums_kv_mult_fp
               : -\int_rand:nn
-                {\l__exam_randNums_min_int}
-                {\l__exam_randNums_max_int}
+                {\l__randNums_min_int}
+                {\l__randNums_max_int}
                 / \l__dp_scale_fp
-                * \l__exam_randNums_kv_mult_fp
+                * \l__randNums_kv_mult_fp
             }
           }
         }{
           \tl_set:Nx \l__my_pick_tl
             { \fp_eval:n { \int_rand:nn
-                {\l__exam_randNums_min_int}
-                {\l__exam_randNums_max_int}
+                {\l__randNums_min_int}
+                {\l__randNums_max_int}
                 / \l__dp_scale_fp
-                * \l__exam_randNums_kv_mult_fp
+                * \l__randNums_kv_mult_fp
               } }
         }
       % Accept the pick only if it's not in the exclusion list
@@ -212,13 +212,13 @@
     }
 
     %Add value generated to used sequence if done w/o replacement
-    \bool_if:NTF { \l__exam_randNums_uniq_bool }{ \seq_put_right:NV \l__used_seq \l__my_pick_tl }{}
+    \bool_if:NTF { \l__randNums_uniq_bool }{ \seq_put_right:NV \l__used_seq \l__my_pick_tl }{}
     %Globally store value generated
     \cs_gset:cpx {##1}{ \tl_use:N \l__my_pick_tl }
   }
 
   %sort values
-  \bool_if:NT \l__exam_randNums_kv_sort_bool {
+  \bool_if:NT \l__randNums_kv_sort_bool {
     \seq_clear:N \l__sort_seq
     \clist_map_inline:nn {#3}
       { \seq_put_right:Nx \l__sort_seq { \use:c { ##1 } } }   % \use:c dereferences
