@@ -1,0 +1,177 @@
+\RequirePackage{siunitx}
+% \RequirePackage{l3str-format} % needed for TL2025
+\ExplSyntaxOn%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\num from siunitx for explicit printing of +
+\cs_new_protected:Npn \__printcoeff_num:nn #1 #2
+  { \num[#1]{#2} }
+
+\keys_define:nn { printCoeff }
+  {
+    signs-only  .bool_set:N       =  \l__signonly_units_bool ,
+    signs-only  .initial:n        =  true ,
+    signs-only  .default:n        =  false , %set when called without setting
+    one         .meta:n           = { signs-only }, %alias for `signs-only'
+    %
+    zero        .bool_set:N       =  \l__print_zero_bool ,
+    zero        .initial:n        =  false ,
+    zero        .default:n        =  true ,  %set when called without setting
+    %
+    noplus      .bool_set:N       =  \l__printcoeff_noplus_bool ,
+    noplus      .initial:n        =  false ,
+    noplus      .default:n        =  true ,  %set when called without setting
+    %
+    format      .tl_set:N         =  \l__printcoeff_fmt_tl ,
+    format      .value_required:n = true,
+    fmt         .meta:n           = { format }, %alias for format
+    %
+    numDec      .int_set:N        = \l_printcoeff_numDec_int,
+    numDec      .initial:n        = 4,
+    numDec      .value_required:n = true,
+  }
+
+% \printCoeff * [keys] {<coeff>}
+% #1 - starred variant suppress leading '+' (equivalent to noplus key)
+% #2 - optional args: (default)
+%            one: (false) for \pm 1, enable printing one
+%           zero: (false) enable printing zero
+%         noplus: (false) suppress leading '+' without the star
+%   format=<fmt>: () fp_format string (default: empty)
+\NewDocumentCommand \printCoeff { s O{} m }
+  { \print_coeff:nnn {#1} {#2} {#3} }
+
+\cs_new_protected:Npn \print_coeff:nnn #1 #2 #3
+  {
+    \group_begin:
+      \keys_set:nn { printCoeff } { #2 }
+
+      % Star is equivalent to noplus
+      \bool_if:nT {#1} { \bool_set_true:N \l__printcoeff_noplus_bool }
+
+      % Derive print_sign from noplus
+      \bool_set_true:N \l__print_sign_bool
+      \bool_if:NT \l__printcoeff_noplus_bool
+        { \bool_set_false:N \l__print_sign_bool }
+
+      \fp_set:Nn \l__tmpa_fp { \fp_eval:n { #3 } } % numeric form for comparisons
+
+      \bool_if:nTF {
+        \fp_compare_p:n {abs(\l__tmpa_fp)==1} && \l__signonly_units_bool
+      }{
+        \fp_compare:nTF {\l__tmpa_fp == -1}
+          {\ensuremath{-}}  %-1 w/ signonly_units
+          {
+           \bool_if:NTF \l__print_sign_bool
+           {\ensuremath{+}} %1 w/  sign
+           {}               %1 w/o sign
+         }
+      }{
+
+        \bool_if:nT {% print zero or non-zero number: generic case
+          \l__print_zero_bool || \fp_compare_p:n {\l__tmpa_fp != 0}
+        }
+        {
+          \group_begin:
+          \ensuremath{
+            \exp_args:Ne \__printcoeff_num:nn
+            {
+              group-separator={,},
+              group-digits=integer,
+              \bool_if:NT \l__print_sign_bool { print-implicit-plus=true }
+            }
+            {
+              \exp_args:NnV \fp_format:nn
+              { round(\l__tmpa_fp,\l_printcoeff_numDec_int) } \l__printcoeff_fmt_tl
+            }
+          }
+          \group_end:
+        }
+      }
+    \group_end:
+    }
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \printCoeff [keys] {<coeff>}
+% #1 - optional args: (default)
+%            one: (false) for \pm 1, enable printing one
+%           zero: (false) enable printing zero
+%         noplus: (false) suppress leading '+' without the star
+%   format=<fmt>: () fp_format string (default: empty)
+\int_new:N   \l__expo_idx_int
+\tl_new:N    \l__printpoly_coeff
+\seq_new:N   \l__printpoly_expo_seq
+\bool_new:N  \l__printpoly_firstTerm_bool
+
+\keys_define:nn { printPoly }
+  {
+    var         .tl_set:N         =  \l__printpoly_var_tl ,
+    var         .initial:n        = x ,
+    var         .value_required:n = true ,
+    %
+    format      .tl_set:N         =  \l__printpoly_fmt_tl ,
+    format      .value_required:n = true,
+    fmt         .meta:n           = { format },
+  }
+
+% \printPoly * [keys] {<coeff>}
+% #1 - optional args: (default)
+%            var: (x) variable used in expression
+%   format=<fmt>: () fp_format string
+% #2 - clist of coefficients
+% #3 - clist of exponents
+\NewDocumentCommand \printPoly { O{} m m }
+  { \print_poly:nnn {#1} {#2} {#3} }
+
+\cs_new_protected:Npn \print_poly:nnn #1 #2 #3
+{
+  \group_begin:
+    \keys_set:nn { printPoly } { #1 }
+
+    % iterate over #2, store #3 as a sequence
+    \seq_set_from_clist:Nn \l__printpoly_expo_seq { #3 }
+
+    \bool_set_true:N \l__printpoly_firstTerm_bool
+    \clist_map_inline:nn { #2 }{
+      \int_incr:N \l__expo_idx_int
+      \fp_compare:nNnF { ##1 } = {0}{
+        \tl_set:Nn \l__printpoly_coeff { ##1 }
+        \tl_set:Nn \l__printpoly_expo {
+          \seq_item:Nn \l__printpoly_expo_seq { \l__expo_idx_int } }
+        \bool_if:NTF \l__printpoly_firstTerm_bool
+        {  %print w/o leading +
+          \fp_compare:nNnTF { \l__printpoly_expo } = {0}{
+            \fp_compare:nNnTF { \l__printpoly_coeff } = {-1}{
+              %special case: constant -1
+              \printCoeff[one]{ \l__printpoly_coeff }
+            }{
+              \printCoeff*{ \l__printpoly_coeff }
+            }
+          }{
+            \printCoeff*{ \l__printpoly_coeff }
+          }
+          \bool_set_false:N \l__printpoly_firstTerm_bool
+        }{ %print w leading +
+          \fp_compare:nNnTF { \l__printpoly_expo } = {0}{
+            \fp_compare:nNnTF { \l__printpoly_coeff } = {-1}{
+              %special case: constant -1
+              \printCoeff[one]{ \l__printpoly_coeff }
+            }{
+              \printCoeff{ \l__printpoly_coeff }
+            }
+          }{
+            \printCoeff{ \l__printpoly_coeff }
+          }
+        }
+        \fp_compare:nNnF { \l__printpoly_expo } = {0}{
+          %Print if expo nonzero
+          \ensuremath{\l__printpoly_var_tl}
+          %Print expo if not one
+          \fp_compare:nNnF { \l__printpoly_expo } = {1}{
+            \ensuremath{^{ \printCoeff[noplus,one]{\l__printpoly_expo }}}
+          }
+        }
+      }
+  }
+  \group_end:
+}
+
+\ExplSyntaxOff%
