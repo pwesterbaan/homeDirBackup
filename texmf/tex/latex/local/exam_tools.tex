@@ -5,6 +5,17 @@
 % MS Co-Pilot, Github Co-Pilot, and Claude.ai were used to help generate this code.
 \include{randNums}
 \include{printCoeff}
+
+%TODO: rewrite with LaTeX3
+%Boxes for answers
+\newcommand{\ansBoxHeight}{\ifprintanswers8mm\else11mm\fi}
+\newcommand{\ansBoxWidth}{35mm}
+% creates answer box of (opt) height, (opt) width, with mandatory contents
+% use `renewcommand' to manually change height and width
+\NewDocumentCommand{\ansBox}{ D<>{\ansBoxHeight} D(){\ansBoxWidth} m }{%
+  \hspace*{\stretch{1}}\fbox{\begin{minipage}[t][#1][c]{#2}#3\end{minipage}}\newline%
+}
+
 \ExplSyntaxOn
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Manually define a variable (control sequence)
