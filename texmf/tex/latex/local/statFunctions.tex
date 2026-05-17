@@ -11,9 +11,6 @@
   mean    .initial:n        = 0,
   mean    .value_required:n = true,
   %
-  pvalue  .fp_set:N         = \l__stat_kv_pvalue_fp,
-  pvalue  .value_required:n = true,
-  %
   stdev   .fp_set:N         = \l__stat_kv_stdev_fp,
   stdev   .initial:n        = 1,
   stdev   .value_required:n = true,
@@ -31,14 +28,19 @@
   %
   format  .tl_set:N         = \l__stat_fmt_tl,
   format  .initial:n        = 0.3f,
-  %TODO add alias for format?
   %
-  var     .tl_set:N         = \l__stat_kv_store_csname,
+  fmt     .meta:n           = { format = #1 }, %alias for format
+  fmt     .value_required:n = true,
+  %
+  var     .tl_set:N         = \l__stat_kv_store_csname_tl,
   var     .initial:n        = \q_no_value,
   var     .value_required:n = true,
 }
 
 \keys_define:nn { stat/quantile }{
+  pvalue  .fp_set:N         = \l__stat_kv_pvalue_fp,
+  pvalue  .value_required:n = true,
+  %
   q_lower .fp_set:N   = \l__stat_quantile_kv_q_lower_fp,
   q_lower .initial:n  = -25,
   %
@@ -120,9 +122,9 @@
   \group_begin:
   \keys_set:nn { stat }{ #1 }
   \__stat_compute_pnorm:
-  \quark_if_no_value:NTF \l__stat_kv_store_csname
+  \quark_if_no_value:NTF \l__stat_kv_store_csname_tl
     { \exp_args:NnV \fp_format:nn { \l__stat_norm_prob } \l__stat_fmt_tl }
-    { \cs_gset:cpx { \l__stat_kv_store_csname }{ \fp_to_decimal:N \l__stat_norm_prob } }
+    { \cs_gset:cpx { \l__stat_kv_store_csname_tl }{ \fp_to_decimal:N \l__stat_norm_prob } }
   \group_end:
 }
 
@@ -132,9 +134,9 @@
   \group_begin:
   \keys_set:nn { stat/quantile }{ #1 }
   \__qnorm_bisect:n { \fp_eval:n { \l__stat_kv_pvalue_fp } }
-  \quark_if_no_value:NTF \l__stat_kv_store_csname
+  \quark_if_no_value:NTF \l__stat_kv_store_csname_tl
     { \exp_args:NnV \fp_format:nn { \l__qnorm_mid_fp } \l__stat_fmt_tl }
-    { \cs_gset:cpx { \l__stat_kv_store_csname }{ \fp_to_decimal:N \l__qnorm_mid_fp } }
+    { \cs_gset:cpx { \l__stat_kv_store_csname_tl }{ \fp_to_decimal:N \l__qnorm_mid_fp } }
   \group_end:
 }
 
@@ -222,9 +224,9 @@
   \group_begin:
   \keys_set:nn { stat }{ #1 }
   \__stat_compute_ptdist:
-  \quark_if_no_value:NTF \l__stat_kv_store_csname
+  \quark_if_no_value:NTF \l__stat_kv_store_csname_tl
     { \exp_args:NnV \fp_format:nn { \l__stat_tdist_prob } \l__stat_fmt_tl }
-    { \cs_gset:cpx { \l__stat_kv_store_csname }{ \fp_to_decimal:N \l__stat_tdist_prob } }
+    { \cs_gset:cpx { \l__stat_kv_store_csname_tl }{ \fp_to_decimal:N \l__stat_tdist_prob } }
   \group_end:
 }
 
@@ -266,9 +268,9 @@
   \group_begin:
   \keys_set:nn { stat/quantile }{ #1 }
   \__qt_bisect:nn { \fp_eval:n { \l__stat_kv_pvalue_fp } } { \l__stat_kv_df_int }
-  \quark_if_no_value:NTF \l__stat_kv_store_csname
+  \quark_if_no_value:NTF \l__stat_kv_store_csname_tl
     { \exp_args:NnV \fp_format:nn { \l__qt_mid_fp } \l__stat_fmt_tl }
-    { \cs_gset:cpx { \l__stat_kv_store_csname }{ \fp_to_decimal:N \l__qt_mid_fp } }
+    { \cs_gset:cpx { \l__stat_kv_store_csname_tl }{ \fp_to_decimal:N \l__qt_mid_fp } }
   \group_end:
 }
 
@@ -278,11 +280,11 @@
 %\tcrit{keys: pvalue, df, var, format}
 \NewDocumentCommand \tcrit { m } {
   \group_begin:
-  \keys_set:nn { stat }{ #1 }
+  \keys_set:nn { stat/quantile }{ #1 }
   \__qt_bisect:nn { \fp_eval:n { 1 - (\l__stat_kv_pvalue_fp) } } { \l__stat_kv_df_int }
-  \quark_if_no_value:NTF \l__stat_kv_store_csname
+  \quark_if_no_value:NTF \l__stat_kv_store_csname_tl
     { \exp_args:NnV \fp_format:nn { \l__qt_mid_fp } \l__stat_fmt_tl }
-    { \cs_gset:cpx { \l__stat_kv_store_csname }{ \fp_to_decimal:N \l__qt_mid_fp } }
+    { \cs_gset:cpx { \l__stat_kv_store_csname_tl }{ \fp_to_decimal:N \l__qt_mid_fp } }
   \group_end:
 }
 
