@@ -181,9 +181,8 @@
   \cs_gset:cpx { # 1}{ \int_from_alph:n{#2} }
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%TODO Update printCoeff call
 \NewDocumentCommand{\signOnly}{m}{%
-  \printCoeff[signs]{\fp_sign:n { #1 } }
+  \printNum[signs-only=true]{\fp_sign:n { #1 } }
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \NewExpandableDocumentCommand{\printFrac}{O{}mm}{%

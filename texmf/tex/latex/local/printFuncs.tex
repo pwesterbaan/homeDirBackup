@@ -6,7 +6,7 @@
 \cs_new_protected:Npn \__printcoeff_num:nn #1 #2
   { \num[#1]{#2} }
 
-\keys_define:nn { printCoeff }
+\keys_define:nn { printNum }
   {
     signs-only  .bool_set:N       =  \l__signonly_units_bool ,
     signs-only  .initial:n        =  true ,
@@ -35,20 +35,20 @@
     numDec      .value_required:n = true,
   }
 
-% \printCoeff * [keys] {<coeff>}
+% \printNum * [keys] {<coeff>}
 % #1 - starred variant suppress leading '+' (equivalent to noplus key)
 % #2 - optional args: (default)
 %            one: (false) for \pm 1, enable printing one
 %           zero: (false) enable printing zero
 %         noplus: (false) suppress leading '+' without the star
 %   format=<fmt>: () fp_format string (default: empty)
-\NewDocumentCommand \printCoeff { s O{} m }
+\NewDocumentCommand \printNum { s O{} m }
   { \print_coeff:nnn {#1} {#2} {#3} }
 
 \cs_new_protected:Npn \print_coeff:nnn #1 #2 #3
   {
     \group_begin:
-      \keys_set:nn { printCoeff } { #2 }
+      \keys_set:nn { printNum } { #2 }
 
       % Star is equivalent to noplus
       \bool_if:nT {#1} { \bool_set_true:N \l__printcoeff_noplus_bool }
@@ -95,7 +95,7 @@
     \group_end:
     }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \printCoeff [keys] {<coeff>}
+% \printNum [keys] {<coeff>}
 % #1 - optional args: (default)
 %                one: (false) for \pm 1, enable printing one
 %               zero: (false) enable printing zero
@@ -148,24 +148,24 @@
           \fp_compare:nNnTF { \l__printpoly_expo } = {0}{
             \fp_compare:nNnTF { \l__printpoly_coeff } = {-1}{
               %special case: constant -1
-              \printCoeff[one]{ \l__printpoly_coeff }
+              \printNum[one]{ \l__printpoly_coeff }
             }{
-              \printCoeff*{ \l__printpoly_coeff }
+              \printNum*{ \l__printpoly_coeff }
             }
           }{
-            \printCoeff*{ \l__printpoly_coeff }
+            \printNum*{ \l__printpoly_coeff }
           }
           \bool_set_false:N \l__printpoly_firstTerm_bool
         }{ %print w leading +
           \fp_compare:nNnTF { \l__printpoly_expo } = {0}{
             \fp_compare:nNnTF { \l__printpoly_coeff } = {-1}{
               %special case: constant -1
-              \printCoeff[one]{ \l__printpoly_coeff }
+              \printNum[one]{ \l__printpoly_coeff }
             }{
-              \printCoeff{ \l__printpoly_coeff }
+              \printNum{ \l__printpoly_coeff }
             }
           }{
-            \printCoeff{ \l__printpoly_coeff }
+            \printNum{ \l__printpoly_coeff }
           }
         }
         \fp_compare:nNnF { \l__printpoly_expo } = {0}{
@@ -173,7 +173,7 @@
           \ensuremath{\l__printpoly_var_tl}
           %Print expo if not one
           \fp_compare:nNnF { \l__printpoly_expo } = {1}{
-            \ensuremath{^{ \printCoeff[noplus,one]{\l__printpoly_expo }}}
+            \ensuremath{^{ \printNum[noplus,one]{\l__printpoly_expo }}}
           }
         }
       }
