@@ -11,7 +11,10 @@
     signs-only  .bool_set:N       =  \l__signonly_units_bool ,
     signs-only  .initial:n        =  true ,
     signs-only  .default:n        =  false , %set when called without setting
-    one         .meta:n           = { signs-only }, %alias for `signs-only'
+
+    one         .meta:n           =  { signs-only = #1 }, %alias for `signs-only'
+    one         .initial:n        =  true ,
+    one         .default:n        =  false , %set when called without setting
     %
     zero        .bool_set:N       =  \l__print_zero_bool ,
     zero        .initial:n        =  false ,
@@ -23,7 +26,9 @@
     %
     format      .tl_set:N         =  \l__printcoeff_fmt_tl ,
     format      .value_required:n = true,
-    fmt         .meta:n           = { format }, %alias for format
+    %
+    fmt         .meta:n           = { format = #1 }, %alias for format
+    fmt         .value_required:n = true,
     %
     numDec      .int_set:N        = \l_printcoeff_numDec_int,
     numDec      .initial:n        = 4,
@@ -92,10 +97,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \printCoeff [keys] {<coeff>}
 % #1 - optional args: (default)
-%            one: (false) for \pm 1, enable printing one
-%           zero: (false) enable printing zero
-%         noplus: (false) suppress leading '+' without the star
-%   format=<fmt>: () fp_format string (default: empty)
+%                one: (false) for \pm 1, enable printing one
+%               zero: (false) enable printing zero
+%             noplus: (false) suppress leading '+' without the star
+%       format=<fmt>: () fp_format string (default: empty)
 \int_new:N   \l__expo_idx_int
 \tl_new:N    \l__printpoly_coeff
 \seq_new:N   \l__printpoly_expo_seq
@@ -109,13 +114,15 @@
     %
     format      .tl_set:N         =  \l__printpoly_fmt_tl ,
     format      .value_required:n = true,
-    fmt         .meta:n           = { format },
+    %
+    fmt         .meta:n           = { format = #1 }, %alias for format
+    fmt         .value_required:n = true,
   }
 
 % \printPoly * [keys] {<coeff>}
 % #1 - optional args: (default)
-%            var: (x) variable used in expression
-%   format=<fmt>: () fp_format string
+%                var: (x) variable used in expression
+%       format=<fmt>: () fp_format string
 % #2 - clist of coefficients
 % #3 - clist of exponents
 \NewDocumentCommand \printPoly { O{} m m }
