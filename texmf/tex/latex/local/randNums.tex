@@ -36,9 +36,9 @@
     nz            .initial:n        = false,
     nz            .default:n        = true,
     %
-    sort          .bool_set:N       = \l__randNums_kv_sort_bool,
-    sort          .initial:n        = false,
-    sort          .default:n        = true,
+    sort          .tl_set:N         = \l__randNums_kv_sort_tl,
+    sort          .initial:n        = \q_no_value,
+    sort          .default:n        = >,
     %
     uniq          .bool_set:N       = \l__randNums_kv_uniq_bool,
     uniq          .initial:n        = false,
@@ -77,7 +77,7 @@
 % #1 - starred variant produces unique values
 % #2 - optional args: (default)
 %          nz = (false) generate nonzero values from [-max,-min]U[min,max]
-%        sort = (false) sort random values so that csname1<csname2<...
+%        sort = (<) sort random values so that csname1<csname2<...
 %        uniq = (false) produce unique values
 %        skip = () clist of values to skip
 %         min = (1) minimum value of range
@@ -218,14 +218,18 @@
   }
 
   %sort values
-  \bool_if:NT \l__randNums_kv_sort_bool {
+  \quark_if_no_value:NF \l__randNums_kv_sort_tl {
     \seq_clear:N \l__sort_seq
     \clist_map_inline:nn {#3}
       { \seq_put_right:Nx \l__sort_seq { \use:c { ##1 } } }   % \use:c dereferences
     \seq_sort:Nn \l__sort_seq {
-      \fp_compare:nNnTF { ##1 } > { ##2 }
-        { \sort_return_swapped: }
-        { \sort_return_same: }
+      \str_case:en { \l__randNums_kv_sort_tl }
+      {
+        { < } { \fp_compare:nNnTF { ##2 } < { ##1 }
+                  { \sort_return_swapped: } { \sort_return_same: } }
+        { > } { \fp_compare:nNnTF { ##2 } > { ##1 }
+                  { \sort_return_swapped: } { \sort_return_same: } }
+      }
     }
     \int_zero:N \l__sort_idx_int
     \clist_map_inline:nn {#3} {
