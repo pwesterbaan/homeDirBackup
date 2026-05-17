@@ -4,7 +4,7 @@
 \begin{document}
   randNums w/ keyVals
 
-  \randNums[uniq,skip={1,2,3},min=0,max=10.10,sort]{a,b,c,d,e}%
+  \randNums[uniq,skip={1,2,3},min=0,max=10.10, sort=>]{a,b,c,d,e}%
 
   mult values: \a,\ \b,\ \c,\ \d,\ \e
 
@@ -15,7 +15,7 @@
   %Use \defVar{}{} for this bound
   \randNums[max={max(3.14,10.15)},numDec=1,mult=5]{a}%
 
-  floor: \a
+  max: \a
 
   \randNums{a}
   Checking default: \a
