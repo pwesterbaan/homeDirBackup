@@ -143,8 +143,7 @@
   }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \NewDocumentCommand \defGCD { m m m }{
-  \int_if_exist:NF #1 { \int_new:N #1 }
-  \int_gset:Nn #1 { \int_gcd:nn #2 #3 }
+  \cs_gset:cpx { #1 }{ \int_gcd:nn #2 #3 }
 }
 
 \cs_new:Npn \int_gcd:nn #1 #2
@@ -158,8 +157,7 @@
   }
 
 \NewDocumentCommand \defLCM { m m m }{
-  \int_if_exist:NF #1 { \int_new:N #1 }
-  \int_gset:Nn #1 { \int_lcm:nn #2 #3 }
+  \cs_gset:cpx { #1 }{ \int_gcd:nn #2 #3 }
 }
 
 \cs_new:Npn \int_lcm:nn #1 #2
