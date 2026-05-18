@@ -42,6 +42,15 @@
   \calday[Thursday]{\classday}
   \skipday\skipday\skipday
   }
+\newcommand{\MTWRclass}{%
+  \setlength{\calboxdepth}{9\baselineskip}
+  \setlength{\calwidth}{\linewidth}
+  \calday[Monday]{\classday}
+  \calday[Tuesday]{\classday}
+  \calday[Wednesday]{\classday}
+  \calday[Thursday]{\classday}
+  \skipday\skipday\skipday
+  }
 % \newcommand{\calSettings}{\MWFclass}
 
 %% Command to fill days with "No Class\\<durp break>"
@@ -53,7 +62,7 @@
     }
   }
 
-\newcommand{\TheSemester}{\ifthenelse{\month<6}{Spring}{Fall}\ \the\year\ }
+\input{semester_macro}
 
 % Special dates
 %% Breaks
