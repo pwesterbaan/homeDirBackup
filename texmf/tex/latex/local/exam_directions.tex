@@ -10,38 +10,45 @@
 \ifprintanswers
   \begin{center}
     \fbox{\parbox{0.8\linewidth}{
-        \textbf{Grading Guidelines:}
-        \begin{itemize}
-        \item Graded out of \numpoints\xspace total points
-        \item A max deduction per question of \sfrac{1}{2} for improper notation
-        \item Equivalent/unsimplified answers accepted
-        \item Blank questions/nonsense answers receive no credit
-        \end{itemize}
+        \begin{flushleft}
+          \textbf{Grading Guidelines:}
+          \begin{itemize}
+            \item Graded out of \numpoints\xspace total points
+            \item A max deduction per question of \sfrac{1}{2} for improper notation
+            \item Equivalent/unsimplified answers accepted
+            \item Blank questions/nonsense answers receive no credit
+          \end{itemize}
+        \end{flushleft}
       }}
   \end{center}
 \else
   \begin{center}
     \fbox{\fbox{\parbox{0.8\linewidth}{
       \parbox{0.95\linewidth}{
-        One bonus point will be included for following these directions:
-        \begin{itemize}
-          \setlength{\itemsep}{0.125\baselineskip}
-          % \item
-          \item Please place your name on every name line (top of \emph{every} odd page).
-          \item You may separate the formula sheet from the rest of the exam but you \emph{must} return all pages of this exam in the correct order.
-          \ifnum\classNum=211
-            \item You may only use ``StatCrunch'', the ``Rossman Chance'' applets, or a scientific calculator.
-          \else
-            \item You may use a scientific calculator.
-          \fi
-          No other electronics are to be used.
-          \item You must show \textit{all} work and use correct notation to receive full credit.
-          \item Illegible responses are not graded.
-          % \item \textsc{Include supporting work!} Partial credit can't be given otherwise!
-          \item Scratch paper will \emph{not} be graded. When provided, place your final answer in the corresponding box.
-          \item If multiple answers are provided, the incorrect one(s) will be graded.
-          \item You may \textbf{not} discuss this exam with anyone else until the grades are released.
-        \end{itemize}
+        \begin{flushleft}
+          \begin{itemize}
+            \item You must show \textbf{all} work and use correct notation to receive full credit.
+            \item Illegible responses are not graded.
+            \item If multiple answers are provided, the incorrect one(s) will be graded.
+            \item Scratch paper will \textbf{not} be graded.
+            \item You may \textbf{not} discuss this exam with anyone else until the grades are released.
+          \end{itemize}
+          \textbf{~One bonus point will be included for following all of these directions:}
+          \begin{itemize}
+            \setlength{\itemsep}{0.125\baselineskip}
+            % \item
+            \item You may separate the formula sheet from the rest of the exam but you \textbf{must} return all pages of this exam in the correct order.
+            \item Please place your name on every name line (top of \textbf{every} odd page).
+              \ifnum\classNum=211
+              \item You may only use ``StatCrunch'', the ``Rossman Chance'' applets, or a scientific calculator.
+            \else
+              \item You may use a scientific calculator.
+            \fi
+            No other electronics are to be used.
+            % \item \textsc{Include supporting work!} Partial credit can't be given otherwise!
+            \item Place your final answer in the corresponding box when provided.
+          \end{itemize}
+        \end{flushleft}
       }}}}
   \end{center}
 
