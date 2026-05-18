@@ -1,6 +1,6 @@
 \RequirePackage{siunitx}
-% \RequirePackage{l3str-format} % needed for TL2025
 \ExplSyntaxOn%
+\cs_if_exist:NF \fp_format:nn { \RequirePackage{l3str-format} } % needed for TL2025
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %\num from siunitx for explicit printing of +
 \cs_new_protected:Npn \__printcoeff_num:nn #1 #2
@@ -104,7 +104,6 @@
 \int_new:N   \l__expo_idx_int
 \tl_new:N    \l__printpoly_coeff
 \seq_new:N   \l__printpoly_expo_seq
-\bool_new:N  \l__printpoly_firstTerm_bool
 
 \keys_define:nn { printPoly }
   {
@@ -141,32 +140,35 @@
       \int_incr:N \l__expo_idx_int
       \fp_compare:nNnF { ##1 } = {0}{
         \tl_set:Nn \l__printpoly_coeff { ##1 }
+
         \tl_set:Nn \l__printpoly_expo {
           \seq_item:Nn \l__printpoly_expo_seq { \l__expo_idx_int } }
-        \bool_if:NTF \l__printpoly_firstTerm_bool
-        {  %print w/o leading +
-          \fp_compare:nNnTF { \l__printpoly_expo } = {0}{
-            \fp_compare:nNnTF { \l__printpoly_coeff } = {-1}{
-              %special case: constant -1
-              \printNum[one]{ \l__printpoly_coeff }
-            }{
-              \printNum*{ \l__printpoly_coeff }
-            }
-          }{
-            \printNum*{ \l__printpoly_coeff }
-          }
-          \bool_set_false:N \l__printpoly_firstTerm_bool
-        }{ %print w leading +
-          \fp_compare:nNnTF { \l__printpoly_expo } = {0}{
-            \fp_compare:nNnTF { \l__printpoly_coeff } = {-1}{
-              %special case: constant -1
-              \printNum[one]{ \l__printpoly_coeff }
-            }{
-              \printNum{ \l__printpoly_coeff }
-            }
-          }{
-            \printNum{ \l__printpoly_coeff }
-          }
+
+        \bool_set:Nn \l__printpoly_expozero_bool {\fp_compare_p:nNn { \l__printpoly_expo } = {0}}
+        \bool_set:Nn \l__printpoly_coeffOne_bool {\fp_compare_p:nNn { abs(\l__printpoly_coeff) } = {1}}
+
+        \bool_case:n
+        {
+          { \bool_lazy_and_p:nn  % first term, cx
+              {  \l__printpoly_firstTerm_bool }
+              { !\l__printpoly_expozero_bool }}
+            { \printNum*{ \l__printpoly_coeff }
+              \bool_set_false:N \l__printpoly_firstTerm_bool }
+          { \bool_lazy_and_p:nn  % first term, c
+              {  \l__printpoly_firstTerm_bool }
+              {  \l__printpoly_expozero_bool }}
+            { \printNum*[one]{ \l__printpoly_coeff }
+              \bool_set_false:N \l__printpoly_firstTerm_bool }
+          { \bool_lazy_all_p:n { % sec term, \pm 1
+              { !\l__printpoly_firstTerm_bool }
+              {  \l__printpoly_expozero_bool }
+              {  \l__printpoly_coeffOne_bool }}}
+            { \printNum[one]{ \l__printpoly_coeff } }
+          { \bool_lazy_and_p:nn  % sec term, \pm c or \pm cx
+              { !\l__printpoly_firstTerm_bool }
+              { !\l__printpoly_expozero_bool ||
+                !\l__printpoly_coeffOne_bool }}
+            { \printNum{ \l__printpoly_coeff } }
         }
         \fp_compare:nNnF { \l__printpoly_expo } = {0}{
           %Print if expo nonzero
