@@ -99,7 +99,7 @@
   \cs_gset:cpx { #1 }{ \tl_use:N \l_tmpa_tl }
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%TODO: Add optional argument for separtors when printing sequence
+%TODO: Add optional argument for separators when printing sequence
 \NewDocumentCommand{\ShuffleList}{m}{
   % Build a sequence from the input list
   \seq_clear:N \l_shuffle_seq
@@ -143,26 +143,25 @@
   }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \NewDocumentCommand \defGCD { m m m }{
-  \cs_gset:cpx { #1 }{ \int_gcd:nn #2 #3 }
+  \cs_gset:cpx { #1 }{ \exam_gcd:nn #2 #3 }
 }
 
-\cs_new:Npn \int_gcd:nn #1 #2
+\cs_new:Npn \exam_gcd:nn #1 #2
   {
-    \int_eval:n
-      {
+    \int_eval:n {
         \int_compare:nTF { #2 = 0 }
           { #1 }
-          { \int_gcd:nn { #2 } { \int_mod:nn {#1} {#2} } }
+          { \exam_gcd:nn { #2 } { \int_mod:nn { \int_abs:n{#1} } { \int_abs:n{#2} } } }
       }
   }
 
 \NewDocumentCommand \defLCM { m m m }{
-  \cs_gset:cpx { #1 }{ \int_gcd:nn #2 #3 }
+  \cs_gset:cpx { #1 }{ \int_lcm:nn #2 #3 }
 }
 
 \cs_new:Npn \int_lcm:nn #1 #2
   {
-    \int_eval:n { ( abs(#1) / \int_gcd:nn {#1} {#2} ) * abs(#2) }
+    \int_eval:n { ( \int_abs:n{#1} / \exam_gcd:nn { #1} {#2} ) * \int_abs:n{#2} }
   }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Translates 1,...,26 to corresponding capital letter
@@ -309,66 +308,5 @@
          }
      }
  }
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Set random seed based on year, semester, and version
-% e.g. VD in spring 2026 corresponds to 1326
-% year:           26 : \int_mod:nn { \year }{ 100 }
-% exam version   300 : 100 * ( \verNum - 1 )
-% semester      1000 : \int_eval:n { \month * 100 + \day
-
-\int_new:N \l__exam_year_two_int
-\int_new:N \l__exam_md_int
-\int_new:N \l__exam_sem_offset_int
-\int_new:N \l__exam_seed_int
-
-% two-digit year
-\int_set:Nn \l__exam_year_two_int { \int_mod:nn { \year } { 100 } }
-
-% month-day as MMDD integer (e.g. May 14 -> 514)
-\int_set:Nn \l__exam_md_int { \month * 100 + \day }
-
-% semester-based offset:
-% before May  5 -> 1000,
-% before Jun 20 -> 2000,
-% before Aug 15 -> 3000,
-% otherwise 4000
-\int_case:nnF { 1 }
-{
-  { \int_compare_p:n { \l__exam_md_int < 505 } }
-    { \int_set:Nn \l__exam_sem_offset_int { 1000 } }
-  { \int_compare_p:n { \l__exam_md_int < 620 } }
-    { \int_set:Nn \l__exam_sem_offset_int { 2000 } }
-  { \int_compare_p:n { \l__exam_md_int < 815 } }
-    { \int_set:Nn \l__exam_sem_offset_int { 3000 } }
-  }
-    { \int_set:Nn \l__exam_sem_offset_int { 4000 } }
-
-% \int_set:Nn \l__exam_sem_offset_int { 4000 }
-% \int_compare:nNnTF { \l__exam_md_int } < { 508 }
-%   { \int_set:Nn \l__exam_sem_offset_int { 1000 } }          %spring
-%   {
-%     \int_compare:nNnTF { \l__exam_md_int } < { 620 }
-%       { \int_set:Nn \l__exam_sem_offset_int { 2000 } }      %summer I
-%       {
-%         \int_compare:nNnTF { \l__exam_md_int } < { 815 }
-%           { \int_set:Nn \l__exam_sem_offset_int { 3000 } }  %summer II
-%           { \int_set:Nn \l__exam_sem_offset_int { 4000 } }  %fall
-%       }
-%   }
-
-% base seed = semester offset + two-digit year
-\int_set:Nn \l__exam_seed_int { \l__exam_sem_offset_int + \l__exam_year_two_int }
-
-% if a `\version` macro exists, convert to numeric and offset by 100*(ver-1)
-\cs_if_exist:NTF \version
-  {
-    % \letterToNum{\verNum}{\version}
-    % \int_set:Nn \l__exam_seed_int { \int_eval:n { \l__exam_seed_int + 100 * ( \verNum - 1 ) } }
-    \int_set:Nn \l__exam_seed_int { \int_eval:n { \l__exam_seed_int + 100 * ( \exp_args:Ne \int_from_alph:n{\version} - 1 ) } }
-  }
-  { }
-
-% Set global random seed (query with \sys_rand_seed:
-\sys_gset_rand_seed:n { \int_use:N \l__exam_seed_int }
+\input{set_exam_seed}
 \ExplSyntaxOff%
