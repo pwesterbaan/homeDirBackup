@@ -11,7 +11,7 @@
     signs-only  .bool_set:N       =  \l__signonly_units_bool ,
     signs-only  .initial:n        =  true ,
     signs-only  .default:n        =  false , %set when called without setting
-
+    %
     one         .meta:n           =  { signs-only = #1 }, %alias for `signs-only'
     one         .initial:n        =  true ,
     one         .default:n        =  false , %set when called without setting
@@ -107,11 +107,11 @@
 
 \keys_define:nn { printPoly }
   {
-    var         .tl_set:N         =  \l__printpoly_var_tl ,
+    var         .tl_set:N         = \l__printpoly_var_tl ,
     var         .initial:n        = x ,
     var         .value_required:n = true ,
     %
-    format      .tl_set:N         =  \l__printpoly_fmt_tl ,
+    format      .tl_set:N         = \l__printpoly_fmt_tl ,
     format      .value_required:n = true,
     %
     fmt         .meta:n           = { format = #1 }, %alias for format
@@ -119,24 +119,27 @@
   }
 
 % \printPoly * [keys] {<coeff>}
-% #1 - optional args: (default)
+% #1 - starred variant enable leading '+'
+% #2 - optional args: (default)
 %                var: (x) variable used in expression
 %       format=<fmt>: () fp_format string
-% #2 - clist of coefficients
-% #3 - clist of exponents
-\NewDocumentCommand \printPoly { O{} m m }
-  { \print_poly:nnn {#1} {#2} {#3} }
+% #3 - clist of coefficients
+% #4 - clist of exponents
+\NewDocumentCommand \printPoly { s O{} m m }
+  { \print_poly:nnnn {#1} {#2} {#3} {#4} }
 
-\cs_new_protected:Npn \print_poly:nnn #1 #2 #3
+\cs_new_protected:Npn \print_poly:nnnn #1 #2 #3 #4
 {
   \group_begin:
-    \keys_set:nn { printPoly } { #1 }
-
-    % iterate over #2, store #3 as a sequence
-    \seq_set_from_clist:Nn \l__printpoly_expo_seq { #3 }
+    \keys_set:nn { printPoly } { #2 }
 
     \bool_set_true:N \l__printpoly_firstTerm_bool
-    \clist_map_inline:nn { #2 }{
+    \bool_if:nT {#1} { \bool_set_false:N \l__printpoly_firstTerm_bool }
+
+    % iterate over #3, store #4 as a sequence
+    \seq_set_from_clist:Nn \l__printpoly_expo_seq { #4 }
+
+    \clist_map_inline:nn { #3 }{
       \int_incr:N \l__expo_idx_int
       \fp_compare:nNnF { ##1 } = {0}{
         \tl_set:Nn \l__printpoly_coeff { ##1 }
