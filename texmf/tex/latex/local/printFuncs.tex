@@ -114,6 +114,10 @@
     format      .tl_set:N         = \l__printpoly_fmt_tl ,
     format      .value_required:n = true,
     %
+    sort        .tl_set:N         = \l__printPoly_sort_tl,
+    sort        .initial:n        = >,
+    sort        .value_required:n = true,
+    %
     fmt         .meta:n           = { format = #1 }, %alias for format
     fmt         .value_required:n = true,
   }
@@ -142,23 +146,20 @@
     \seq_set_from_clist:Nn \l__printpoly_expo_seq { #4 }
     %build sequence if #4 is empty
     \tl_if_blank:nT { #4 } {
-        \clist_map_inline:nn { #3 }{
-          \typeout{DEBUG:~\int_use:N \l__expo_idx_int}
-          \seq_put_right:Nn \l__printpoly_expo_seq { \l__expo_idx_int -1}
-          \int_incr:N \l__expo_idx_int
+      \seq_clear:N \l__printpoly_expo_seq
+      \int_step_inline:nnnn { 0 } { 1 }  { \clist_count:n {#3} - 1 } { \seq_put_right:Nn \l__printpoly_expo_seq {##1} }
+      %logic to reverse order
+      \str_case:en { \l__printPoly_sort_tl }
+        {
+          { < } { }
+          { > } { \seq_reverse:N \l__printpoly_expo_seq }
         }
-        %reset counter
-        \int_set:Nn \l__expo_idx_int { 0 }
-        %TODO: add key and logic to reverse order
       }
 
     %TODO: Remove following line
-    \typeout{DEBUG:~num~args:
-      ~\seq_count:N \l__printpoly_expo_seq~--
-      ~\seq_use:Nn \l__printpoly_expo_seq {,} }
+    % \typeout{DEBUG:~num~args:~\seq_count:N \l__printpoly_expo_seq~--~\seq_use:Nn \l__printpoly_expo_seq {,}}
 
     \clist_map_inline:nn { #3 }{
-      \typeout{DEBUG:~exponent~\int_use:N \l__expo_idx_int}
       \int_incr:N \l__expo_idx_int
       \fp_compare:nNnF { ##1 } = {0}{
         \tl_set:Nn \l__printpoly_coeff { ##1 }
