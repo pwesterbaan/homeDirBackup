@@ -118,7 +118,9 @@
     fmt         .value_required:n = true,
   }
 
-% \printPoly * [keys] {<coeff>}
+%TODO: add key to take deriv
+%TODO: make <expo> optional?
+% \printPoly * [keys] {<coeff>}{<expo>}
 % #1 - starred variant enable leading '+'
 % #2 - optional args: (default)
 %                var: (x) variable used in expression
@@ -138,8 +140,25 @@
 
     % iterate over #3, store #4 as a sequence
     \seq_set_from_clist:Nn \l__printpoly_expo_seq { #4 }
+    %build sequence if #4 is empty
+    \tl_if_blank:nT { #4 } {
+        \clist_map_inline:nn { #3 }{
+          \typeout{DEBUG:~\int_use:N \l__expo_idx_int}
+          \seq_put_right:Nn \l__printpoly_expo_seq { \l__expo_idx_int -1}
+          \int_incr:N \l__expo_idx_int
+        }
+        %reset counter
+        \int_set:Nn \l__expo_idx_int { 0 }
+        %TODO: add key and logic to reverse order
+      }
+
+    %TODO: Remove following line
+    \typeout{DEBUG:~num~args:
+      ~\seq_count:N \l__printpoly_expo_seq~--
+      ~\seq_use:Nn \l__printpoly_expo_seq {,} }
 
     \clist_map_inline:nn { #3 }{
+      \typeout{DEBUG:~exponent~\int_use:N \l__expo_idx_int}
       \int_incr:N \l__expo_idx_int
       \fp_compare:nNnF { ##1 } = {0}{
         \tl_set:Nn \l__printpoly_coeff { ##1 }
