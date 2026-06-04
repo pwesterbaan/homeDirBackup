@@ -1,5 +1,5 @@
 \ExplSyntaxOn%
-% %Claude.ai was used to help generate the \randNums macro
+% \debug_on:n { check-declarations }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \int_new:N    \l__dp_lower_int   % decimal places in lower bound string
 \int_new:N    \l__dp_upper_int   % decimal places in upper bound string
@@ -23,6 +23,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \bool_new:N   \l__pick_found_bool      % track if rand num in skip
 \bool_new:N   \l__randNums_uniq_bool   % [uniq] or star
+\fp_new:N     \l__randNums_dpscale_fp  % power of 10 for scaling num dec
 \int_new:N    \l__randNums_min_int     % sorted min
 \int_new:N    \l__randNums_max_int     % sorted max
 \int_new:N    \l__pool_size_int        % stores size of pool of ints
@@ -101,25 +102,25 @@
   \__randints_count_dp:NN \l__dp_upper_int { \l__randNums_kv_max_tl }
 
   % Scale factor = 10^(max decimal places); 1 when both bounds are integers
-  \fp_set:Nn \l__dp_scale_fp
+  \fp_set:Nn \l__randNums_dpscale_fp
   { \fp_eval:n { 10 ^ \int_max:nn { \l__dp_lower_int } { \l__dp_upper_int } } }
 
   %manually override scaling
   \fp_if_nan:nF { \l__randNums_kv_numDec_fp }{
-    \fp_set:Nn \l__dp_scale_fp { \fp_eval:n { 10 ^ \l__randNums_kv_numDec_fp }}
+    \fp_set:Nn \l__randNums_dpscale_fp { \fp_eval:n { 10 ^ \l__randNums_kv_numDec_fp }}
     }
 
   % set the upper and lower bounds for the random integers
   \int_set:Nn \l__randNums_min_int {
     \fp_eval:n{ round(min(
-      \l__randNums_kv_min_fp * \l__dp_scale_fp ,
-      \l__randNums_kv_max_fp * \l__dp_scale_fp))
+      \l__randNums_kv_min_fp * \l__randNums_dpscale_fp ,
+      \l__randNums_kv_max_fp * \l__randNums_dpscale_fp))
     }
   }
   \int_set:Nn \l__randNums_max_int {
     \fp_eval:n{ round(max(
-      \l__randNums_kv_min_fp * \l__dp_scale_fp,
-      \l__randNums_kv_max_fp * \l__dp_scale_fp))
+      \l__randNums_kv_min_fp * \l__randNums_dpscale_fp,
+      \l__randNums_kv_max_fp * \l__randNums_dpscale_fp))
     }
   }
 
@@ -141,14 +142,14 @@
       % normal pool: check lower*multiplier <= value <= upper*multiplier
       \fp_compare:nNnTF { ##1 } < {
         \l__randNums_min_int
-        / \l__dp_scale_fp
+        / \l__randNums_dpscale_fp
         * \l__randNums_kv_mult_fp
         }
         { } % out of range - skip
         {
           \fp_compare:nNnTF { ##1 } > {
             \l__randNums_max_int
-            / \l__dp_scale_fp
+            / \l__randNums_dpscale_fp
             * \l__randNums_kv_mult_fp
           }{
             % out of range - skip
@@ -189,12 +190,12 @@
               ? \int_rand:nn
                 {\l__randNums_min_int}
                 {\l__randNums_max_int}
-                / \l__dp_scale_fp
+                / \l__randNums_dpscale_fp
                 * \l__randNums_kv_mult_fp
               : -\int_rand:nn
                 {\l__randNums_min_int}
                 {\l__randNums_max_int}
-                / \l__dp_scale_fp
+                / \l__randNums_dpscale_fp
                 * \l__randNums_kv_mult_fp
             }
           }
@@ -203,7 +204,7 @@
             { \fp_eval:n { \int_rand:nn
                 {\l__randNums_min_int}
                 {\l__randNums_max_int}
-                / \l__dp_scale_fp
+                / \l__randNums_dpscale_fp
                 * \l__randNums_kv_mult_fp
               } }
         }
