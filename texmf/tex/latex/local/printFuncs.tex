@@ -1,13 +1,32 @@
 \RequirePackage{siunitx}
 \ExplSyntaxOn%
 \cs_if_exist:NF \fp_format:nn { \RequirePackage{l3str-format} } % needed for TL2025
+% \debug_on:n { check-declarations }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %\num from siunitx for explicit printing of +
 \cs_new_protected:Npn \__printcoeff_num:nn #1 #2
   { \num[#1]{#2} }
 
+\bool_new:N   \l__printFuncs_printSign_bool
+\fp_new:N     \l__tmpa_fp
+\int_new:N    \l__tmpa_int
+
 \keys_define:nn { printNum }
   {
+    format      .tl_set:N         =  \l__printcoeff_fmt_tl ,
+    format      .value_required:n = true,
+    %
+    fmt         .meta:n           = { format = #1 }, %alias for format
+    fmt         .value_required:n = true,
+    %
+    noplus      .bool_set:N       =  \l__printcoeff_noplus_bool ,
+    noplus      .initial:n        =  false ,
+    noplus      .default:n        =  true ,  %set when called without setting
+    %
+    numDec      .int_set:N        = \l_printcoeff_numDec_int,
+    numDec      .initial:n        = 4,
+    numDec      .value_required:n = true,
+    %
     signs-only  .bool_set:N       =  \l__signonly_units_bool ,
     signs-only  .initial:n        =  true ,
     signs-only  .default:n        =  false , %set when called without setting
@@ -19,29 +38,16 @@
     zero        .bool_set:N       =  \l__print_zero_bool ,
     zero        .initial:n        =  false ,
     zero        .default:n        =  true ,  %set when called without setting
-    %
-    noplus      .bool_set:N       =  \l__printcoeff_noplus_bool ,
-    noplus      .initial:n        =  false ,
-    noplus      .default:n        =  true ,  %set when called without setting
-    %
-    format      .tl_set:N         =  \l__printcoeff_fmt_tl ,
-    format      .value_required:n = true,
-    %
-    fmt         .meta:n           = { format = #1 }, %alias for format
-    fmt         .value_required:n = true,
-    %
-    numDec      .int_set:N        = \l_printcoeff_numDec_int,
-    numDec      .initial:n        = 4,
-    numDec      .value_required:n = true,
   }
 
 % \printNum * [keys] {<coeff>}
 % #1 - starred variant suppress leading '+' (equivalent to noplus key)
 % #2 - optional args: (default)
-%            one: (false) for \pm 1, enable printing one
-%           zero: (false) enable printing zero
-%         noplus: (false) suppress leading '+' without the star
-%   format=<fmt>: () fp_format string (default: empty)
+%       format=<fmt>: ()      fp_format string (default: empty)
+%             noplus: (false) toggle suppressing leading '+' without the star
+%             numdec: (4)     number of decimal places to round to
+%                one: (true)  toggle printing one (alias for signs-only)
+%               zero: (false) toggle printing zero
 \NewDocumentCommand \printNum { s O{} m }
   { \print_coeff:nnn {#1} {#2} {#3} }
 
@@ -54,9 +60,9 @@
       \bool_if:nT {#1} { \bool_set_true:N \l__printcoeff_noplus_bool }
 
       % Derive print_sign from noplus
-      \bool_set_true:N \l__print_sign_bool
+      \bool_set_true:N \l__printFuncs_printSign_bool
       \bool_if:NT \l__printcoeff_noplus_bool
-        { \bool_set_false:N \l__print_sign_bool }
+        { \bool_set_false:N \l__printFuncs_printSign_bool }
 
       \fp_set:Nn \l__tmpa_fp { \fp_eval:n { #3 } } % numeric form for comparisons
 
@@ -66,7 +72,7 @@
         \fp_compare:nTF {\l__tmpa_fp == -1}
           {\ensuremath{-}}  %-1 w/ signonly_units
           {
-           \bool_if:NTF \l__print_sign_bool
+           \bool_if:NTF \l__printFuncs_printSign_bool
            {\ensuremath{+}} %1 w/  sign
            {}               %1 w/o sign
          }
@@ -82,7 +88,7 @@
             {
               group-separator={,},
               group-digits=integer,
-              \bool_if:NT \l__print_sign_bool { print-implicit-plus=true }
+              \bool_if:NT \l__printFuncs_printSign_bool { print-implicit-plus=true }
             }
             {
               \exp_args:NnV \fp_format:nn
@@ -94,43 +100,47 @@
       }
     \group_end:
     }
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \printNum [keys] {<coeff>}
-% #1 - optional args: (default)
-%                one: (false) for \pm 1, enable printing one
-%               zero: (false) enable printing zero
-%             noplus: (false) suppress leading '+' without the star
-%       format=<fmt>: () fp_format string (default: empty)
-\int_new:N   \l__expo_idx_int
-\tl_new:N    \l__printpoly_coeff
-\seq_new:N   \l__printpoly_expo_seq
+\bool_new:N   \l__printpoly_coeffOne_bool
+\bool_new:N   \l__printpoly_expozero_bool
+\bool_new:N   \l__printpoly_firstTerm_bool
+\fp_new:N     \l__printpoly_coeff_fp
+\fp_new:N     \l__printpoly_expo_fp
+\int_new:N    \l__printpoly_expoidx_int
+\seq_new:N    \l__printpoly_expo_seq
+\tl_new:N     \l__printpoly_coeff_tl
 
 \keys_define:nn { printPoly }
   {
-    var         .tl_set:N         = \l__printpoly_var_tl ,
-    var         .initial:n        = x ,
-    var         .value_required:n = true ,
+    deriv       .int_set:N        = \l__printpoly_deriv_int,
+    deriv       .initial:n        = 0,
+    deriv       .default:n        = 1,
     %
-    format      .tl_set:N         = \l__printpoly_fmt_tl ,
+    format      .tl_set:N         = \l__printpoly_fmt_tl,
     format      .value_required:n = true,
+    %
+    fmt         .meta:n           = { format = #1 }, %alias for format
+    fmt         .value_required:n = true,
     %
     sort        .tl_set:N         = \l__printPoly_sort_tl,
     sort        .initial:n        = >,
     sort        .value_required:n = true,
     %
-    fmt         .meta:n           = { format = #1 }, %alias for format
-    fmt         .value_required:n = true,
+    var         .tl_set:N         = \l__printpoly_var_tl,
+    var         .initial:n        = x,
+    var         .value_required:n = true,
   }
 
-%TODO: add key to take deriv
-%TODO: make <expo> optional?
 % \printPoly * [keys] {<coeff>}{<expo>}
 % #1 - starred variant enable leading '+'
 % #2 - optional args: (default)
+%              deriv: (0) number of derivative using power rule
+%       format=<fmt>: ()  fp_format string
+%               sort: (>) sort auto-generated expo args
 %                var: (x) variable used in expression
-%       format=<fmt>: () fp_format string
 % #3 - clist of coefficients
-% #4 - clist of exponents
+% #4 - (optional) clist of exponents
 \NewDocumentCommand \printPoly { s O{} m m }
   { \print_poly:nnnn {#1} {#2} {#3} {#4} }
 
@@ -156,49 +166,67 @@
         }
       }
 
-    %TODO: Remove following line
-    % \typeout{DEBUG:~num~args:~\seq_count:N \l__printpoly_expo_seq~--~\seq_use:Nn \l__printpoly_expo_seq {,}}
+    %TODO: error message if #3 and #4 are different lengths
 
     \clist_map_inline:nn { #3 }{
-      \int_incr:N \l__expo_idx_int
-      \fp_compare:nNnF { ##1 } = {0}{
-        \tl_set:Nn \l__printpoly_coeff { ##1 }
+      \int_incr:N \l__printpoly_expoidx_int
+      % get current coeff and expo
+      \fp_set:Nn \l__printpoly_coeff_fp { ##1 }
+      \fp_set:Nn \l__printpoly_expo_fp {
+          \seq_item:Nn \l__printpoly_expo_seq { \l__printpoly_expoidx_int } }
 
-        \tl_set:Nn \l__printpoly_expo {
-          \seq_item:Nn \l__printpoly_expo_seq { \l__expo_idx_int } }
+      %derivative power rule
+      \int_step_inline:nn { \l__printpoly_deriv_int }{
+        \int_set:Nn \l__tmpa_int { ####1 }
+        \fp_set:Nn \l__tmpa_fp { \l__printpoly_expo_fp+1-\l__tmpa_int }
+        \fp_set:Nn \l__printpoly_coeff_fp { \l__printpoly_coeff_fp*(\l__tmpa_fp) }
+      }
+      % VERY rudimentary integral power rule
+      \int_step_inline:nn { -\l__printpoly_deriv_int }{
+        \int_set:Nn \l__tmpa_int { ####1 }
+        \fp_set:Nn \l__tmpa_fp { \l__printpoly_expo_fp+2-\l__tmpa_int }
+        \fp_compare:nNnF { \l__tmpa_fp } = { 0 }
+          { \fp_set:Nn \l__printpoly_coeff_fp { \l__printpoly_coeff_fp/(\l__tmpa_fp) }}
+      }
+      %modify exponent
+      \fp_set:Nn \l__printpoly_expo_fp {\l__printpoly_expo_fp - \l__printpoly_deriv_int}
 
-        \bool_set:Nn \l__printpoly_expozero_bool {\fp_compare_p:nNn { \l__printpoly_expo } = {0}}
-        \bool_set:Nn \l__printpoly_coeffOne_bool {\fp_compare_p:nNn { abs(\l__printpoly_coeff) } = {1}}
+      \fp_compare:nNnF { \l__printpoly_coeff_fp } = {0}{
+        \tl_set:Nn \l__printpoly_coeff_tl { \l__printpoly_coeff_fp }
+
+        \bool_set:Nn \l__printpoly_expozero_bool {\fp_compare_p:nNn { \l__printpoly_expo_fp } = {0}}
+        \bool_set:Nn \l__printpoly_coeffOne_bool {\fp_compare_p:nNn { abs(\l__printpoly_coeff_fp) } = {1}}
 
         \bool_case:n
         {
           { \bool_lazy_and_p:nn  % first term, cx
               {  \l__printpoly_firstTerm_bool }
               { !\l__printpoly_expozero_bool }}
-            { \printNum*{ \l__printpoly_coeff }
+            { \printNum*{ \l__printpoly_coeff_tl}
               \bool_set_false:N \l__printpoly_firstTerm_bool }
           { \bool_lazy_and_p:nn  % first term, c
               {  \l__printpoly_firstTerm_bool }
               {  \l__printpoly_expozero_bool }}
-            { \printNum*[one]{ \l__printpoly_coeff }
+            { \printNum*[one]{ \l__printpoly_coeff_tl}
               \bool_set_false:N \l__printpoly_firstTerm_bool }
-          { \bool_lazy_all_p:n { % sec term, \pm 1
+          { \bool_lazy_all_p:n { % not first term, \pm 1
               { !\l__printpoly_firstTerm_bool }
               {  \l__printpoly_expozero_bool }
               {  \l__printpoly_coeffOne_bool }}}
-            { \printNum[one]{ \l__printpoly_coeff } }
-          { \bool_lazy_and_p:nn  % sec term, \pm c or \pm cx
+            { \printNum[one]{ \l__printpoly_coeff_tl} }
+          { \bool_lazy_and_p:nn  % not first term, \pm c or \pm cx
               { !\l__printpoly_firstTerm_bool }
               { !\l__printpoly_expozero_bool ||
                 !\l__printpoly_coeffOne_bool }}
-            { \printNum{ \l__printpoly_coeff } }
+            { \printNum{ \l__printpoly_coeff_tl} }
         }
-        \fp_compare:nNnF { \l__printpoly_expo } = {0}{
+
+        \fp_compare:nNnF { \l__printpoly_expo_fp } = {0}{
           %Print if expo nonzero
           \ensuremath{\l__printpoly_var_tl}
           %Print expo if not one
-          \fp_compare:nNnF { \l__printpoly_expo } = {1}{
-            \ensuremath{^{ \printNum[noplus,one]{\l__printpoly_expo }}}
+          \fp_compare:nNnF { \l__printpoly_expo_fp } = {1}{
+            \ensuremath{^{ \printNum[noplus,one]{\l__printpoly_expo_fp }}}
           }
         }
       }
