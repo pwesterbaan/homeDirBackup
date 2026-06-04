@@ -5,6 +5,7 @@ export DATA_PATH=/mnt/Data
 export DROPBOX_PATH=~/Dropbox
 export EDITOR="emacs"
 export JBL_MAC=74:2A:8A:A6:2F:C3
+export MATLABROOT=/usr/local/MATLAB/R2026a/bin
 export RALINK_MAC=54:35:30:D9:B8:84
 export TEX_FOLDER=$DROPBOX_PATH/Coding/LaTex
 export TEX_HOME=$(kpsewhich -var-value TEXMFHOME)/tex/latex/local/
@@ -19,6 +20,7 @@ alias db="cdls $DROPBOX_PATH"
 alias jn="jupyter-notebook"
 alias lander="cdls $DROPBOX_PATH/work/lander/"
 alias lofiStudy="youtube-dl https://www.youtube.com/watch?v=5qap5aO4i9A -o - | ffplay - -nodisp -autoexit -loglevel quiet"
+#alias matlab="$MATLABROOT/matlab &"
 alias mkdir="mkdir -pv"
 alias mkTex="latexmk -pdf -synctex=1"
 alias myip="curl http://ipecho.net/plain; echo"
