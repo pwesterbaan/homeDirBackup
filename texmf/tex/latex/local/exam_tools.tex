@@ -2,7 +2,6 @@
 \RequirePackage{tikz,pgf,siunitx,etoolbox,xparse,xintfrac,xintexpr}
 \usetikzlibrary{math}
 
-% MS Co-Pilot, Github Co-Pilot, and Claude.ai were used to help generate this code.
 \input{randNums}
 \input{printFuncs}
 
@@ -17,6 +16,7 @@
 }
 
 \ExplSyntaxOn
+% \debug_on:n { check-declarations }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Manually define a variable (control sequence)
 \NewDocumentCommand \defVar { m m }{
