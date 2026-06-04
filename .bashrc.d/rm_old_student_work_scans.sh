@@ -2,7 +2,7 @@
 
 rm_old_student_work_scans() {
     teaching_dir="$DROPBOX_PATH/work/lander/teaching"
-    years=3
+    years=1
     min_age=$((years * 365))
 
     mode="${1:-dry-run}"   # dry-run | delete
@@ -27,14 +27,10 @@ rm_old_student_work_scans() {
         echo "Eligible scans directory:"
         echo "  $scans_dir"
 
-        # Only immediate subdirectories
-        find "$scans_dir" -mindepth 1 -maxdepth 1 -type d -print0 |
-        while IFS= read -r -d '' subdir; do
-            case "$mode" in
-                dry-run) echo "  DRY-RUN: would remove $subdir" ;;
-                delete)  echo "  DELETING: $subdir"; rm -rf -- "$subdir" ;;
-                *)       echo "Unknown mode: $mode" >&2; return 1 ;;
-            esac
-        done
+        case "$mode" in
+            dry-run) echo "  DRY-RUN: would remove $scans_dir" ;;
+            delete)  echo "  DELETING: $scans_dir"; rm -rf -- "$scans_dir" ;;
+            *)       echo "Unknown mode: $mode" >&2; return 1 ;;
+        esac
     done
 }
