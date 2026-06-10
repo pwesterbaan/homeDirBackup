@@ -205,15 +205,16 @@
 \cs_new_protected:Npn \exam_signed_ineq_error:n #1
   { \msg_error:nnn {exam/signed-ineq}{unknown-relation}{#1} }
 
+
 % Internal: swap the relation (flip inequality)
 \cs_new:Npn \exam_signed_ineq_swap:n #1
   {
-    \tl_if_eq:nnTF {#1}{\leq}{\geq}{
-    \tl_if_eq:nnTF {#1}{\geq}{\leq}{
-    \tl_if_eq:nnTF {#1}{<}{>}{
-    \tl_if_eq:nnTF {#1}{>}{<}{
-      \exam_signed_ineq_error:n {#1}
-    }}}}
+    \str_case:nnF {#1}{
+      {\leq}{\geq}
+      {\geq}{\leq}
+      {<}{>}
+      {>}{<}
+    }{\exam_signed_ineq_error:n {#1}}
   }
 
 % Core: choose swapped or original relation based on the sign of the number
@@ -228,7 +229,7 @@
 % Swap #1 (\geq,\leq,<,>) based on sign of #1
 % \signedIneq{<number>}{<relation>}
 \NewDocumentCommand{\signedIneq}{ m m }
-  { \exam_signed_ineq:nn {\fpeval{#1}}{#2} }
+  { \ensuremath{\exam_signed_ineq:nn {\fp_eval:n{#1}}{#2}} }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Internal state (unchanged)
