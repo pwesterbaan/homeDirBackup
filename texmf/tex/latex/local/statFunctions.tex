@@ -1,9 +1,6 @@
 \RequirePackage{xintexpr}
 \ExplSyntaxOn
-
-\keys_define:nn {}{
-  stat/quantile .inherit:n = stat
-}
+\cs_if_exist:NF \fp_format:nn { \RequirePackage{l3str-format} } % needed for TL2025
 
 \keys_define:nn { stat }
 {
@@ -49,6 +46,11 @@
   %
   tol     .fp_set:N   = \l__stat_quantile_kv_tol_fp,
   tol     .initial:n  = 1e-8,
+}
+
+%older kernels evaluate this inheritance immediately and cause problems
+\keys_define:nn {}{
+  stat/quantile .inherit:n = stat
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
