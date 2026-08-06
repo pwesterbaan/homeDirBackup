@@ -5,18 +5,31 @@
 \input{randNums}
 \input{printFuncs}
 
-%TODO: rewrite with LaTeX3
-%Boxes for answers
+%TODO: remove these lengths?
 \newcommand{\ansBoxHeight}{\ifprintanswers8mm\else11mm\fi}
 \newcommand{\ansBoxWidth}{35mm}
-% creates answer box of (opt) height, (opt) width, with mandatory contents
-% use `renewcommand' to manually change height and width
-\NewDocumentCommand{\ansBox}{ D<>{\ansBoxHeight} D(){\ansBoxWidth} m }{%
-  \hspace*{\stretch{1}}\fbox{\begin{minipage}[t][#1][c]{#2}#3\end{minipage}}\newline%
-}
 
 \ExplSyntaxOn
 % \debug_on:n { check-declarations }
+
+\keys_define:nn { ansBox }
+  {
+    height      .dim_set:N   = \l__ansBox_height_dim,
+    height      .initial:n   = \ifprintanswers8mm\else11mm\fi,
+
+    width       .dim_set:N   = \l__ansBox_width_dim,
+    width       .initial:n   = 35mm,
+  }
+% creates answer box of (opt) height, (opt) width, with mandatory contents
+% \ansBox [keys] {contents}
+% #1 - optional args: (default)
+%     height = (\ifprintanswers8mm\else11mm\fi) sets height of ansBox
+%      width = (35mm) sets width of ansBox
+\NewDocumentCommand{\ansBox}{ O{} m }{%
+  \keys_set:nn { ansBox }{ #1 }
+  \hspace*{\stretch{1}}\fbox{\begin{minipage}[t][\l__ansBox_height_dim][c]{\l__ansBox_width_dim}#2\end{minipage}}\newline%
+}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Manually define a variable (control sequence)
 \NewDocumentCommand \defVar { m m }{
