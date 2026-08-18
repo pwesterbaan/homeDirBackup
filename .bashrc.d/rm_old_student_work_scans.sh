@@ -2,8 +2,8 @@
 
 rm_old_student_work_scans() {
     teaching_dir="$DROPBOX_PATH/work/lander/teaching"
-    years=1
-    min_age=$((years * 365))
+    months=2                 #must be an integer
+    min_age=$((months * 30)) #measured in days
 
     mode="${1:-dry-run}"   # dry-run | delete
 

@@ -1,0 +1,59 @@
+% Special dates
+%% Breaks
+%\noClasses[option to replace 'No Classes']{month}{start date}{end date+1}{year}{repeat text}{counter name}
+%FALL (year)
+\noClasses{9}{7}{8}{2026}{Labor Day}{repeat_LaborDay}
+\noClasses{10}{8}{10}{2026}{Fall Break (Thu-Fri)}{repeat_fallBreak}
+\noClasses{11}{3}{4}{2026}{Election Day}{repeat_electionDay}
+\noClasses{11}{25}{28}{2026}{Thanksgiving Break}{repeat_thanksgivingBreak_noClasses}
+\noClasses[\mbox{}]{12}{7}{8}{2026}{Reading Day}{repeat_fa_readingDay}
+\noClasses[\mbox{}]{12}{8}{15}{2026}{Final Exams\\12/8 -- 12/14\\[\baselineskip]}{repeat_finalExams}
+\noClasses[\mbox{}]{12}{15}{16}{2026}{Commencement}{repeat_fa_commencement}
+%SPRING (year+1)
+\noClasses{3}{1}{6}{2027}{Spring Break}{repeat_springBreak}
+\noClasses{1}{18}{19}{2027}{Martin L King Day}{repeat_mlkDay}
+\noClasses[\mbox{}]{4}{27}{28}{2027}{Reading Day}{repeat_sp_readingDay}
+\noClasses[\mbox{}]{4}{28}{31}{2027}{Final Exams\\4/28 -- 5/4\\[\baselineskip]}{repeat_finalExamsApr}
+\noClasses[\mbox{}]{5}{1}{5}{2027}{Final Exams\\4/28 -- 5/4\\[\baselineskip]}{repeat_finalExamsMay}
+\noClasses[\mbox{}]{5}{5}{5}{2027}{Commencement}{repeat_sp_commencement}
+
+
+%% Acad Dates (modify for MWF & TR)
+%FALL (year)
+\caltext{8/17/2026}{\acadDate{Classes Begin}}
+\caltext{8/18/2026}{\acadDate{Classes Begin (Mon, Aug 17)}}
+\caltext{8/20/2026}{\acadDate{Drop/Add Ends (Fri, Aug 16)}}
+\caltext{8/21/2026}{\acadDate{Drop/Add Ends}}
+\caltext{9/22/2026}{\acadDate{Progress Reports Due\\ (Wed, Sep 23)}}
+\caltext{9/23/2026}{\acadDate{Progress Reports Due}}
+% \caltext{4/28/2026}{\acadDate{Course evaluations open\\ (Thurs, Nov 21)}}
+% \caltext{4/28/2026}{\acadDate{Course evaluations close}}
+% \caltext{4/28/2026}{\acadDate{Reading Day}} %Already in \noClasses
+\caltext{12/16/2026}{\acadDate{All Grades Due -- 5 pm}}
+
+%SPRING (year+1)
+\caltext{1/11/2027}{\acadDate{Classes Begin}}
+% \caltext{1/12/2027}{\acadDate{Classes Begin (Mon, Jan 11)}}
+\caltext{1/14/2027}{\acadDate{Drop/Add Ends (Fri, Jan 15)}}
+\caltext{1/15/2027}{\acadDate{Drop/Add Ends}}
+\caltext{2/16/2027}{\acadDate{Progress Reports Due\\ (Wed, Feb 17)}}
+\caltext{2/17/2027}{\acadDate{Progress Reports Due}}
+% \caltext{4/28/2027}{\acadDate{Course evaluations open\\ (Thurs, Nov 21)}}
+% \caltext{4/28/2027}{\acadDate{Course evaluations close}}
+% \caltext{4/28/2027}{\acadDate{Reading Day}} %Already in \noClasses
+\caltext{5/6/2027}{\acadDate{All Grades Due -- 5 pm}}
+
+%% Final exams
+\ifnum\classNum=123 \caltext{12/9/2026}{ \EXAM[Sec. 01: 8a-10a]{}}  \fi
+\ifnum\classNum=000 \caltext{12/8/2026}{ \EXAM[Sec. 02: 8a-10a]{}}  \fi
+\ifnum\classNum=114 \caltext{12/11/2026}{\EXAM[Sec. 03: 8a-10a]{}} \fi
+\ifnum\classNum=123 \caltext{12/10/2026}{\EXAM[Sec. 04: 8a-10a]{}} \fi
+\ifnum\classNum=000 \caltext{12/13/2026}{\EXAM[Sec. 05: 8a-10a]{}} \fi
+\ifnum\classNum=000 \caltext{12/8/2026}{ \EXAM[Sec. 06: 11a-1p]{}}  \fi
+\ifnum\classNum=000 \caltext{12/11/2026}{\EXAM[Sec. 07: 11a-1p]{}} \fi
+\ifnum\classNum=000 \caltext{12/10/2026}{\EXAM[Sec. 08: 11a-1p]{}} \fi
+\ifnum\classNum=121 \caltext{12/9/2026}{ \EXAM[Sec. 09: 11a-1p]{}}  \fi
+\ifnum\classNum=000 \caltext{12/10/2026}{\EXAM[Sec. 10: 2p-4p]{}}  \fi
+\ifnum\classNum=000 \caltext{12/13/2026}{\EXAM[Sec. 11: 11a-1p]{}} \fi
+%% Special case:
+\ifnum\classNum=211 \caltext{12/8/2026}{\EXAM[Final exam: TODO]{}} \fi

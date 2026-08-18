@@ -1,3 +1,17 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Accessibility hacks experiments
+%Hack to create a blank \tikzsetnextfilename when not using externalize
+\ifdefined\tikzsetnextfilename\else
+  \newcommand{\tikzsetnextfilename}[1]{}
+\fi
+%Hack for alt text for tikz figures
+\ifdefined\HCode
+  \newcommand*{\tikzalt}[1]{\tikzset{alt={PS: #1}}}
+\else
+  \newcommand*{\tikzalt}[1]{}
+ \tikzset{alt/.code={\pgfkeysalso{}}}
+\fi
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Custom variables for header and footer of quizzes/exams
 \makeatletter
 \newcommand*{\class}[1]{\newcommand*{\@class}{#1}}

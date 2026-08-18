@@ -14,6 +14,7 @@
 \newcommand{\acadDate}[1]{\textcolor{lander_blue!60!lander_FountainMist}{\textsc{#1}}\\[\baselineskip]}
 \newcommand{\myStatLab}[2][MyLab ]{\textcolor{lander_blue}{\textbf{#1#2}}}
 \newcommand{\webAssign}[2][WebAssign]{\textcolor{lander_blue}{\textbf{#1 #2}}}
+\newcommand{\homework}[2][HW]{\textcolor{lander_blue}{\textbf{#1 #2}}}
 \newcommand{\noClass}{\weeklytext{\vspace*{2\baselineskip}\hspace*{\stretch{1}}\textbf{\textit{\textcolor{BowmanField}{No Class}}}\hspace*{\stretch{1}}}}
 \newcommand{\testFont}[1]{\textbf{\textcolor{red}{#1}}}
 \newcommand{\tReview}[2]{\testFont{Test #1 Review\\ Sunday #2}}
@@ -63,31 +64,4 @@
   }
 
 \input{semester_macro}
-
-% Special dates
-%% Breaks
-%\noClasses[option to replace 'No Classes']{month}{start date}{end date+1}{year}{repeat text}{counter name}
-\noClasses{3}{2}{7}{2026}{Spring Break}{repeat_springBreak}
-% \noClasses{10}{16}{18}{2026}{Fall Break (Thu-Fri)}{repeat_fallBreak}
-\noClasses{1}{19}{20}{2026}{Martin L King Day}{repeat_mlkDay}
-% \noClasses{9}{1}{2}{2026}{Labor Day}{repeat_LaborDay}
-% \noClasses{11}{5}{6}{2026}{Election Day}{repeat_electionDay}
-% \noClasses{11}{26}{29}{2026}{Thanksgiving Break}{repeat_thanksgivingBreak_noClasses}
-\noClasses[\mbox{}]{4}{28}{29}{2026}{Reading Day}{repeat_readingDay}
-\noClasses[\mbox{}]{4}{29}{31}{2026}{Final Exams\\4/29 -- 5/5\\[\baselineskip]}{repeat_finalExamsApr}
-\noClasses[\mbox{}]{5}{1}{6}{2026}{Final Exams\\4/29 -- 5/5\\[\baselineskip]}{repeat_finalExamsMay}
-% \noClasses[\mbox{}]{12}{9}{16}{2026}{Final Exams\\12/9 -- 12/15\\[\baselineskip]}{repeat_finalExams}
-\noClasses[\mbox{}]{5}{8}{9}{2026}{Commencement}{repeat_commencement}
-% \noClasses[\mbox{}]{12}{16}{17}{2026}{Commencement}{repeat_commencement}
-
-%% Acad Dates
-% \caltext{8/18/2026}{\acadDate{Classes Begin (Tues, Aug 19)}}
-\caltext{5/18/2026}{\acadDate{Classes Begin}}
-\caltext{1/15/2026}{\acadDate{Drop/Add Ends (Fri, Jan 16)}}
-\caltext{5/21/2026}{\acadDate{Drop/Add Ends}}
-\caltext{2/12/2026}{\acadDate{Progress Reports Due\\ (Mon, Feb 16)}}
-\caltext{2/16/2026}{\acadDate{Progress Reports Due}}
-%\caltext{4/28/2026}{\acadDate{Course evaluations open\\ (Thurs, Nov 21)}}
-%\caltext{4/28/2026}{\acadDate{Course evaluations close}}
-% \caltext{4/28/2026}{\acadDate{Reading Day}} %Already in \noClasses
-\caltext{5/7/2026}{\acadDate{All Grades Due -- 5 pm}}
+\input{cal_specialDates}

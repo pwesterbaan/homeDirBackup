@@ -5,8 +5,12 @@
   pdfversion    = 2.0,
   pdfstandard   = ua-2,
   tagging       = on,
-  tagging-setup = {math/setup=mathml-SE}
+  uncompress,
+  tagging-setup = {
+    activate-all,
+    math/setup=mathml-SE,
+    math/alt/use,
+    table/header-rows = {1}
+    }
 }
 \RequirePackage{tagpdf}
-\tagpdfsetup{activate-all}
-\tagpdfsetup{math/alt/use}

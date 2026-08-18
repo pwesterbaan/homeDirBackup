@@ -211,7 +211,7 @@ the character typed."
  '(inhibit-startup-screen t)
  '(ispell-dictionary nil)
  '(package-selected-packages
-   '(yaml-mode markdown-preview-mode markdown-mode jinja2-mode multiple-cursors undo-tree elpygen elpy company-jedi company matlab-mode auctex))
+   '(lua-mode impatient-mode yaml-mode markdown-preview-mode markdown-mode jinja2-mode multiple-cursors undo-tree elpygen elpy company-jedi company matlab-mode auctex))
  '(scroll-bar-mode 'right)
  '(show-paren-mode t)
  '(size-indication-mode t)

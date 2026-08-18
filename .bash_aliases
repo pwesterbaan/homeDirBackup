@@ -91,6 +91,9 @@ function sarcasmString() {
 # TODO: Move to .bashrc.d? (need to cd into working dir)
 complete -f -o plusdirs -X '!*.pdf' getPdfPages.sh
 
+# TODO: Limit this complete only to lander_lecture_notes
+complete -f -o plusdirs -X '!*.pdf' make
+
 ls -F --group-directories-first && pwd
 export PATH=$PATH:/usr/local/go/bin
 shopt -s direxpand
