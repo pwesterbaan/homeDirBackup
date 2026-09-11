@@ -3,6 +3,31 @@
 \cs_if_exist:NF \fp_format:nn { \RequirePackage{l3str-format} } % needed for TL2025
 % \debug_on:n { check-declarations }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\bool_new:N \l__coord_firstTerm_bool
+
+%TODO: add option to replace parens  (e.g. [] instead of () )
+%TODO: add option to replace delims  (e.g. ; instead of , )
+
+% \coord * [keys] {<coeff>}
+% #1 - optional args : inherited from printNum
+% #2 - a clist of values to print separated by ,
+\NewDocumentCommand \coord { O{} m }{
+  \print_coord:nn { #1 } { #2 }
+}
+
+\cs_new_protected:Npn \print_coord:nn #1 #2
+  {
+    \bool_set_true:N \l__coord_firstTerm_bool
+    \ensuremath{ ( }
+    \clist_map_inline:nn { #2 }
+      {
+        \bool_if:NF \l__coord_firstTerm_bool { \ensuremath{,} }
+        \printNum* [one, zero, #1] { ##1 }
+        \bool_set_false:N \l__coord_firstTerm_bool
+      }
+    \ensuremath{ ) }
+  }
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %\num from siunitx for explicit printing of +
 \cs_new_protected:Npn \__printcoeff_num:nn #1 #2
   { \num[#1]{#2} }
