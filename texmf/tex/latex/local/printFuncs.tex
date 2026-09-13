@@ -22,7 +22,7 @@
     \clist_map_inline:nn { #2 }
       {
         \bool_if:NF \l__coord_firstTerm_bool { \ensuremath{,} }
-        \printNum* [one, zero, #1] { ##1 }
+        \printNum* [all, #1] { ##1 }
         \bool_set_false:N \l__coord_firstTerm_bool
       }
     \ensuremath{ ) }
@@ -63,6 +63,8 @@
     zero        .bool_set:N       =  \l__print_zero_bool ,
     zero        .initial:n        =  false ,
     zero        .default:n        =  true ,  %set when called without setting
+    %
+    all         .meta:n           = { signs-only = false, zero = true },
   }
 
 % \printNum * [keys] {<coeff>}
