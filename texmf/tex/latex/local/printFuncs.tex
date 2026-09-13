@@ -2,41 +2,28 @@
 \ExplSyntaxOn%
 \cs_if_exist:NF \fp_format:nn { \RequirePackage{l3str-format} } % needed for TL2025
 % \debug_on:n { check-declarations }
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\bool_new:N \l__coord_firstTerm_bool
 
-%TODO: add option to replace parens  (e.g. [] instead of () )
-%TODO: add option to replace delims  (e.g. ; instead of , )
+%TODO: eval poly
 
-% \coord * [keys] {<coeff>}
-% #1 - optional args : inherited from printNum
-% #2 - a clist of values to print separated by ,
-\NewDocumentCommand \coord { O{} m }{
-  \print_coord:nn { #1 } { #2 }
+\keys_define:nn {print/coord }{
+  delim    .tl_set:N     = \l__print_coord_delim_tl,
+  delim    .initial:n    = {,},
+  %
+  parens   .code:n = {
+    \tl_set:Nx \l__print_coord_lparens_tl { \tl_item:nn {#1} {1} }
+    \tl_set:Nx \l__print_coord_rparens_tl { \tl_item:nn {#1} {2} }
+  } ,
+  parens   .initial:n    = {()},
+  parens   .value_required:n = true ,
+  %
+  lparens  .tl_set:N     = \l__print_coord_lparens_tl,
+  % lparens  .initial:n    = {(},
+  %
+  rparens  .tl_set:N     = \l__print_coord_rparens_tl,
+  % rparens  .initial:n    = {)},
 }
 
-\cs_new_protected:Npn \print_coord:nn #1 #2
-  {
-    \bool_set_true:N \l__coord_firstTerm_bool
-    \ensuremath{ ( }
-    \clist_map_inline:nn { #2 }
-      {
-        \bool_if:NF \l__coord_firstTerm_bool { \ensuremath{,} }
-        \printNum* [all, #1] { ##1 }
-        \bool_set_false:N \l__coord_firstTerm_bool
-      }
-    \ensuremath{ ) }
-  }
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%\num from siunitx for explicit printing of +
-\cs_new_protected:Npn \__printcoeff_num:nn #1 #2
-  { \num[#1]{#2} }
-
-\bool_new:N   \l__printFuncs_printSign_bool
-\fp_new:N     \l__tmpa_fp
-\int_new:N    \l__tmpa_int
-
-\keys_define:nn { printNum }
+\keys_define:nn { print/num }
   {
     format      .tl_set:N         =  \l__printcoeff_fmt_tl ,
     format      .value_required:n = true,
@@ -67,6 +54,44 @@
     all         .meta:n           = { signs-only = false, zero = true },
   }
 
+\keys_define:nn { print/poly }
+  {
+    deriv       .int_set:N        = \l__printpoly_deriv_int,
+    deriv       .initial:n        = 0,
+    deriv       .default:n        = 1,
+    %
+    format      .tl_set:N         = \l__printpoly_fmt_tl,
+    format      .value_required:n = true,
+    %
+    fmt         .meta:n           = { format = #1 }, %alias for format
+    fmt         .value_required:n = true,
+    %
+    sort        .tl_set:N         = \l__printPoly_sort_tl,
+    sort        .initial:n        = >,
+    sort        .value_required:n = true,
+    %
+    var         .tl_set:N         = \l__printpoly_var_tl,
+    var         .initial:n        = x,
+    var         .value_required:n = true,
+  }
+
+
+
+\keys_define:nn {}{
+  % printNum doesn't use delim or parens, but this
+  % inheritance works with the print_coord func
+  print/num .inherit:n = print/coord
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\num from siunitx for explicit printing of +
+\cs_new_protected:Npn \__printcoeff_num:nn #1 #2
+  { \num[#1]{#2} }
+
+\bool_new:N   \l__printFuncs_printSign_bool
+\fp_new:N     \l__tmpa_fp
+\int_new:N    \l__tmpa_int
+
 % \printNum * [keys] {<coeff>}
 % #1 - starred variant suppress leading '+' (equivalent to noplus key)
 % #2 - optional args: (default)
@@ -81,7 +106,7 @@
 \cs_new_protected:Npn \print_coeff:nnn #1 #2 #3
   {
     \group_begin:
-      \keys_set:nn { printNum } { #2 }
+      \keys_set:nn { print/num } { #2 }
 
       % Star is equivalent to noplus
       \bool_if:nT {#1} { \bool_set_true:N \l__printcoeff_noplus_bool }
@@ -129,6 +154,31 @@
     }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\bool_new:N \l__coord_firstTerm_bool
+
+% \coord * [keys] {<coeff>}
+% #1 - optional args : inherited from printNum
+% #2 - a clist of values to print separated by ,
+\NewDocumentCommand \coord { O{} m }{
+  \print_coord:nn { #1 } { #2 }
+}
+
+\cs_new_protected:Npn \print_coord:nn #1 #2
+  {
+    \group_begin:
+      \keys_set:nn { print/coord }{ #1 }
+      \bool_set_true:N \l__coord_firstTerm_bool
+      \ensuremath{ \l__print_coord_lparens_tl }
+      \clist_map_inline:nn { #2 }
+        {
+          \bool_if:NF \l__coord_firstTerm_bool { \ensuremath{\l__print_coord_delim_tl} }
+          \printNum* [all, #1] { ##1 }
+          \bool_set_false:N \l__coord_firstTerm_bool
+        }
+      \ensuremath{ \l__print_coord_rparens_tl }
+    \group_end:
+  }
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \bool_new:N   \l__printpoly_coeffOne_bool
 \bool_new:N   \l__printpoly_expozero_bool
 \bool_new:N   \l__printpoly_firstTerm_bool
@@ -137,27 +187,6 @@
 \int_new:N    \l__printpoly_expoidx_int
 \seq_new:N    \l__printpoly_expo_seq
 \tl_new:N     \l__printpoly_coeff_tl
-
-\keys_define:nn { printPoly }
-  {
-    deriv       .int_set:N        = \l__printpoly_deriv_int,
-    deriv       .initial:n        = 0,
-    deriv       .default:n        = 1,
-    %
-    format      .tl_set:N         = \l__printpoly_fmt_tl,
-    format      .value_required:n = true,
-    %
-    fmt         .meta:n           = { format = #1 }, %alias for format
-    fmt         .value_required:n = true,
-    %
-    sort        .tl_set:N         = \l__printPoly_sort_tl,
-    sort        .initial:n        = >,
-    sort        .value_required:n = true,
-    %
-    var         .tl_set:N         = \l__printpoly_var_tl,
-    var         .initial:n        = x,
-    var         .value_required:n = true,
-  }
 
 % \printPoly * [keys] {<coeff>}{<expo>}
 % #1 - starred variant enable leading '+'
@@ -174,7 +203,7 @@
 \cs_new_protected:Npn \print_poly:nnnn #1 #2 #3 #4
 {
   \group_begin:
-    \keys_set:nn { printPoly } { #2 }
+    \keys_set:nn { print/poly } { #2 }
 
     \bool_set_true:N \l__printpoly_firstTerm_bool
     \bool_if:nT {#1} { \bool_set_false:N \l__printpoly_firstTerm_bool }
