@@ -1,0 +1,13 @@
+\documentclass[convert={density=4000,size=1080x800,outext=.png}, margin=5pt]{standalone}
+\usepackage{booktabs,xcolor}
+
+\pagecolor[RGB]{255,255,255}
+
+\begin{document}
+  \begin{tabular}{@{}llcr@{}} \toprule
+    & Good& Neutral& Evil \\\midrule
+    Lawful& $\varepsilon >0$& $\vert\varepsilon\vert >0$& $\varepsilon<0$\\[10pt]
+    Neutral& $\displaystyle \frac{\varepsilon}{3} > 0$& $\exists \varepsilon$& $\displaystyle \frac{\varepsilon}{3} < 0$\\[10pt]
+    Chaotic& $\xi >0$& $\exists \xi$& $\xi<3$\\\bottomrule
+  \end{tabular}
+\end{document}
