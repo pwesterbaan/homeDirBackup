@@ -1,4 +1,5 @@
-\RequirePackage{siunitx}
+\RequirePackage{siunitx} %needed for formatting
+\RequirePackage{xparse}  %needed for optional arg type G (printPoly)
 \ExplSyntaxOn%
 \cs_if_exist:NF \fp_format:nn { \RequirePackage{l3str-format} } % needed for TL2025
 % \debug_on:n { check-declarations }
@@ -197,7 +198,10 @@
 %                var: (x) variable used in expression
 % #3 - clist of coefficients
 % #4 - (optional) clist of exponents
-\NewDocumentCommand \printPoly { s O{} m m }
+
+%% G{} allows completely omitting braces for #4, but requires xparse
+%% O{} requires using []
+\NewDocumentCommand \printPoly { s O{} m G{} }
   { \print_poly:nnnn {#1} {#2} {#3} {#4} }
 
 \cs_new_protected:Npn \print_poly:nnnn #1 #2 #3 #4
@@ -211,15 +215,15 @@
     % iterate over #3, store #4 as a sequence
     \seq_set_from_clist:Nn \l__printpoly_expo_seq { #4 }
     %build sequence if #4 is empty
-    \tl_if_blank:nT { #4 } {
-      \seq_clear:N \l__printpoly_expo_seq
-      \int_step_inline:nnnn { 0 } { 1 }  { \clist_count:n {#3} - 1 } { \seq_put_right:Nn \l__printpoly_expo_seq {##1} }
-      %logic to reverse order
-      \str_case:en { \l__printPoly_sort_tl }
-        {
-          { < } { }
-          { > } { \seq_reverse:N \l__printpoly_expo_seq }
-        }
+      \tl_if_blank:nT { #4 }{
+        \seq_clear:N \l__printpoly_expo_seq
+        \int_step_inline:nnnn { 0 } { 1 }  { \clist_count:n {#3} - 1 } { \seq_put_right:Nn \l__printpoly_expo_seq {##1} }
+        %logic to reverse order
+        \str_case:en { \l__printPoly_sort_tl }
+          {
+            { < } { }
+            { > } { \seq_reverse:N \l__printpoly_expo_seq }
+          }
       }
 
     %TODO: error message if #3 and #4 are different lengths
