@@ -80,7 +80,7 @@
   fmt         .meta:n           = { format = #1 }, %alias for format
   fmt         .value_required:n = true,
   %
-  sort        .tl_set:N         = \l__printPoly_sort_tl,
+  sort        .tl_set:N         = \l__printpoly_sort_tl,
   sort        .initial:n        = >,
   sort        .value_required:n = true,
   %
@@ -255,16 +255,16 @@
     % iterate over #3, store #4 as a sequence
     \seq_set_from_clist:Nn \l__printpoly_expo_seq { #4 }
     %build sequence if #4 is empty
-      \tl_if_blank:nT { #4 }{
-        \seq_clear:N \l__printpoly_expo_seq
-        \int_step_inline:nnnn { 0 } { 1 }  { \clist_count:n {#3} - 1 } { \seq_put_right:Nn \l__printpoly_expo_seq {##1} }
-        %logic to reverse order
-        \str_case:en { \l__printPoly_sort_tl }
-          {
-            { < } { }
-            { > } { \seq_reverse:N \l__printpoly_expo_seq }
-          }
-      }
+    \tl_if_blank:nT { #4 }{
+      \seq_clear:N \l__printpoly_expo_seq
+      \int_step_inline:nnnn { 0 } { 1 }  { \clist_count:n {#3} - 1 } { \seq_put_right:Nn \l__printpoly_expo_seq {##1} }
+      %logic to reverse order
+      \str_case:en { \l__printpoly_sort_tl }
+        {
+          { < } { }
+          { > } { \seq_reverse:N \l__printpoly_expo_seq }
+        }
+    }
 
     %TODO: error message if #3 and #4 are different lengths
 
