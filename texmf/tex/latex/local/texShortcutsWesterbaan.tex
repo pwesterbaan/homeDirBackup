@@ -34,6 +34,10 @@
   % M{2.5in}
   % m{'width'} is vertically centered
 \newcolumntype{M}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+  % Fixed width horizontally center aligned
+  % P{2.5in}
+  % m{'width'} is vertically centered
+\newcolumntype{P}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
   % Centered column for tabularx
 \newcolumntype{Y}{>{\centering\arraybackslash}X}
   % Right aligned column for tabularx
