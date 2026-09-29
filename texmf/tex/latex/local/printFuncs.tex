@@ -4,9 +4,11 @@
 \cs_if_exist:NF \fp_format:nn { \RequirePackage{l3str-format} } % needed for TL2025
 % \debug_on:n { check-declarations }
 
-%TODO: eval poly
+%TODO: eval poly -- use (#1)^expo to avoid sign errors
+%TODO: add printWithParens as key to printNum
 
-\keys_define:nn {print/coord }{
+\keys_define:nn { print/coord }
+{
   delim    .tl_set:N     = \l__print_coord_delim_tl,
   delim    .initial:n    = {,},
   %
@@ -24,61 +26,71 @@
   % rparens  .initial:n    = {)},
 }
 
+\keys_define:nn { print/frac }
+{
+  plus      .bool_set:N       =  \l__printfrac_plus_bool ,
+  plus      .initial:n        =  false ,
+  plus      .default:n        =  true ,  %set when called without setting
+  %
+  d         .bool_set:N       =  \l__printfrac_displaystyle_bool ,
+  d         .initial:n        =  false ,
+  d         .default:n        =  true ,  %set when called without setting
+}
+
 \keys_define:nn { print/num }
-  {
-    format      .tl_set:N         =  \l__printcoeff_fmt_tl ,
-    format      .value_required:n = true,
-    %
-    fmt         .meta:n           = { format = #1 }, %alias for format
-    fmt         .value_required:n = true,
-    %
-    noplus      .bool_set:N       =  \l__printcoeff_noplus_bool ,
-    noplus      .initial:n        =  false ,
-    noplus      .default:n        =  true ,  %set when called without setting
-    %
-    numDec      .int_set:N        = \l_printcoeff_numDec_int,
-    numDec      .initial:n        = 4,
-    numDec      .value_required:n = true,
-    %
-    signs-only  .bool_set:N       =  \l__signonly_units_bool ,
-    signs-only  .initial:n        =  true ,
-    signs-only  .default:n        =  false , %set when called without setting
-    %
-    one         .meta:n           =  { signs-only = #1 }, %alias for `signs-only'
-    one         .initial:n        =  true ,
-    one         .default:n        =  false , %set when called without setting
-    %
-    zero        .bool_set:N       =  \l__print_zero_bool ,
-    zero        .initial:n        =  false ,
-    zero        .default:n        =  true ,  %set when called without setting
-    %
-    all         .meta:n           = { signs-only = false, zero = true },
-  }
+{
+  format      .tl_set:N         =  \l__printcoeff_fmt_tl ,
+  format      .value_required:n = true,
+  %
+  fmt         .meta:n           = { format = #1 }, %alias for format
+  fmt         .value_required:n = true,
+  %
+  noplus      .bool_set:N       =  \l__printcoeff_noplus_bool ,
+  noplus      .initial:n        =  false ,
+  noplus      .default:n        =  true ,  %set when called without setting
+  %
+  numDec      .int_set:N        = \l_printcoeff_numDec_int,
+  numDec      .initial:n        = 4,
+  numDec      .value_required:n = true,
+  %
+  signs-only  .bool_set:N       =  \l__signonly_units_bool ,
+  signs-only  .initial:n        =  true ,
+  signs-only  .default:n        =  false , %set when called without setting
+  %
+  one         .meta:n           =  { signs-only = #1 }, %alias for `signs-only'
+  one         .initial:n        =  true ,
+  one         .default:n        =  false , %set when called without setting
+  %
+  zero        .bool_set:N       =  \l__print_zero_bool ,
+  zero        .initial:n        =  false ,
+  zero        .default:n        =  true ,  %set when called without setting
+  %
+  all         .meta:n           = { signs-only = false, zero = true },
+}
 
 \keys_define:nn { print/poly }
-  {
-    deriv       .int_set:N        = \l__printpoly_deriv_int,
-    deriv       .initial:n        = 0,
-    deriv       .default:n        = 1,
-    %
-    format      .tl_set:N         = \l__printpoly_fmt_tl,
-    format      .value_required:n = true,
-    %
-    fmt         .meta:n           = { format = #1 }, %alias for format
-    fmt         .value_required:n = true,
-    %
-    sort        .tl_set:N         = \l__printPoly_sort_tl,
-    sort        .initial:n        = >,
-    sort        .value_required:n = true,
-    %
-    var         .tl_set:N         = \l__printpoly_var_tl,
-    var         .initial:n        = x,
-    var         .value_required:n = true,
-  }
+{
+  deriv       .int_set:N        = \l__printpoly_deriv_int,
+  deriv       .initial:n        = 0,
+  deriv       .default:n        = 1,
+  %
+  format      .tl_set:N         = \l__printpoly_fmt_tl,
+  format      .value_required:n = true,
+  %
+  fmt         .meta:n           = { format = #1 }, %alias for format
+  fmt         .value_required:n = true,
+  %
+  sort        .tl_set:N         = \l__printPoly_sort_tl,
+  sort        .initial:n        = >,
+  sort        .value_required:n = true,
+  %
+  var         .tl_set:N         = \l__printpoly_var_tl,
+  var         .initial:n        = x,
+  var         .value_required:n = true,
+}
 
-
-
-\keys_define:nn {}{
+\keys_define:nn {}
+{
   % printNum doesn't use delim or parens, but this
   % inheritance works with the print_coord func
   print/num .inherit:n = print/coord
@@ -152,7 +164,7 @@
         }
       }
     \group_end:
-    }
+  }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \bool_new:N \l__coord_firstTerm_bool
@@ -179,6 +191,34 @@
       \ensuremath{ \l__print_coord_rparens_tl }
     \group_end:
   }
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% #1 - starred variant prints leading '+'
+% #2 - optional args: (default)
+%       plus: (false) toggle printing leading '+'
+%          d: (false) print with \displaymode
+% #3 - numerator
+% #4 - denominator
+\cs_new_protected:Npn \print_frac:nnnn #1 #2 #3 #4
+  {
+    \group_begin:
+      \keys_set:nn { print/frac }{ #2 }
+
+      \bool_if:nT {#1} { \bool_set_true:N \l__printfrac_plus_bool }
+      \ensuremath{
+        \bool_if:nT { \l__printfrac_displaystyle_bool }{ \displaystyle }
+        \bool_if:nT { \l__printfrac_plus_bool }{ \fp_compare:nNnT {#3/#4} > {0} +}
+        \xintTeXsignedFrac{%
+          \xintPIrr{\fpeval{#3}/\fpeval{#4}}
+        }
+      }
+    \group_end:
+  }
+
+\NewDocumentCommand \printFrac { s O{} m m }
+  { \print_frac:nnnn {#1} {#2} {#3} {#4} }
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \bool_new:N   \l__printpoly_coeffOne_bool
 \bool_new:N   \l__printpoly_expozero_bool

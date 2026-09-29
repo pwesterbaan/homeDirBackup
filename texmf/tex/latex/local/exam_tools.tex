@@ -64,9 +64,9 @@
 % Print negative numbers inside parenthesis
 \NewDocumentCommand \printWithParens { m }{
   \fp_compare:nNnTF {#1} < {0}{
-    \ensuremath{(#1)}
+    \ensuremath{(\fp_eval:n{#1})}
   }{
-    \ensuremath{#1}
+    \ensuremath{\fp_eval:n{#1}}
   }
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -194,21 +194,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \NewDocumentCommand{\signOnly}{m}{%
   \printNum[signs-only=true]{\fp_sign:n { #1 } }
-}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\NewExpandableDocumentCommand{\printFrac}{O{}mm}{%
-  %#1: Optional string to trigger display style
-  %#2: numerator
-  %#3: denominator
-  %# Pretty prints the fraction #2/#3
-  {
-    \ensuremath{
-      \str_if_eq:nnT{#1}{d}{\displaystyle}
-      \xintTeXsignedFrac{%
-        \xintPIrr{\fpeval{#2}/\fpeval{#3}}
-      }
-    }
-  }
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Error message for unsupported relations
