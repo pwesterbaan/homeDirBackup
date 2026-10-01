@@ -1,5 +1,5 @@
-\RequirePackage{siunitx} %needed for formatting
-\RequirePackage{xparse}  %needed for optional arg type G (printPoly)
+\RequirePackage{siunitx}  %needed for formatting
+\RequirePackage{xparse}   %needed for optional arg type G (printPoly)
 \ExplSyntaxOn%
 \cs_if_exist:NF \fp_format:nn { \RequirePackage{l3str-format} } % needed for TL2025
 % \debug_on:n { check-declarations }
@@ -7,86 +7,74 @@
 %TODO: eval poly -- use (#1)^expo to avoid sign errors
 %TODO: add printWithParens as key to printNum
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Key definitions
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \keys_define:nn { print/coord }
 {
-  delim    .tl_set:N     = \l__print_coord_delim_tl,
-  delim    .initial:n    = {,},
-  %
-  parens   .code:n = {
+  delim    .tl_set:N        = \l__print_coord_delim_tl,
+  delim    .initial:n       = {,},
+  parens   .code:n          = {
     \tl_set:Nx \l__print_coord_lparens_tl { \tl_item:nn {#1} {1} }
     \tl_set:Nx \l__print_coord_rparens_tl { \tl_item:nn {#1} {2} }
-  } ,
-  parens   .initial:n    = {()},
-  parens   .value_required:n = true ,
-  %
-  lparens  .tl_set:N     = \l__print_coord_lparens_tl,
-  % lparens  .initial:n    = {(},
-  %
-  rparens  .tl_set:N     = \l__print_coord_rparens_tl,
-  % rparens  .initial:n    = {)},
+  },
+  parens   .initial:n       = {()},
+  parens   .value_required:n = true,
+  lparens  .tl_set:N        = \l__print_coord_lparens_tl,
+  rparens  .tl_set:N        = \l__print_coord_rparens_tl,
 }
 
 \keys_define:nn { print/frac }
 {
-  plus      .bool_set:N       =  \l__printfrac_plus_bool ,
-  plus      .initial:n        =  false ,
-  plus      .default:n        =  true ,  %set when called without setting
-  %
-  d         .bool_set:N       =  \l__printfrac_displaystyle_bool ,
-  d         .initial:n        =  false ,
-  d         .default:n        =  true ,  %set when called without setting
+  plus  .bool_set:N  = \l__printfrac_plus_bool,
+  plus  .initial:n   = false,
+  plus  .default:n   = true,
+  d     .bool_set:N  = \l__printfrac_displaystyle_bool,
+  d     .initial:n   = false,
+  d     .default:n   = true,
 }
 
 \keys_define:nn { print/num }
 {
-  format      .tl_set:N         =  \l__printcoeff_fmt_tl ,
+  %default: set when called without setting
+  format      .tl_set:N         = \l__printcoeff_fmt_tl,
   format      .value_required:n = true,
-  %
   fmt         .meta:n           = { format = #1 }, %alias for format
   fmt         .value_required:n = true,
-  %
-  noplus      .bool_set:N       =  \l__printcoeff_noplus_bool ,
-  noplus      .initial:n        =  false ,
-  noplus      .default:n        =  true ,  %set when called without setting
-  %
+  noplus      .bool_set:N       = \l__printcoeff_noplus_bool,
+  noplus      .initial:n        = false,
+  noplus      .default:n        = true,
   numDec      .int_set:N        = \l_printcoeff_numDec_int,
   numDec      .initial:n        = 4,
   numDec      .value_required:n = true,
-  %
-  signs-only  .bool_set:N       =  \l__signonly_units_bool ,
-  signs-only  .initial:n        =  true ,
-  signs-only  .default:n        =  false , %set when called without setting
-  %
-  one         .meta:n           =  { signs-only = #1 }, %alias for `signs-only'
-  one         .initial:n        =  true ,
-  one         .default:n        =  false , %set when called without setting
-  %
-  zero        .bool_set:N       =  \l__print_zero_bool ,
-  zero        .initial:n        =  false ,
-  zero        .default:n        =  true ,  %set when called without setting
-  %
+  signs-only  .bool_set:N       = \l__signonly_units_bool,
+  signs-only  .initial:n        = true,
+  signs-only  .default:n        = false,
+  one         .meta:n           = { signs-only = #1 }, %alias for `signs-only'
+  one         .initial:n        = true,
+  one         .default:n        = false,
+  zero        .bool_set:N       = \l__print_zero_bool,
+  zero        .initial:n        = false,
+  zero        .default:n        = true,
   all         .meta:n           = { signs-only = false, zero = true },
 }
 
 \keys_define:nn { print/poly }
 {
-  deriv       .int_set:N        = \l__printpoly_deriv_int,
-  deriv       .initial:n        = 0,
-  deriv       .default:n        = 1,
-  %
-  format      .tl_set:N         = \l__printpoly_fmt_tl,
-  format      .value_required:n = true,
-  %
-  fmt         .meta:n           = { format = #1 }, %alias for format
-  fmt         .value_required:n = true,
-  %
-  sort        .tl_set:N         = \l__printpoly_sort_tl,
-  sort        .initial:n        = >,
-  sort        .value_required:n = true,
-  %
-  var         .tl_set:N         = \l__printpoly_var_tl,
-  var         .initial:n        = x,
-  var         .value_required:n = true,
+  deriv   .int_set:N         = \l__printpoly_deriv_int,
+  deriv   .initial:n         = 0,
+  deriv   .default:n         = 1,
+  format  .tl_set:N          = \l__printpoly_fmt_tl,
+  format  .value_required:n  = true,
+  fmt     .meta:n            = { format = #1 }, %alias for format
+  fmt     .value_required:n  = true,
+  sort    .tl_set:N          = \l__printpoly_sort_tl,
+  sort    .initial:n         = >,
+  sort    .value_required:n  = true,
+  var     .tl_set:N          = \l__printpoly_var_tl,
+  var     .initial:n         = x,
+  var     .value_required:n  = true,
 }
 
 \keys_define:nn {}
@@ -97,14 +85,139 @@
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%\num from siunitx for explicit printing of +
-\cs_new_protected:Npn \__printcoeff_num:nn #1 #2
-  { \num[#1]{#2} }
+%% Shared variables
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\bool_new:N   \l__printFuncs_printSign_bool
-\fp_new:N     \l__tmpa_fp
-\int_new:N    \l__tmpa_int
+\bool_new:N  \l__printFuncs_printSign_bool
+\fp_new:N    \l__tmpa_fp
+\int_new:N   \l__tmpa_int
+\fp_new:N    \l__printpoly_coeff_fp
+\fp_new:N    \l__printpoly_expo_fp
+\int_new:N   \l__printpoly_expoidx_int
+\seq_new:N   \l__printpoly_expo_seq
+\tl_new:N    \l__printpoly_coeff_tl
+\bool_new:N  \l__printpoly_firstTerm_bool
+\bool_new:N  \l__printpoly_expozero_bool
+\bool_new:N  \l__printpoly_coeffOne_bool
+\tl_new:N    \l__polystr_result_tl
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Helper: \__poly_build_expo_seq:nn
+%%   Builds \l__printpoly_expo_seq from coeffs #1 and raw expo arg #2.
+%%   If #2 is blank, auto-generates 0..n-1 and applies sort.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\cs_new_protected:Npn \__poly_build_expo_seq:nn #1 #2
+  {
+    %TODO: error message if #1 and #2 are different lengths
+
+    % iterate over #1, store #2 as a sequence
+    % build sequence if #2 is empty
+    \seq_clear:N \l__printpoly_expo_seq
+    \tl_if_blank:nTF { #2 }
+      {
+        %build exponents 0..n-1
+        \int_step_inline:nnnn { 0 } { 1 } { \clist_count:n {#1} - 1 }
+          { \seq_put_right:Nn \l__printpoly_expo_seq {##1} }
+        %logic to reverse order
+        \str_case:en { \l__printpoly_sort_tl }
+          {
+            { < } { }
+            { > } { \seq_reverse:N \l__printpoly_expo_seq }
+          }
+      }
+      { \seq_set_from_clist:Nn \l__printpoly_expo_seq { #2 } }
+  }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Helper: \__poly_apply_deriv:
+%%   Applies derivative/integral power rule to \l__printpoly_coeff_fp
+%%   and \l__printpoly_expo_fp using \l__printpoly_deriv_int.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\cs_new_protected:Npn \__poly_apply_deriv:
+  {
+    % derivative (deriv > 0)
+    \int_step_inline:nn { \l__printpoly_deriv_int }
+      {
+        \int_set:Nn \l__tmpa_int { ##1 }
+        \fp_set:Nn \l__tmpa_fp { \l__printpoly_expo_fp + 1 - \l__tmpa_int }
+        \fp_set:Nn \l__printpoly_coeff_fp { \l__printpoly_coeff_fp * \l__tmpa_fp }
+      }
+    % integral (deriv < 0)
+    \int_step_inline:nn { -\l__printpoly_deriv_int }
+      {
+        \int_set:Nn \l__tmpa_int { ##1 }
+        \fp_set:Nn \l__tmpa_fp { \l__printpoly_expo_fp + 2 - \l__tmpa_int }
+        \fp_compare:nNnF { \l__tmpa_fp } = { 0 }
+          { \fp_set:Nn \l__printpoly_coeff_fp
+              { \l__printpoly_coeff_fp / \l__tmpa_fp } }
+      }
+    % adjust exponent
+    \fp_set:Nn \l__printpoly_expo_fp
+      { \l__printpoly_expo_fp - \l__printpoly_deriv_int }
+  }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Helper: \__poly_load_term:nn
+%%   Sets \l__printpoly_coeff_fp, \l__printpoly_expo_fp,
+%%   \l__printpoly_expozero_bool, and \l__printpoly_coeffOne_bool
+%%   for the current term (coeff #1, index into expo seq already set).
+%%   Also applies derivative scaling.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\cs_new_protected:Npn \__poly_load_term:n #1
+  {
+    % get current coeff and expo
+    \fp_set:Nn \l__printpoly_coeff_fp { #1 }
+    \fp_set:Nn \l__printpoly_expo_fp
+      { \seq_item:Nn \l__printpoly_expo_seq { \l__printpoly_expoidx_int } }
+
+    %deriv/integral (VERY rudimentary) power rule
+    \__poly_apply_deriv:
+    \bool_set:Nn \l__printpoly_expozero_bool
+      { \fp_compare_p:nNn { \l__printpoly_expo_fp } = { 0 } }
+    \fp_set:Nn \l__tmpa_fp { abs(\l__printpoly_coeff_fp) }
+    \bool_set:Nn \l__printpoly_coeffOne_bool
+      { \fp_compare_p:nNn { \l__tmpa_fp } = { 1 } }
+  }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Helper: \__poly_typeset_varexpo:
+%%   Typesets the variable and exponent for the current term.
+%%   Used by \print_poly:nnnn.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\cs_new_protected:Npn \__poly_typeset_varexpo:
+  {
+    \fp_compare:nNnF { \l__printpoly_expo_fp } = { 0 }
+      {
+        %Print if expo nonzero
+        \ensuremath{ \l__printpoly_var_tl }
+        %Print expo if not one
+        \fp_compare:nNnF { \l__printpoly_expo_fp } = { 1 }
+          { \ensuremath{^{ \printNum[noplus,one]{ \l__printpoly_expo_fp } }} }
+      }
+  }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Helper: \__polystr_append_varexpo:
+%%   Appends the variable and exponent string for the current term
+%%   to \l__polystr_result_tl. Used by \polystr_build:nnn.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\cs_new_protected:Npn \__polystr_append_varexpo:
+  {
+    \fp_compare:nNnF { \l__printpoly_expo_fp } = { 0 }
+      {
+        \tl_gput_right:NV \l__polystr_result_tl \l__printpoly_var_tl
+        \fp_compare:nNnF { \l__printpoly_expo_fp } = { 1 }
+          { \tl_gput_right:Nx \l__polystr_result_tl
+              { ^ { \fp_eval:n { \l__printpoly_expo_fp } } } }
+      }
+  }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \printNum * [keys] {<coeff>}
 % #1 - starred variant suppress leading '+' (equivalent to noplus key)
 % #2 - optional args: (default)
@@ -113,6 +226,11 @@
 %             numdec: (4)     number of decimal places to round to
 %                one: (true)  toggle printing one (alias for signs-only)
 %               zero: (false) toggle printing zero
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\num from siunitx for explicit printing of +
+\cs_new_protected:Npn \__printcoeff_num:nn #1 #2
+  { \num[#1]{#2} }
+
 \NewDocumentCommand \printNum { s O{} m }
   { \print_coeff:nnn {#1} {#2} {#3} }
 
@@ -130,36 +248,36 @@
         { \bool_set_false:N \l__printFuncs_printSign_bool }
 
       \fp_set:Nn \l__tmpa_fp { \fp_eval:n { #3 } } % numeric form for comparisons
-
       \bool_if:nTF {
-        \fp_compare_p:n { \fp_abs:n { \l__tmpa_fp } ==1} && \l__signonly_units_bool
+        \fp_compare_p:n { \fp_abs:n { \l__tmpa_fp } == 1 }
+        && \l__signonly_units_bool
       }{
-        \fp_compare:nTF {\l__tmpa_fp == -1}
-          {\ensuremath{-}}  %-1 w/ signonly_units
+        \fp_compare:nTF { \l__tmpa_fp == -1 }
+          { \ensuremath{-} }     %-1 w/ signonly_units
           {
-           \bool_if:NTF \l__printFuncs_printSign_bool
-           {\ensuremath{+}} %1 w/  sign
-           {}               %1 w/o sign
-         }
-      }{
-
-        \bool_if:nT {% print zero or non-zero number: generic case
-          \l__print_zero_bool || \fp_compare_p:n {\l__tmpa_fp != 0}
-        }
-        {
-          \group_begin:
-          \ensuremath{
-            \exp_args:Ne \__printcoeff_num:nn
-            {
-              group-separator={,},
-              group-digits=integer,
-              \bool_if:NT \l__printFuncs_printSign_bool { print-implicit-plus=true }
-            }
-            {
-              \exp_args:NnV \fp_format:nn
-              { round(\l__tmpa_fp,\l_printcoeff_numDec_int) } \l__printcoeff_fmt_tl
-            }
+            \bool_if:NTF \l__printFuncs_printSign_bool
+              { \ensuremath{+} } %1 w/  sign
+              { }                %1 w/o sign
           }
+      }{
+        \bool_if:nT {% print zero or non-zero number: generic case
+          \l__print_zero_bool || \fp_compare_p:n { \l__tmpa_fp != 0 }
+        }{
+          \group_begin:
+            \ensuremath{
+              \exp_args:Ne \__printcoeff_num:nn
+                {
+                  group-separator={,},
+                  group-digits=integer,
+                  \bool_if:NT \l__printFuncs_printSign_bool
+                    { print-implicit-plus=true }
+                }
+                {
+                  \exp_args:NnV \fp_format:nn
+                    { round(\l__tmpa_fp, \l_printcoeff_numDec_int) }
+                    \l__printcoeff_fmt_tl
+                }
+            }
           \group_end:
         }
       }
@@ -167,31 +285,32 @@
   }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\bool_new:N \l__coord_firstTerm_bool
-
 % \coord * [keys] {<coeff>}
 % #1 - optional args : inherited from printNum
 % #2 - a clist of values to print separated by ,
-\NewDocumentCommand \coord { O{} m }{
-  \print_coord:nn { #1 } { #2 }
-}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\bool_new:N \l__coord_firstTerm_bool
+
+\NewDocumentCommand \coord { O{} m }
+  { \print_coord:nn {#1} {#2} }
 
 \cs_new_protected:Npn \print_coord:nn #1 #2
   {
     \group_begin:
-      \keys_set:nn { print/coord }{ #1 }
+      \keys_set:nn { print/coord } { #1 }
       \bool_set_true:N \l__coord_firstTerm_bool
       \ensuremath{ \l__print_coord_lparens_tl }
       \clist_map_inline:nn { #2 }
         {
-          \bool_if:NF \l__coord_firstTerm_bool { \ensuremath{\l__print_coord_delim_tl} }
+          \bool_if:NF \l__coord_firstTerm_bool
+            { \ensuremath{ \l__print_coord_delim_tl } }
           \printNum* [all, #1] { ##1 }
           \bool_set_false:N \l__coord_firstTerm_bool
         }
       \ensuremath{ \l__print_coord_rparens_tl }
     \group_end:
   }
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % #1 - starred variant prints leading '+'
@@ -200,18 +319,18 @@
 %          d: (false) print with \displaymode
 % #3 - numerator
 % #4 - denominator
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \cs_new_protected:Npn \print_frac:nnnn #1 #2 #3 #4
   {
     \group_begin:
-      \keys_set:nn { print/frac }{ #2 }
-
+      \keys_set:nn { print/frac } { #2 }
       \bool_if:nT {#1} { \bool_set_true:N \l__printfrac_plus_bool }
       \ensuremath{
-        \bool_if:nT { \l__printfrac_displaystyle_bool }{ \displaystyle }
-        \bool_if:nT { \l__printfrac_plus_bool }{ \fp_compare:nNnT {#3/#4} > {0} +}
-        \xintTeXsignedFrac{%
-          \xintPIrr{\fpeval{#3}/\fpeval{#4}}
-        }
+        \bool_if:nT { \l__printfrac_displaystyle_bool } { \displaystyle }
+        \bool_if:nT { \l__printfrac_plus_bool }
+          { \fp_compare:nNnT {#3/#4} > {0} + }
+        \xintTeXsignedFrac{ \xintPIrr{ \fpeval{#3} / \fpeval{#4} } }
       }
     \group_end:
   }
@@ -220,15 +339,6 @@
   { \print_frac:nnnn {#1} {#2} {#3} {#4} }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\bool_new:N   \l__printpoly_coeffOne_bool
-\bool_new:N   \l__printpoly_expozero_bool
-\bool_new:N   \l__printpoly_firstTerm_bool
-\fp_new:N     \l__printpoly_coeff_fp
-\fp_new:N     \l__printpoly_expo_fp
-\int_new:N    \l__printpoly_expoidx_int
-\seq_new:N    \l__printpoly_expo_seq
-\tl_new:N     \l__printpoly_coeff_tl
-
 % \printPoly * [keys] {<coeff>}{<expo>}
 % #1 - starred variant enable leading '+'
 % #2 - optional args: (default)
@@ -241,114 +351,76 @@
 
 %% G{} allows completely omitting braces for #4, but requires xparse
 %% O{} requires using []
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \NewDocumentCommand \printPoly { s O{} m G{} }
   { \print_poly:nnnn {#1} {#2} {#3} {#4} }
 
 \cs_new_protected:Npn \print_poly:nnnn #1 #2 #3 #4
-{
-  \group_begin:
-    \keys_set:nn { print/poly } { #2 }
+  {
+    \group_begin:
+      \keys_set:nn { print/poly } { #2 }
 
-    \bool_set_true:N \l__printpoly_firstTerm_bool
-    \bool_if:nT {#1} { \bool_set_false:N \l__printpoly_firstTerm_bool }
+      \bool_set_true:N \l__printpoly_firstTerm_bool
+      \bool_if:nT {#1} { \bool_set_false:N \l__printpoly_firstTerm_bool }
 
-    % iterate over #3, store #4 as a sequence
-    %build sequence if #4 is empty
-    \seq_clear:N \l__printpoly_expo_seq
-    \tl_if_blank:nTF { #4 }
-    {
-      \int_step_inline:nnnn { 0 } { 1 }  { \clist_count:n {#3} - 1 } { \seq_put_right:Nn \l__printpoly_expo_seq {##1} }
-      %logic to reverse order
-      \str_case:en { \l__printpoly_sort_tl }
+      % iterate over #3, store #4 as a sequence
+      % build sequence if #4 is empty
+      \__poly_build_expo_seq:nn { #3 } { #4 }
+      \int_zero:N \l__printpoly_expoidx_int
+      \clist_map_inline:nn { #3 }
         {
-          { < } { }
-          { > } { \seq_reverse:N \l__printpoly_expo_seq }
-        }
-    }
-    { \seq_set_from_clist:Nn \l__printpoly_expo_seq { #4 }  }
-
-    %TODO: error message if #3 and #4 are different lengths
-
-    \clist_map_inline:nn { #3 }
-      {
-        \int_incr:N \l__printpoly_expoidx_int
-        % get current coeff and expo
-        \fp_set:Nn \l__printpoly_coeff_fp { ##1 }
-        \fp_set:Nn \l__printpoly_expo_fp
-          { \seq_item:Nn \l__printpoly_expo_seq { \l__printpoly_expoidx_int } }
-
-        %derivative power rule
-        \int_step_inline:nn { \l__printpoly_deriv_int }
-          {
-            \int_set:Nn \l__tmpa_int { ####1 }
-            \fp_set:Nn \l__tmpa_fp { \l__printpoly_expo_fp+1-\l__tmpa_int }
-            \fp_set:Nn \l__printpoly_coeff_fp { \l__printpoly_coeff_fp*(\l__tmpa_fp) }
-          }
-        % VERY rudimentary integral power rule
-        \int_step_inline:nn { -\l__printpoly_deriv_int }
-          {
-            \int_set:Nn \l__tmpa_int { ####1 }
-            \fp_set:Nn \l__tmpa_fp { \l__printpoly_expo_fp+2-\l__tmpa_int }
-            \fp_compare:nNnF { \l__tmpa_fp } = { 0 }
-              { \fp_set:Nn \l__printpoly_coeff_fp { \l__printpoly_coeff_fp/(\l__tmpa_fp) }}
-          }
-        %modify exponent
-        \fp_set:Nn \l__printpoly_expo_fp {\l__printpoly_expo_fp - \l__printpoly_deriv_int}
-
-        \fp_compare:nNnF { \l__printpoly_coeff_fp } = {0}
-          { \tl_set:Nn \l__printpoly_coeff_tl { \l__printpoly_coeff_fp }
-
-        \bool_set:Nn \l__printpoly_expozero_bool {\fp_compare_p:nNn { \l__printpoly_expo_fp } = {0}}
-        \bool_set:Nn \l__printpoly_coeffOne_bool {\fp_compare_p:nNn { abs(\l__printpoly_coeff_fp) } = {1}}
-
-        \bool_case:n
-          {
-            { \bool_lazy_and_p:nn  % first term, cx
-                {  \l__printpoly_firstTerm_bool }
-                { !\l__printpoly_expozero_bool }}
-              { \printNum*{ \l__printpoly_coeff_tl}
-                \bool_set_false:N \l__printpoly_firstTerm_bool }
-            { \bool_lazy_and_p:nn  % first term, c
-                {  \l__printpoly_firstTerm_bool }
-                {  \l__printpoly_expozero_bool }}
-              { \printNum*[one]{ \l__printpoly_coeff_tl}
-                \bool_set_false:N \l__printpoly_firstTerm_bool }
-            { \bool_lazy_all_p:n { % not first term, \pm 1
-                { !\l__printpoly_firstTerm_bool }
-                {  \l__printpoly_expozero_bool }
-                {  \l__printpoly_coeffOne_bool }}}
-              { \printNum[one]{ \l__printpoly_coeff_tl} }
-            { \bool_lazy_and_p:nn  % not first term, \pm c or \pm cx
-                { !\l__printpoly_firstTerm_bool }
-                { !\l__printpoly_expozero_bool ||
-                  !\l__printpoly_coeffOne_bool }}
-              { \printNum{ \l__printpoly_coeff_tl} }
-          }
-
-        \fp_compare:nNnF { \l__printpoly_expo_fp } = {0}
-          {
-            %Print if expo nonzero
-            \ensuremath{\l__printpoly_var_tl}
-            %Print expo if not one
-            \fp_compare:nNnF { \l__printpoly_expo_fp } = {1}{
-              \ensuremath{^{ \printNum[noplus,one]{\l__printpoly_expo_fp }}}
+          \int_incr:N \l__printpoly_expoidx_int
+          % get current coeff and expo, perform power rule
+          \__poly_load_term:n { ##1 }
+          \fp_compare:nNnF { \l__printpoly_coeff_fp } = { 0 }
+            {
+              \tl_set:Nn \l__printpoly_coeff_tl { \l__printpoly_coeff_fp }
+              \bool_case:n
+                {
+                  { \bool_lazy_and_p:nn        % first term, cx
+                      { \l__printpoly_firstTerm_bool }
+                      { !\l__printpoly_expozero_bool } }
+                    { \printNum*{ \l__printpoly_coeff_tl }
+                      \bool_set_false:N \l__printpoly_firstTerm_bool }
+                  { \bool_lazy_and_p:nn        % first term, c
+                      { \l__printpoly_firstTerm_bool }
+                      { \l__printpoly_expozero_bool } }
+                    { \printNum*[one]{ \l__printpoly_coeff_tl }
+                      \bool_set_false:N \l__printpoly_firstTerm_bool }
+                  { \bool_lazy_all_p:n {       % not first, \pm 1
+                      { !\l__printpoly_firstTerm_bool }
+                      {  \l__printpoly_expozero_bool }
+                      {  \l__printpoly_coeffOne_bool } } }
+                    { \printNum[one]{ \l__printpoly_coeff_tl } }
+                  { \bool_lazy_and_p:nn        % not first, \pm c or \pm cx
+                      { !\l__printpoly_firstTerm_bool }
+                      { !\l__printpoly_expozero_bool ||
+                        !\l__printpoly_coeffOne_bool } }
+                    { \printNum{ \l__printpoly_coeff_tl } }
+                }
+              %Print math coeffs and vars
+              \__poly_typeset_varexpo:
             }
-          }
         }
-      }
-  \group_end:
-}
+    \group_end:
+  }
 
-%% Print functions for random poly long div and synthetic division
-%TODO rewrite a helper function for code common in
-%\polystr_build:nnn and \print_poly:nnnn
-
-\tl_new:N \l__polystr_result_tl
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \printPolyStr * [keys] {<coeff>}{<expo>}
+% #1 - optional args: (default)
+%              deriv: (0) number of derivative using power rule
+%       format=<fmt>: ()  fp_format string
+%               sort: (>) sort auto-generated expo args
+%                var: (x) variable used in expression
+% #2 - clist of coefficients
+% #3 - (optional) clist of exponents
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \NewDocumentCommand \printPolyStr { O{} m G{} }
   {
     \polystr_build:nnn {#1} {#2} {#3}
-    \ensuremath{\tl_use:N \l__polystr_result_tl}
+    \ensuremath{ \tl_use:N \l__polystr_result_tl }
   }
 
 \cs_new_protected:Npn \polystr_build:nnn #1 #2 #3
@@ -356,35 +428,22 @@
     \group_begin:
       \keys_set:nn { print/poly } { #1 }
 
-      \seq_clear:N \l__printpoly_expo_seq
-      \tl_if_blank:nTF { #3 }
-        {
-          \int_step_inline:nnnn { 0 } { 1 } { \clist_count:n {#2} - 1 }
-            { \seq_put_right:Nn \l__printpoly_expo_seq {##1} }
-          \str_case:en { \l__printpoly_sort_tl }
-            { { < } { } { > } { \seq_reverse:N \l__printpoly_expo_seq } }
-        }
-        { \seq_set_from_clist:Nn \l__printpoly_expo_seq { #3 } }
-
+      \__poly_build_expo_seq:nn { #2 } { #3 }
       \tl_gclear:N \l__polystr_result_tl
       \int_zero:N \l__printpoly_expoidx_int
 
       \clist_map_inline:nn { #2 }
         {
           \int_incr:N \l__printpoly_expoidx_int
-          \fp_set:Nn \l__printpoly_coeff_fp { ##1 }
-          \fp_set:Nn \l__printpoly_expo_fp
-            { \seq_item:Nn \l__printpoly_expo_seq { \l__printpoly_expoidx_int } }
-
+          \__poly_load_term:n { ##1 }
           \fp_compare:nNnF { \l__printpoly_coeff_fp } = { 0 }
             {
               % Sign / coefficient
               \tl_if_empty:NTF \l__polystr_result_tl
                 {
-                  % Leading term — no explicit '+'
-                  \fp_compare:nNnTF { \fp_abs:n { \l__printpoly_coeff_fp } } = { 1 }
+                  % Leading term - no explicit '+'
+                  \bool_if:NTF \l__printpoly_coeffOne_bool
                     {
-                      % ±1: only emit '-' for -1; suppress '1'
                       \fp_compare:nNnT { \l__printpoly_coeff_fp } = { -1 }
                         { \tl_gput_right:Nn \l__polystr_result_tl { - } }
                     }
@@ -392,34 +451,31 @@
                         { \fp_eval:n { \l__printpoly_coeff_fp } } }
                 }
                 {
-                  % Subsequent terms — include explicit sign
+                  % Subsequent terms
                   \fp_compare:nNnTF { \l__printpoly_coeff_fp } > { 0 }
                     { \tl_gput_right:Nn \l__polystr_result_tl { + } }
                     { \tl_gput_right:Nn \l__polystr_result_tl { - } }
-                  % Coefficient magnitude (suppress 1 when variable follows)
-                  \fp_compare:nNnTF { abs(\l__printpoly_coeff_fp) } = { 1 }
+                  \bool_if:NTF \l__printpoly_coeffOne_bool
                     {
-                      % ±1 with variable: emit nothing (sign already added)
-                      % ±1 as constant: emit 1
-                      \fp_compare:nNnT { \l__printpoly_expo_fp } = { 0 }
+                      \fp_compare:nNnT { \l__printpoly_expozero_bool } = { 1 }
                         { \tl_gput_right:Nn \l__polystr_result_tl { 1 } }
                     }
                     { \tl_gput_right:Nx \l__polystr_result_tl
                         { \fp_eval:n { abs(\l__printpoly_coeff_fp) } } }
                 }
-
-              % Variable and exponent
-              \fp_compare:nNnF { \l__printpoly_expo_fp } = { 0 }
-                {
-                  \tl_gput_right:NV \l__polystr_result_tl \l__printpoly_var_tl
-                  \fp_compare:nNnF { \l__printpoly_expo_fp } = { 1 }
-                    { \tl_gput_right:Nx \l__polystr_result_tl
-                        { ^ { \fp_eval:n { \l__printpoly_expo_fp } } } }
-                }
+              \__polystr_append_varexpo:
             }
         }
     \group_end:
   }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%      \randpolylongdiv [keys] {<coeff>}{<coeff>}
+% \randpolyhornerscheme [keys] {<coeff>}{<coeff>}
+% #1 - optional args : inherited from printNum
+% #2 - a clist of values to print separated by , (dividend)
+% #3 - a clist of values to print separated by , (divisor: (1,\n) for Horner)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \NewDocumentCommand \randpolylongdiv { O{} m m }
   {
@@ -432,13 +488,13 @@
 
 \NewDocumentCommand \randpolyhornerscheme { O{} m m }
   {
-    %build dividend string
     \polystr_build:nnn {#1} {#2} {}
     \use:e {
       \exp_not:N \polyhornerscheme
-        [ x = { \fp_eval:n { -\clist_item:nn { #3 }{2} / \clist_item:nn { #3 }{1}} } ]
+        [ x = { \fp_eval:n
+            { -\clist_item:nn {#3}{2} / \clist_item:nn {#3}{1} } } ]
         { \tl_use:N \l__polystr_result_tl }
     }
   }
 
-\ExplSyntaxOff%
+\ExplSyntaxOff
