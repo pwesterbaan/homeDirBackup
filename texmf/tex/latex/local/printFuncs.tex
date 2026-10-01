@@ -132,7 +132,7 @@
       \fp_set:Nn \l__tmpa_fp { \fp_eval:n { #3 } } % numeric form for comparisons
 
       \bool_if:nTF {
-        \fp_compare_p:n {abs(\l__tmpa_fp)==1} && \l__signonly_units_bool
+        \fp_compare_p:n { \fp_abs:n { \l__tmpa_fp } ==1} && \l__signonly_units_bool
       }{
         \fp_compare:nTF {\l__tmpa_fp == -1}
           {\ensuremath{-}}  %-1 w/ signonly_units
@@ -253,10 +253,10 @@
     \bool_if:nT {#1} { \bool_set_false:N \l__printpoly_firstTerm_bool }
 
     % iterate over #3, store #4 as a sequence
-    \seq_set_from_clist:Nn \l__printpoly_expo_seq { #4 }
     %build sequence if #4 is empty
-    \tl_if_blank:nT { #4 }{
-      \seq_clear:N \l__printpoly_expo_seq
+    \seq_clear:N \l__printpoly_expo_seq
+    \tl_if_blank:nTF { #4 }
+    {
       \int_step_inline:nnnn { 0 } { 1 }  { \clist_count:n {#3} - 1 } { \seq_put_right:Nn \l__printpoly_expo_seq {##1} }
       %logic to reverse order
       \str_case:en { \l__printpoly_sort_tl }
@@ -265,73 +265,180 @@
           { > } { \seq_reverse:N \l__printpoly_expo_seq }
         }
     }
+    { \seq_set_from_clist:Nn \l__printpoly_expo_seq { #4 }  }
 
     %TODO: error message if #3 and #4 are different lengths
 
-    \clist_map_inline:nn { #3 }{
-      \int_incr:N \l__printpoly_expoidx_int
-      % get current coeff and expo
-      \fp_set:Nn \l__printpoly_coeff_fp { ##1 }
-      \fp_set:Nn \l__printpoly_expo_fp {
-          \seq_item:Nn \l__printpoly_expo_seq { \l__printpoly_expoidx_int } }
+    \clist_map_inline:nn { #3 }
+      {
+        \int_incr:N \l__printpoly_expoidx_int
+        % get current coeff and expo
+        \fp_set:Nn \l__printpoly_coeff_fp { ##1 }
+        \fp_set:Nn \l__printpoly_expo_fp
+          { \seq_item:Nn \l__printpoly_expo_seq { \l__printpoly_expoidx_int } }
 
-      %derivative power rule
-      \int_step_inline:nn { \l__printpoly_deriv_int }{
-        \int_set:Nn \l__tmpa_int { ####1 }
-        \fp_set:Nn \l__tmpa_fp { \l__printpoly_expo_fp+1-\l__tmpa_int }
-        \fp_set:Nn \l__printpoly_coeff_fp { \l__printpoly_coeff_fp*(\l__tmpa_fp) }
-      }
-      % VERY rudimentary integral power rule
-      \int_step_inline:nn { -\l__printpoly_deriv_int }{
-        \int_set:Nn \l__tmpa_int { ####1 }
-        \fp_set:Nn \l__tmpa_fp { \l__printpoly_expo_fp+2-\l__tmpa_int }
-        \fp_compare:nNnF { \l__tmpa_fp } = { 0 }
-          { \fp_set:Nn \l__printpoly_coeff_fp { \l__printpoly_coeff_fp/(\l__tmpa_fp) }}
-      }
-      %modify exponent
-      \fp_set:Nn \l__printpoly_expo_fp {\l__printpoly_expo_fp - \l__printpoly_deriv_int}
+        %derivative power rule
+        \int_step_inline:nn { \l__printpoly_deriv_int }
+          {
+            \int_set:Nn \l__tmpa_int { ####1 }
+            \fp_set:Nn \l__tmpa_fp { \l__printpoly_expo_fp+1-\l__tmpa_int }
+            \fp_set:Nn \l__printpoly_coeff_fp { \l__printpoly_coeff_fp*(\l__tmpa_fp) }
+          }
+        % VERY rudimentary integral power rule
+        \int_step_inline:nn { -\l__printpoly_deriv_int }
+          {
+            \int_set:Nn \l__tmpa_int { ####1 }
+            \fp_set:Nn \l__tmpa_fp { \l__printpoly_expo_fp+2-\l__tmpa_int }
+            \fp_compare:nNnF { \l__tmpa_fp } = { 0 }
+              { \fp_set:Nn \l__printpoly_coeff_fp { \l__printpoly_coeff_fp/(\l__tmpa_fp) }}
+          }
+        %modify exponent
+        \fp_set:Nn \l__printpoly_expo_fp {\l__printpoly_expo_fp - \l__printpoly_deriv_int}
 
-      \fp_compare:nNnF { \l__printpoly_coeff_fp } = {0}{
-        \tl_set:Nn \l__printpoly_coeff_tl { \l__printpoly_coeff_fp }
+        \fp_compare:nNnF { \l__printpoly_coeff_fp } = {0}
+          { \tl_set:Nn \l__printpoly_coeff_tl { \l__printpoly_coeff_fp }
 
         \bool_set:Nn \l__printpoly_expozero_bool {\fp_compare_p:nNn { \l__printpoly_expo_fp } = {0}}
         \bool_set:Nn \l__printpoly_coeffOne_bool {\fp_compare_p:nNn { abs(\l__printpoly_coeff_fp) } = {1}}
 
         \bool_case:n
-        {
-          { \bool_lazy_and_p:nn  % first term, cx
-              {  \l__printpoly_firstTerm_bool }
-              { !\l__printpoly_expozero_bool }}
-            { \printNum*{ \l__printpoly_coeff_tl}
-              \bool_set_false:N \l__printpoly_firstTerm_bool }
-          { \bool_lazy_and_p:nn  % first term, c
-              {  \l__printpoly_firstTerm_bool }
-              {  \l__printpoly_expozero_bool }}
-            { \printNum*[one]{ \l__printpoly_coeff_tl}
-              \bool_set_false:N \l__printpoly_firstTerm_bool }
-          { \bool_lazy_all_p:n { % not first term, \pm 1
-              { !\l__printpoly_firstTerm_bool }
-              {  \l__printpoly_expozero_bool }
-              {  \l__printpoly_coeffOne_bool }}}
-            { \printNum[one]{ \l__printpoly_coeff_tl} }
-          { \bool_lazy_and_p:nn  % not first term, \pm c or \pm cx
-              { !\l__printpoly_firstTerm_bool }
-              { !\l__printpoly_expozero_bool ||
-                !\l__printpoly_coeffOne_bool }}
-            { \printNum{ \l__printpoly_coeff_tl} }
-        }
+          {
+            { \bool_lazy_and_p:nn  % first term, cx
+                {  \l__printpoly_firstTerm_bool }
+                { !\l__printpoly_expozero_bool }}
+              { \printNum*{ \l__printpoly_coeff_tl}
+                \bool_set_false:N \l__printpoly_firstTerm_bool }
+            { \bool_lazy_and_p:nn  % first term, c
+                {  \l__printpoly_firstTerm_bool }
+                {  \l__printpoly_expozero_bool }}
+              { \printNum*[one]{ \l__printpoly_coeff_tl}
+                \bool_set_false:N \l__printpoly_firstTerm_bool }
+            { \bool_lazy_all_p:n { % not first term, \pm 1
+                { !\l__printpoly_firstTerm_bool }
+                {  \l__printpoly_expozero_bool }
+                {  \l__printpoly_coeffOne_bool }}}
+              { \printNum[one]{ \l__printpoly_coeff_tl} }
+            { \bool_lazy_and_p:nn  % not first term, \pm c or \pm cx
+                { !\l__printpoly_firstTerm_bool }
+                { !\l__printpoly_expozero_bool ||
+                  !\l__printpoly_coeffOne_bool }}
+              { \printNum{ \l__printpoly_coeff_tl} }
+          }
 
-        \fp_compare:nNnF { \l__printpoly_expo_fp } = {0}{
-          %Print if expo nonzero
-          \ensuremath{\l__printpoly_var_tl}
-          %Print expo if not one
-          \fp_compare:nNnF { \l__printpoly_expo_fp } = {1}{
-            \ensuremath{^{ \printNum[noplus,one]{\l__printpoly_expo_fp }}}
+        \fp_compare:nNnF { \l__printpoly_expo_fp } = {0}
+          {
+            %Print if expo nonzero
+            \ensuremath{\l__printpoly_var_tl}
+            %Print expo if not one
+            \fp_compare:nNnF { \l__printpoly_expo_fp } = {1}{
+              \ensuremath{^{ \printNum[noplus,one]{\l__printpoly_expo_fp }}}
+            }
           }
         }
       }
-  }
   \group_end:
 }
+
+%% Print functions for random poly long div and synthetic division
+%TODO rewrite a helper function for code common in
+%\polystr_build:nnn and \print_poly:nnnn
+
+\tl_new:N \l__polystr_result_tl
+
+\NewDocumentCommand \printPolyStr { O{} m G{} }
+  {
+    \polystr_build:nnn {#1} {#2} {#3}
+    \ensuremath{\tl_use:N \l__polystr_result_tl}
+  }
+
+\cs_new_protected:Npn \polystr_build:nnn #1 #2 #3
+  {
+    \group_begin:
+      \keys_set:nn { print/poly } { #1 }
+
+      \seq_clear:N \l__printpoly_expo_seq
+      \tl_if_blank:nTF { #3 }
+        {
+          \int_step_inline:nnnn { 0 } { 1 } { \clist_count:n {#2} - 1 }
+            { \seq_put_right:Nn \l__printpoly_expo_seq {##1} }
+          \str_case:en { \l__printpoly_sort_tl }
+            { { < } { } { > } { \seq_reverse:N \l__printpoly_expo_seq } }
+        }
+        { \seq_set_from_clist:Nn \l__printpoly_expo_seq { #3 } }
+
+      \tl_gclear:N \l__polystr_result_tl
+      \int_zero:N \l__printpoly_expoidx_int
+
+      \clist_map_inline:nn { #2 }
+        {
+          \int_incr:N \l__printpoly_expoidx_int
+          \fp_set:Nn \l__printpoly_coeff_fp { ##1 }
+          \fp_set:Nn \l__printpoly_expo_fp
+            { \seq_item:Nn \l__printpoly_expo_seq { \l__printpoly_expoidx_int } }
+
+          \fp_compare:nNnF { \l__printpoly_coeff_fp } = { 0 }
+            {
+              % Sign / coefficient
+              \tl_if_empty:NTF \l__polystr_result_tl
+                {
+                  % Leading term — no explicit '+'
+                  \fp_compare:nNnTF { \fp_abs:n { \l__printpoly_coeff_fp } } = { 1 }
+                    {
+                      % ±1: only emit '-' for -1; suppress '1'
+                      \fp_compare:nNnT { \l__printpoly_coeff_fp } = { -1 }
+                        { \tl_gput_right:Nn \l__polystr_result_tl { - } }
+                    }
+                    { \tl_gput_right:Nx \l__polystr_result_tl
+                        { \fp_eval:n { \l__printpoly_coeff_fp } } }
+                }
+                {
+                  % Subsequent terms — include explicit sign
+                  \fp_compare:nNnTF { \l__printpoly_coeff_fp } > { 0 }
+                    { \tl_gput_right:Nn \l__polystr_result_tl { + } }
+                    { \tl_gput_right:Nn \l__polystr_result_tl { - } }
+                  % Coefficient magnitude (suppress 1 when variable follows)
+                  \fp_compare:nNnTF { abs(\l__printpoly_coeff_fp) } = { 1 }
+                    {
+                      % ±1 with variable: emit nothing (sign already added)
+                      % ±1 as constant: emit 1
+                      \fp_compare:nNnT { \l__printpoly_expo_fp } = { 0 }
+                        { \tl_gput_right:Nn \l__polystr_result_tl { 1 } }
+                    }
+                    { \tl_gput_right:Nx \l__polystr_result_tl
+                        { \fp_eval:n { abs(\l__printpoly_coeff_fp) } } }
+                }
+
+              % Variable and exponent
+              \fp_compare:nNnF { \l__printpoly_expo_fp } = { 0 }
+                {
+                  \tl_gput_right:NV \l__polystr_result_tl \l__printpoly_var_tl
+                  \fp_compare:nNnF { \l__printpoly_expo_fp } = { 1 }
+                    { \tl_gput_right:Nx \l__polystr_result_tl
+                        { ^ { \fp_eval:n { \l__printpoly_expo_fp } } } }
+                }
+            }
+        }
+    \group_end:
+  }
+
+\NewDocumentCommand \randpolylongdiv { O{} m m }
+  {
+    \polystr_build:nnn {#1} {#2} {}
+    \tl_set:NV \l_tmpa_tl \l__polystr_result_tl
+    \polystr_build:nnn {#1} {#3} {}
+    \tl_set:NV \l_tmpb_tl \l__polystr_result_tl
+    \exp_args:NVV \polylongdiv \l_tmpa_tl \l_tmpb_tl
+  }
+
+\NewDocumentCommand \randpolyhornerscheme { O{} m m }
+  {
+    %build dividend string
+    \polystr_build:nnn {#1} {#2} {}
+    \use:e {
+      \exp_not:N \polyhornerscheme
+        [ x = { \fp_eval:n { -\clist_item:nn { #3 }{2} / \clist_item:nn { #3 }{1}} } ]
+        { \tl_use:N \l__polystr_result_tl }
+    }
+  }
 
 \ExplSyntaxOff%
