@@ -91,15 +91,22 @@
 \bool_new:N  \l__printFuncs_printSign_bool
 \fp_new:N    \l__tmpa_fp
 \int_new:N   \l__tmpa_int
+
 \fp_new:N    \l__printpoly_coeff_fp
 \fp_new:N    \l__printpoly_expo_fp
 \int_new:N   \l__printpoly_expoidx_int
 \seq_new:N   \l__printpoly_expo_seq
 \tl_new:N    \l__printpoly_coeff_tl
+
 \bool_new:N  \l__printpoly_firstTerm_bool
 \bool_new:N  \l__printpoly_expozero_bool
 \bool_new:N  \l__printpoly_coeffOne_bool
 \tl_new:N    \l__polystr_result_tl
+
+\bool_new:N  \l__surd_negative_bool
+\int_new:N   \l__surd_outer_int
+\int_new:N   \l__surd_inner_int
+\int_new:N   \l__surd_trial_int
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Helper: \__poly_build_expo_seq:nn
@@ -218,6 +225,39 @@
   }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Helper: \__surd_reduce:
+%%   surd: an irrational number (e.g. sqrt{2}
+%%   finds largest k s.t. k^2 | n, then sets \l__surd_outer_int = k,
+%%   \l__surd_inner_int = n/k^2. Used by \print_sqrt:nnn.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\cs_new_protected:Npn \__surd_reduce:n #1
+  {
+    \int_set:Nn \l__surd_inner_int { \int_abs:n { #1 } }
+    \int_set:Nn \l__surd_outer_int { 1 }
+    \int_set:Nn \l__surd_trial_int { 2 }
+    % Trial division: for each t from 2 upward, while t^2 <= inner
+    \bool_while_do:nn
+      { \int_compare_p:n { \l__surd_trial_int * \l__surd_trial_int
+                           <= \l__surd_inner_int } }
+      {
+        % While t^2 divides inner, pull out a factor of t
+        \bool_while_do:nn
+          { \int_compare_p:n
+              { \int_mod:nn { \l__surd_inner_int }
+                            { \l__surd_trial_int * \l__surd_trial_int } = 0 } }
+          {
+            \int_set:Nn \l__surd_outer_int
+              { \l__surd_outer_int * \l__surd_trial_int }
+            \int_set:Nn \l__surd_inner_int
+              { \l__surd_inner_int /
+                ( \l__surd_trial_int * \l__surd_trial_int ) }
+          }
+        \int_incr:N \l__surd_trial_int
+      }
+  }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \printNum * [keys] {<coeff>}
 % #1 - starred variant suppress leading '+' (equivalent to noplus key)
 % #2 - optional args: (default)
@@ -313,6 +353,7 @@
   }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \printFrac * [keys] {numer}{denom}
 % #1 - starred variant prints leading '+'
 % #2 - optional args: (default)
 %       plus: (false) toggle printing leading '+'
@@ -337,6 +378,58 @@
 
 \NewDocumentCommand \printFrac { s O{} m m }
   { \print_frac:nnnn {#1} {#2} {#3} {#4} }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \printSqrt [keys] {}
+% TODO: Keys are likely to go unused. Eliminate?
+% #1 - optional args: (default)
+%       format=<fmt>: ()      fp_format string (default: empty)
+%             noplus: (false) toggle suppressing leading '+' without the star
+%             numdec: (4)     number of decimal places to round to
+%                one: (true)  toggle printing one (alias for signs-only)
+%               zero: (false) toggle printing zero
+% #2 - term to reduce
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\cs_new_protected:Npn \print_sqrt:nnn #1 #2
+  {
+    \group_begin:
+      \keys_set:nn { print/num } { #1 }
+
+      \bool_set_true:N \l__printFuncs_printSign_bool
+      \bool_if:NT \l__printcoeff_noplus_bool
+        { \bool_set_false:N \l__printFuncs_printSign_bool }
+
+      \int_set:Nn \l__tmpa_int { \int_eval:n { #2 } }
+
+      % Detect negative and work with |n|
+      \bool_set:Nn \l__surd_negative_bool
+        { \int_compare_p:n { \l__tmpa_int < 0 } }
+      \bool_if:NT \l__surd_negative_bool
+        { \int_set:Nn \l__tmpa_int { \int_abs:n { \l__tmpa_int } } }
+
+      \__surd_reduce:n { \l__tmpa_int }
+
+      \ensuremath{
+        \int_compare:nNnTF { \l__surd_inner_int } = { 1 }
+          {
+            % Perfect square: print k
+            \printNum* [noplus] { \l__surd_outer_int }
+          }
+          {
+            % Has irrational part: print k\sqrt{m}
+            \int_compare:nNnF { \l__surd_outer_int } = { 1 }
+              { \printNum* [noplus] { \l__surd_outer_int } }
+            \sqrt{ \int_use:N \l__surd_inner_int }
+          }
+          % Print i if negative
+          \bool_if:NT \l__surd_negative_bool { i }
+      }
+    \group_end:
+  }
+
+\NewDocumentCommand \printSqrt { O{} m }
+  { \print_sqrt:nnn {#1} {#2} }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \printPoly * [keys] {<coeff>}{<expo>}
