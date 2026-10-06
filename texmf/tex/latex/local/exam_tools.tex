@@ -1,4 +1,4 @@
-%% Exam randomization
+%% Exam tools
 \RequirePackage{tikz,pgf,siunitx,etoolbox,xintfrac,xintexpr}
 % \RequirePackage{xparse} %recently removed
 \usetikzlibrary{math}
@@ -7,8 +7,10 @@
 \input{printFuncs}
 
 %TODO: remove these lengths?
-\newcommand{\ansBoxHeight}{\ifprintanswers8mm\else11mm\fi}
-\newcommand{\ansBoxWidth}{35mm}
+% \newcommand{\ansBoxHeight}{\ifprintanswers8mm\else11mm\fi}
+% \newcommand{\ansBoxWidth}{35mm}
+% TODO: create function that changes width/height
+% TODO: create function that resets width/height
 
 \ExplSyntaxOn
 % \debug_on:n { check-declarations }
@@ -27,8 +29,10 @@
 %     height = (\ifprintanswers8mm\else11mm\fi) sets height of ansBox
 %      width = (35mm) sets width of ansBox
 \NewDocumentCommand{\ansBox}{ O{} m }{%
-  \keys_set:nn { ansBox }{ #1 }
-  \hspace*{\stretch{1}}\fbox{\begin{minipage}[t][\l__ansBox_height_dim][c]{\l__ansBox_width_dim}#2\end{minipage}}\newline%
+  \group_begin:
+    \keys_set:nn { ansBox }{ #1 }
+    \hspace*{\stretch{1}}\fbox{\begin{minipage}[t][\l__ansBox_height_dim][c]{\l__ansBox_width_dim}#2\end{minipage}}\newline%
+  \group_end:
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -148,24 +152,34 @@
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\NewDocumentCommand \printTF { m m m }{
+  \fp_compare:nTF { #1 }{ #2 }{ #3 }
+}
+%TODO remove printIfTrue/printIfFalse?
 \NewDocumentCommand \printIfTrue { m m }{
-  \ifnum #1 #2 \fi
+  \printTF { #1 }{ #2 }{ }
   }
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \NewDocumentCommand \printIfFalse { m m }{
-  \ifnum #1 \else #2 \fi
-  }
+  \printTF { #1 }{ }{ #2 }
+}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \NewDocumentCommand \defGCD { m m m }{
-  \cs_gset:cpx { #1 }{ \exam_gcd:nn #2 #3 }
+  \cs_gset:cpx { #1 }{ \exam_gcd:nn {\int_eval:n { #2 } }{ \int_eval:n { #3 } } }
 }
 
 \cs_new:Npn \exam_gcd:nn #1 #2
   {
     \int_eval:n {
-        \int_compare:nTF { #2 = 0 }
-          { #1 }
-          { \exam_gcd:nn { #2 } { \int_mod:nn { \int_abs:n{#1} } { \int_abs:n{#2} } } }
+      \int_compare:nTF { #2 = 0 }
+        { #1 }
+        {
+          \exam_gcd:nn { #2 } {
+            \int_mod:nn
+              { \int_abs:n{ #1 } }
+              { \int_abs:n{ #2 } }
+          }
+        }
       }
   }
 
@@ -190,10 +204,6 @@
 % Translates letters to numbers
 \NewDocumentCommand \letterToNum { m m }{
   \cs_gset:cpx { # 1}{ \int_from_alph:n{#2} }
-}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\NewDocumentCommand{\signOnly}{m}{%
-  \printNum[signs-only=true]{\fp_sign:n { #1 } }
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Error message for unsupported relations
