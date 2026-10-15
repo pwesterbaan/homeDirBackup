@@ -15,14 +15,28 @@
 \ExplSyntaxOn
 % \debug_on:n { check-declarations }
 
-\keys_define:nn { ansBox }
-  {
-    height      .dim_set:N   = \l__ansBox_height_dim,
-    height      .initial:n   = \ifprintanswers8mm\else11mm\fi,
+\tl_const:Nn \c__ansbox_default_height_tl { \ifprintanswers 8mm \else 11mm \fi }
+\tl_const:Nn \c__ansbox_default_width_tl  { 35mm }
 
-    width       .dim_set:N   = \l__ansBox_width_dim,
-    width       .initial:n   = 35mm,
+\keys_define:nn { exam/ansBox }
+  {
+    height .dim_set:N  = \l__ansBox_height_dim ,
+    height .initial:V  = \c__ansbox_default_height_tl ,
+    height .default:V  = \c__ansbox_default_height_tl ,
+
+    width  .dim_set:N  = \l__ansBox_width_dim ,
+    width  .initial:V  = \c__ansbox_default_width_tl ,
+    width  .default:V  = \c__ansbox_default_width_tl ,
   }
+
+%Overwrite the default keys for ansBox
+\NewDocumentCommand{\ansBoxSet}{ m }
+  { \keys_set:nn { exam/ansBox }{ #1 } }
+
+%Reset keys for ansBox (no args)
+\NewDocumentCommand{\ansBoxReset}{ }
+  { \keys_set:nn { exam/ansBox }{ width, height } }
+
 % creates answer box of (opt) height, (opt) width, with mandatory contents
 % \ansBox [keys] {contents}
 % #1 - optional args: (default)
@@ -30,7 +44,7 @@
 %      width = (35mm) sets width of ansBox
 \NewDocumentCommand{\ansBox}{ O{} m }{%
   \group_begin:
-    \keys_set:nn { ansBox }{ #1 }
+    \keys_set:nn { exam/ansBox }{ #1 }
     \hspace*{\stretch{1}}\fbox{\begin{minipage}[t][\l__ansBox_height_dim][c]{\l__ansBox_width_dim}#2\end{minipage}}\newline%
   \group_end:
 }
