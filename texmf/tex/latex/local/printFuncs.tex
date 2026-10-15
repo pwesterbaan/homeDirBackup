@@ -522,7 +522,7 @@
       \IfBooleanT {#1} { \bool_set_false:N \l__printfrac_plus_bool }
       \keys_set:nn { print/symfrac } { #2 }
       \int_set:Nn \l__symfrac_numer_int { \l__surd_outer_int }
-      \int_set:Nn \l__symfrac_denom_int { \int_eval:n{#4} }
+      \int_set:Nn \l__symfrac_denom_int { \fp_eval:n{#4} }
       \__symfrac_typeset:
     \group_end:
   }
