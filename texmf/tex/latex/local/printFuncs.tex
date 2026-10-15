@@ -1,12 +1,47 @@
 \RequirePackage{siunitx}  %needed for formatting
-\RequirePackage{xparse}   %needed for optional arg type G (printPoly)
+\RequirePackage{xparse}   %needed for optional arg type G
+\RequirePackage{amsmath}  %needed for dfrac
 \ExplSyntaxOn%
 \cs_if_exist:NF \fp_format:nn { \RequirePackage{l3str-format} } % needed for TL2025
-% \debug_on:n { check-declarations }
+\debug_on:n { check-declarations }
 
 %TODO: eval poly -- use (#1)^expo to avoid sign errors
 %TODO: add printWithParens as key to printNum
 %TODO: parens key for printPoly (\parens{\printPoly{...}})
+%TODO: extend printcoord to work with symbols/\infty (check if num?)
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Shared variables
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\tl_new:N    \l__print_coord_lparens_tl
+\tl_new:N    \l__print_coord_rparens_tl
+
+\bool_new:N  \l__printFuncs_printSign_bool
+\fp_new:N    \l__tmpa_fp
+\int_new:N   \l__tmpa_int
+
+\fp_new:N    \l__printpoly_coeff_fp
+\fp_new:N    \l__printpoly_expo_fp
+\int_new:N   \l__printpoly_expoidx_int
+\seq_new:N   \l__printpoly_expo_seq
+\tl_new:N    \l__printpoly_coeff_tl
+
+\bool_new:N  \l__printpoly_firstTerm_bool
+\bool_new:N  \l__printpoly_expozero_bool
+\bool_new:N  \l__printpoly_coeffOne_bool
+\tl_new:N    \l__polystr_result_tl
+
+\bool_new:N  \l__surd_negative_bool
+\int_new:N   \l__surd_outer_int
+\int_new:N   \l__surd_inner_int
+\int_new:N   \l__surd_trial_int
+
+\tl_new:N    \l__symfrac_symbol_tl
+\int_new:N   \l__symfrac_numer_int
+\int_new:N   \l__symfrac_denom_int
+\int_new:N   \l__symfrac_reduced_numer_int
+\int_new:N   \l__symfrac_reduced_denom_int
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Key definitions
@@ -85,36 +120,23 @@
   var         .value_required:n  = true,
 }
 
+\keys_define:nn { print/symfrac }
+  {
+    d      .bool_set:N  = \l__printfrac_displaystyle_bool ,
+    d      .default:n   = true ,
+    plus   .bool_set:N  = \l__printfrac_plus_bool ,
+    plus   .default:n   = true ,
+    symbol .tl_set:N    = \l__symfrac_symbol_tl ,
+    symbol .initial:n   = {} ,
+    symbol .value_required:n = true ,
+  }
+
 \keys_define:nn {}
 {
   % printNum doesn't use delim or parens, but this
   % inheritance works with the print_coord func
   print/num .inherit:n = print/coord
 }
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Shared variables
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\bool_new:N  \l__printFuncs_printSign_bool
-\fp_new:N    \l__tmpa_fp
-\int_new:N   \l__tmpa_int
-
-\fp_new:N    \l__printpoly_coeff_fp
-\fp_new:N    \l__printpoly_expo_fp
-\int_new:N   \l__printpoly_expoidx_int
-\seq_new:N   \l__printpoly_expo_seq
-\tl_new:N    \l__printpoly_coeff_tl
-
-\bool_new:N  \l__printpoly_firstTerm_bool
-\bool_new:N  \l__printpoly_expozero_bool
-\bool_new:N  \l__printpoly_coeffOne_bool
-\tl_new:N    \l__polystr_result_tl
-
-\bool_new:N  \l__surd_negative_bool
-\int_new:N   \l__surd_outer_int
-\int_new:N   \l__surd_inner_int
-\int_new:N   \l__surd_trial_int
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Helper: \__poly_build_expo_seq:nn
@@ -265,6 +287,72 @@
   }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Helper: \__symfrac_typeset:
+%%   Reduces numer and denom, then typesets fraction
+%%   Used by \printSymFrac, \printFrac, and \printSqrt
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\cs_new_protected:Npn \__symfrac_typeset:
+  {
+    % Reduce numerator and denominator by GCD
+    \int_set:Nn \l__tmpa_int
+      { \exam_gcd:nn { \int_abs:n{\l__symfrac_numer_int} } { \int_abs:n{\l__symfrac_denom_int} } }
+    \int_set:Nn \l__symfrac_reduced_numer_int { \l__symfrac_numer_int / \l__tmpa_int }
+    \int_set:Nn \l__symfrac_reduced_denom_int { \int_abs:n{\l__symfrac_denom_int} / \l__tmpa_int }
+
+    % Overall sign (negative denom is moved to numerator)
+    \int_compare:nNnT { \l__symfrac_denom_int } < { 0 }
+      { \int_set:Nn \l__symfrac_reduced_numer_int { -\l__symfrac_reduced_numer_int } }
+
+    \ensuremath{
+      % Leading + if requested and value is positive
+      \bool_if:NT \l__printfrac_plus_bool
+        { \int_compare:nNnT { \l__symfrac_reduced_numer_int } > { 0 }
+            { + } }
+
+      \int_compare:nNnTF { \l__symfrac_reduced_denom_int } = { 1 }
+        {
+          % Denominator is 1 - no fraction needed
+          \__symfrac_typeset_numer:
+        }
+        {
+          % Proper fraction
+          \bool_if:NTF \l__printfrac_displaystyle_bool
+            { \dfrac }{ \frac }
+          { \__symfrac_typeset_numer: }
+          { \int_use:N \l__symfrac_reduced_denom_int }
+        }
+    }
+  }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Helper: \__symfrac_typeset_numer:
+%%   Typesets the numerator: coefficient (suppressing \pm 1 when symbol follows)
+%%   then the symbol. Used by \__symfrac_typeset
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\cs_new_protected:Npn \__symfrac_typeset_numer:
+  {
+    \tl_if_empty:NTF \l__symfrac_symbol_tl
+      {
+        % No symbol - just print the number
+        \int_use:N \l__symfrac_reduced_numer_int
+      }
+      {
+        % Has symbol - suppress coefficient of \pm 1
+        \int_compare:nNnF { \int_abs:n{\l__symfrac_reduced_numer_int} } = { 1 }
+          { \int_use:N \l__symfrac_reduced_numer_int }
+        \bool_if:nT {
+          \int_compare_p:n { \l__symfrac_reduced_numer_int < 0 }
+          &&
+          \int_compare_p:n { \int_abs:n{\l__symfrac_reduced_numer_int} = 1 }
+          }
+          { - }
+        \tl_use:N \l__symfrac_symbol_tl
+      }
+  }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \printNum * [keys] {<coeff>}
 % #1 - starred variant suppress leading '+' (equivalent to noplus key)
 % #2 - optional args: (default)
@@ -366,7 +454,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \printCompExpo {expo}
-% %1 optional args:
+% #1 optional args:(default)
+%     parens: (false) toggle typesetting surrounding parens
 % #2 exponent n of i^n
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -397,66 +486,73 @@
 % #4 - denominator
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\cs_new_protected:Npn \print_frac:nnnn #1 #2 #3 #4
-  {
-    \group_begin:
-      \keys_set:nn { print/frac } { #2 }
-      \bool_if:nT {#1} { \bool_set_true:N \l__printfrac_plus_bool }
-      \ensuremath{
-        \bool_if:nT { \l__printfrac_displaystyle_bool } { \displaystyle }
-        \bool_if:nT { \l__printfrac_plus_bool }
-          { \fp_compare:nNnT {#3/#4} > {0} + }
-        \xintTeXsignedFrac{ \xintPIrr{ \fpeval{#3} / \fpeval{#4} } }
-      }
-    \group_end:
-  }
-
 \NewDocumentCommand \printFrac { s O{} m m }
-  { \print_frac:nnnn {#1} {#2} {#3} {#4} }
+  {
+    \bool_if:nTF {#1}
+      { \printSymFrac* [#2] {#3} {#4} }
+      { \printSymFrac  [#2] {#3} {#4} }
+  }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \printSqrt {}
-% #1 - term to reduce
+% #1 - starred variant prints leading '+'
+% #2 - optional args: (default)
+%          d: (false) print with \displaymode
+%       plus: (false) toggle printing leading '+'
+%     symbol: {}
+% #3 - numerator
+% #4 - denominator
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\cs_new_protected:Npn \print_sqrt:nnn #1
+\NewDocumentCommand \printSqrt { s O{} m G{1} }
   {
     \group_begin:
-
-      \bool_set_true:N \l__printFuncs_printSign_bool
-      \bool_if:NT \l__printcoeff_noplus_bool
-        { \bool_set_false:N \l__printFuncs_printSign_bool }
-
-      \int_set:Nn \l__tmpa_int { \int_eval:n { #1 } }
-
-      % Detect negative and work with |n|
+      \__surd_reduce:n { \int_abs:n{#3} }
       \bool_set:Nn \l__surd_negative_bool
-        { \int_compare_p:n { \l__tmpa_int < 0 } }
-      \bool_if:NT \l__surd_negative_bool
-        { \int_set:Nn \l__tmpa_int { \int_abs:n { \l__tmpa_int } } }
-
-      \__surd_reduce:n { \l__tmpa_int }
-
-      \ensuremath{
-        \int_compare:nNnTF { \l__surd_inner_int } = { 1 }
-          {
-            % Perfect square: print k
-            \printNum [noplus] { \l__surd_outer_int }
-          }
-          {
-            % Has irrational part: print k\sqrt{m}
-            \int_compare:nNnF { \l__surd_outer_int } = { 1 }
-              { \printNum [noplus] { \l__surd_outer_int } }
-            \sqrt{ \int_use:N \l__surd_inner_int }
-          }
-          % Print i if negative
-          \bool_if:NT \l__surd_negative_bool { i }
+        { \int_compare_p:n {#3 < 0} }
+      % Build the symbol: k\sqrt{m}i
+      \tl_set:Nx \l__symfrac_symbol_tl {
+        \int_compare:nNnF { \l__surd_inner_int } = { 1 }
+          { \exp_not:N \sqrt { \int_use:N \l__surd_inner_int } }
+        \bool_if:NT \l__surd_negative_bool { i }
       }
+      \bool_set_true:N  \l__printfrac_plus_bool
+      \bool_set_false:N \l__printfrac_displaystyle_bool
+
+      \IfBooleanT {#1} { \bool_set_false:N \l__printfrac_plus_bool }
+      \keys_set:nn { print/symfrac } { #2 }
+      \int_set:Nn \l__symfrac_numer_int { \l__surd_outer_int }
+      \int_set:Nn \l__symfrac_denom_int { \int_eval:n{#4} }
+      \__symfrac_typeset:
     \group_end:
   }
 
-\NewDocumentCommand \printSqrt { m }
-  { \print_sqrt:nnn {#1} }
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \printSymFrac {}
+% #1 - starred variant prints leading '+'
+% #2 - optional args: (default)
+%       plus: (false) toggle printing leading '+'
+%          d: (false) print with \displaymode
+%     symbol: {}
+% #3 - numerator
+% #4 - denominator
+% #5 - (optional) symbol
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\NewDocumentCommand \printSymFrac { s O{} m m G{} }
+  {
+    \group_begin:
+      \bool_set_true:N  \l__printfrac_plus_bool
+      \bool_set_false:N \l__printfrac_displaystyle_bool
+      \keys_set:nn { print/symfrac } { #2 }
+
+      \IfBooleanT {#1} { \bool_set_false:N \l__printfrac_plus_bool }
+      \int_set:Nn \l__symfrac_numer_int { \int_eval:n{#3} }
+      \int_set:Nn \l__symfrac_denom_int { \int_eval:n{#4} }
+      \tl_set:Nn  \l__symfrac_symbol_tl { #5 }
+      \__symfrac_typeset:
+    \group_end:
+  }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \printPoly * [keys] {<coeff>}{<expo>}
