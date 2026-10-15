@@ -42,6 +42,7 @@
 \int_new:N   \l__symfrac_denom_int
 \int_new:N   \l__symfrac_reduced_numer_int
 \int_new:N   \l__symfrac_reduced_denom_int
+\bool_new:N  \l__symfrac_signin_bool
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Key definitions
@@ -122,13 +123,16 @@
 
 \keys_define:nn { print/symfrac }
   {
-    d      .bool_set:N  = \l__printfrac_displaystyle_bool ,
-    d      .default:n   = true ,
-    plus   .bool_set:N  = \l__printfrac_plus_bool ,
-    plus   .default:n   = true ,
-    symbol .tl_set:N    = \l__symfrac_symbol_tl ,
-    symbol .initial:n   = {} ,
-    symbol .value_required:n = true ,
+    d         .bool_set:N  = \l__printfrac_displaystyle_bool ,
+    d         .default:n   = true ,
+    plus      .bool_set:N  = \l__printfrac_plus_bool ,
+    plus      .default:n   = true ,
+    sign-in   .bool_set:N  = \l__symfrac_signin_bool,
+    sign-in   .initial:n   = false ,
+    sign-in   .default:n   = true ,
+    symbol    .tl_set:N    = \l__symfrac_symbol_tl ,
+    symbol    .initial:n   = {} ,
+    symbol    .value_required:n = true ,
   }
 
 \keys_define:nn {}
@@ -307,8 +311,16 @@
     \ensuremath{
       % Leading + if requested and value is positive
       \bool_if:NT \l__printfrac_plus_bool
-        { \int_compare:nNnT { \l__symfrac_reduced_numer_int } > { 0 }
-            { + } }
+        { \int_compare:nNnT { \l__symfrac_reduced_numer_int } > { 0 } { + } }
+
+      % Leading -
+      \bool_lazy_and:nnT
+        { !\l__symfrac_signin_bool }
+        { \int_compare_p:n { \l__symfrac_reduced_numer_int < 0} }
+        {
+          -
+          \int_set:Nn \l__symfrac_reduced_numer_int { -\l__symfrac_reduced_numer_int }
+        }
 
       \int_compare:nNnTF { \l__symfrac_reduced_denom_int } = { 1 }
         {
@@ -489,8 +501,8 @@
 \NewDocumentCommand \printFrac { s O{} m m }
   {
     \bool_if:nTF {#1}
-      { \printSymFrac* [#2] {#3} {#4} }
       { \printSymFrac  [#2] {#3} {#4} }
+      { \printSymFrac* [#2] {#3} {#4} }
   }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
